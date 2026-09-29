@@ -36,6 +36,14 @@ before stopping. There is no fallback to Shared Reward or another partial cohort
 Missing or ambiguous core maps cannot silently reduce an individual matrix cell's
 sample after the split; development voxel failures stop the run for mechanical review.
 
+If a task has zero complete participants, the inventory prints the unavailable-input
+reasons and expected FEAT layouts with directory counts. Real launches save
+`results/aggregate/feat_path_summary.tsv`; dry runs print diagnostics without writing.
+Shared Reward diagnosis also checks the canonical Linux2 `derivatives/fsl` tree for
+alternate activation layouts. These counts establish directory existence only;
+alternate layouts are never selected automatically. See
+[the missing-input investigation](docs/MISSING_SHAREDREWARD_INPUTS.md).
+
 ## What the one command runs
 
 1. Verify paths, current activation templates, saved FEAT designs, specific MNI-space

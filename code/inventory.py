@@ -39,6 +39,42 @@ def nonempty(path):
     return path.is_file() and path.stat().st_size > 0
 
 
+def summarize_feat_paths(c, subjects):
+    """Directory-only diagnostics; alternate layouts never become analysis inputs.
+
+    Limit public names to structural FEAT entities, excluding arbitrary directory
+    names that could contain participant identifiers or other private text.
+    """
+    rows = []
+    for task in CORE_TASKS:
+        spec = c.contrasts[task]
+        expected_root = c.repos[spec['repository']] / 'derivatives/fsl'
+        roots = [expected_root]
+        if task == 'sharedreward':
+            legacy_root = c.repos['linux2'] / 'derivatives/fsl'
+            if legacy_root != expected_root:
+                roots.append(legacy_root)
+        units = [('L1', 1)] if task in ['socialdoors', 'doors'] else [('L1', 1), ('L1', 2), ('L2', None)]
+        expected = {feat_dir(c, 'sub-placeholder', task, level, run).name for level, run in units}
+        pattern = re.compile(
+            rf'L[12]_task-{task}_ses-01_model-[0-9]+_type-act'
+            r'(?:_run-[12])?_sm(?:To)?-[0-9]+(?:p[0-9]+)?\.(?:feat|gfeat)')
+        for root in roots:
+            observed = Counter()
+            for subject in subjects:
+                folder = root / subject / 'ses-01'
+                if folder.is_dir():
+                    for path in folder.iterdir():
+                        if pattern.fullmatch(path.name) and path.is_dir():
+                            observed[path.name] += 1
+            for name in sorted(expected | set(observed)):
+                rows.append({'task': task, 'source_root': str(root), 'root_exists': root.is_dir(),
+                             'layout': f'sub-<ID>/ses-01/{name}',
+                             'expected_input': root == expected_root and name in expected,
+                             'directory_n': observed[name]})
+    return rows
+
+
 def header_info(path, space='unknown'):
     """Finite geometry is checkable without testing holdout voxel intensities."""
     if not nonempty(path):
@@ -230,11 +266,25 @@ def inventory(c, write=True):
     summary += [{'category': 'metadata', 'reason': flag, 'n': int(n)}
                 for flag, n in eligible.metadata_flag.value_counts().items() if flag]
     summary.append({'category': 'metadata', 'reason': 'age_missing', 'n': int(eligible.age.isna().sum())})
+    paths = summarize_feat_paths(c, table.subject)
+    if missing:
+        print('  Unavailable task inputs (participant counts):', flush=True)
+        for (task, reason), n in sorted(missing.items()):
+            print(f'    {task}: {reason}: N={n}', flush=True)
+    for task in CORE_TASKS:
+        if counts[task + '_complete'] == 0:
+            print(f'  {task}: ZERO complete participants; directory diagnostics (existence only):', flush=True)
+            for item in paths:
+                if item['task'] == task and (item['expected_input'] or item['directory_n']):
+                    kind = 'expected' if item['expected_input'] else 'alternate; NOT selected'
+                    print(f'    {kind}: {item["source_root"]}/{item["layout"]}: '
+                          f'N={item["directory_n"]}; root_exists={item["root_exists"]}', flush=True)
     if write:
         write_tsv(c, 'work/inventory/task_availability.tsv', table)
         write_tsv(c, 'work/inventory/image_headers.tsv', geometry)
         write_tsv(c, 'results/aggregate/inventory_summary.tsv', summary)
         write_tsv(c, 'results/aggregate/task_overlap.tsv', overlap)
+        write_tsv(c, 'results/aggregate/feat_path_summary.tsv', paths)
         summarize_qc(c, set(table.subject))
     print(f'  BIDS N={len(subjects)}; excluded N={counts["source_excluded"]}; multitask-complete N={len(eligible)}', flush=True)
     return table, summary

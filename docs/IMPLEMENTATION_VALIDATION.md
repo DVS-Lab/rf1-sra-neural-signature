@@ -5,7 +5,12 @@ synthetic images, metadata, source repositories, and participants.
 
 ## Results
 
-- Complete suite: **33 passed in 132.88 seconds** (`python3 -m pytest -q`).
+- Complete suite after missing-input diagnostics: **35 passed in 124.62 seconds**
+  (`python3 -m pytest -q`).
+- Directory diagnostics reproduce absent Shared Reward outputs, count known alternate
+  layouts without selecting them, exclude noncanonical/private filenames and participants,
+  and operate with the image loader disabled. Expected path literals are independent
+  of the fixture path builder. This does not validate real Linux2 derivative availability.
 - Synthetic end-to-end cohort: 70 complete participants; 50 locked and 20 development.
   The temporary fixture explicitly uses a 55-person launch minimum and 300 bootstrap
   draws for speed. The committed production defaults remain **250 complete / 200
