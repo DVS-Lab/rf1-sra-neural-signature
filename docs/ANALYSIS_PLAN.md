@@ -1,138 +1,176 @@
-# Development pilot analysis plan
+# Trans-task social-reward pilot — architecture v2
 
-## Cohort and preprocessing boundaries
+## Question and cohort
 
-Use ses-01 only. Eligibility requires canonical non-source-excluded BIDS membership,
-both Shared Reward L1 activations, complete 34-COPE L2 fixed effects, the required
-nonempty condition COPEs/masks, and valid finite geometry. Canonical source exclusion
-uses directory existence only. No new motion/behavior thresholds are introduced;
-upstream imaging QC flags are described, not converted to exclusions. Secondary
-task availability never changes primary eligibility. No raw behavior is read.
+The primary construct is social-versus-nonsocial reward/outcome processing shared
+across **Shared Reward, Trust, and Social/monetary Doors**. Each paradigm has equal
+standing as a training and test task. UGR assesses broader social valuation/context;
+it is not categorized or trained as another reward paradigm.
 
-Inspect current templates and actual saved L1 design names/weights/smoothing,
-plus actual L2 two-run fixed-effects input paths. Confirm specific MNI152NLin6Asym
-identity from the saved L1 BOLD path and matching BOLD/COPE header grid with FEAT
-registration disabled. Generic NIfTI MNI codes alone cannot identify the template
-variant. Missing geometry evidence excludes that mechanical unit; conflicting
-primary contrast definitions fail. Cross-task ambiguity excludes that task unit.
-No source image is rewritten.
+Use only ses-01 participants with complete required core activation maps in all
+five implementations: sharedreward, trust, socialdoors, doors, ugr. Inventory
+records individual availability privately and reports every nonempty combination
+of the five tasks (31 exact intersections), plus task-specific missingness. The
+intersection includes clean decision/context maps and Shared Reward run maps.
+Missing secondary paradigms no longer permit inclusion in a single-task cohort.
 
-Age comes from canonical baseline participants.tsv `age`; sex defaults to `sex`
-(both column names configurable). Shared Reward FlipAngle is resolved from applicable
-BIDS JSON inheritance for each magnitude BOLD echo and run. Missing values remain
-missing; disagreeing echoes/runs become a flagged `discrepant` category. Age,
-FlipAngle, and sex never enter the voxel classifier. Baseline metadata recovery
-belongs upstream, not in this repository.
+The explicitly chosen launch gate is **N≥250 multitask-complete**, so reserving
+exactly 50 leaves at least 200 development participants. Below that, STOP before
+split creation and report exact overlap Ns; never fall back to partial eligibility.
+The synthetic test config deliberately uses a lower gate, labeled as a fixture.
+Changing the production gate requires an explicit pre-analysis configuration
+revision; its value is recorded with the split and report.
 
-## Split and folds
+Canonical source exclusion is based solely on directory existence. No new motion,
+behavioral, or questionnaire thresholds are introduced. Non-mandatory imaging
+flags are descriptive. No private raw behavior is read. Actual completed designs
+must match current EV ordering, contrast weights, smoothing, and fixed-effects
+input contracts. A scientific contradiction in any core design stops processing.
+Specific MNI identity must be established; generic MNI NIfTI codes alone do not
+identify a template variant. Missing mechanical evidence makes that task unavailable.
 
-Select exactly 50 using StratifiedShuffleSplit, seed 20260928, trying age quintiles
-× FlipAngle, quartiles, tertiles, then FlipAngle alone. Tied ages are not broken
-with participant ordering to manufacture quantiles. Missing ages have their own
-category. No neural data enter selection. If even FlipAngle strata fail, stop.
-Five shuffled development participant folds use the same descending strata choices
-when every stratum has at least five participants; otherwise explicitly recorded
-participant KFold is used. Both maps always stay with their participant. The fold
-file and aggregate fold demographics are hashed and preserved with the split hash.
+## Locked split and folds
+
+Before any voxel access, select N=50 from the multitask-complete cohort with seed
+20260928. Try age quintile × Shared Reward FlipAngle strata, quartiles, tertiles,
+then FlipAngle alone; record all fallbacks. Never infer missing age/FlipAngle.
+Unknown and discrepant acquisition values are explicit categories. Sex is described,
+not used as a class target. These demographics never enter the neural classifier.
+
+Persist and hash membership. Reject legacy single-task split provenance, missing
+private membership, changed hashes, and cohort drift. No automatic redraw.
+Create five deterministic participant folds within development, using feasible
+age/FlipAngle strata; explicitly report participant KFold fallback when necessary.
+The **same folds govern every model, paradigm, and contrast family**. All maps and
+both class labels belonging to a participant remain together.
 
 ## Exact representations
 
-All `k` below refer to existing COPE numbers; L2 means `copek.feat/stats/cope1.nii.gz`.
+All arithmetic uses existing COPEs in memory. L2 k means `copek.feat/stats/cope1.nii.gz`.
 
-| Analysis | Positive representation | Negative representation |
+| Family / paradigm | SOCIAL (+1) | NONSOCIAL (−1) |
 | --- | --- | --- |
-| Primary Shared Reward L2 | ((4−3)+(6−5))/2 | 2−1 |
-| Social Doors L1 run 1 | socialdoors cope4 (win−loss) | doors cope4 (win−loss) |
-| Trust L2 primary | ((7−6)+(9−8))/2 | 5−4 |
-| Trust friend/computer | 7−6 | 5−4 |
-| Trust stranger/computer | 9−8 | 5−4 |
-| Trust friend/stranger | 7−6 | 9−8 |
-| Shared Reward neutral L2 | (8+9)/2 | 7 |
-| Shared Reward decision L2 | (27+28)/2 | 29 |
-| UGR offer modulation L2 | 14 | 13 |
-| UGR social constant L2 | (5+7)/2 | (1+3)/2 |
-| Shared Reward L1 reliability, each run | ((4−3)+(6−5))/2 | 2−1 |
+| Reward: Shared Reward L2 | ((4−3)+(6−5))/2 | 2−1 |
+| Reward: Trust L2 | ((7−6)+(9−8))/2 | 5−4 |
+| Reward: Social/monetary Doors | socialdoors L1 run-1 cope4 | doors L1 run-1 cope4 |
+| Secondary decision: Shared Reward L2 | (27+28)/2 | 29 |
+| Secondary decision: Trust L2 | (2+3)/2, friend/stranger choice | 1, computer choice |
+| Secondary decision: Social/monetary Doors | socialdoors L1 run-1 cope3 | doors L1 run-1 cope3 |
+| UGR offer/fairness probe L2 | 14 | 13 |
+| UGR broader social context probe L2 | (5+7)/2 | (1+3)/2 |
+| Shared Reward neutral probe L2 | (8+9)/2 | 7 |
+| Shared Reward reliability L1, each run | ((4−3)+(6−5))/2 | 2−1 |
 
-Shared Reward reward-minus-punishment is constructed within context before social
-averaging. Trust uses reciprocation-minus-defection within partner. UGR copes 13/14
-sum their two endowment-specific pmods (they are not averages); the upstream EV
-builder demeans offers within sociality × endowment × run. Generic social-context
-controls and exploratory UGR results are reported regardless of direction, without
-changing model settings. Trust decompositions are descriptive secondary results.
+Trust descriptive outcome decompositions are friend vs computer (7−6 vs 5−4),
+stranger vs computer (9−8 vs 5−4), and friend vs stranger (7−6 vs 9−8).
+UGR copes 13/14 sum endowment-specific offer pmods; upstream offers are demeaned
+within sociality × endowment × run. UGR constants cover broad epochs and are **not
+pure isolated decision contrasts**. UGR never enters reward/context training.
 
-## Mask, geometry, normalization, and model
+## Common mask, geometry, normalization
 
-Use the first sorted development L2 image as the Shared Reward reference grid.
-Each participant's coverage is the intersection of required L2 condition masks.
-Retain voxels covered by at least 95% of development participants and intersect
-with the local TemplateFlow MNI152NLin6Asym resolution-02 brain mask, resampled with
-nearest-neighbor interpolation. If that exact local mask cannot be found, use
-coverage alone and report the fallback; there is no network download or QC-target
-mask substitution. The upstream QC mask excludes cerebellum/brainstem and is not
-the whole-brain mask requested for this analysis.
+Retain the Shared Reward reference grid as a spatial convention, not a privileged
+learning target. For each development participant, intersect required FEAT masks
+across Shared Reward, Trust, socialdoors, and doors, with nearest-neighbor grid
+resampling where same-space provenance is verified. Retain voxels covered in at
+least 95% of these participant intersections. Intersect with the local whole-brain
+TemplateFlow MNI152NLin6Asym res-02 brain mask when reliably available; otherwise
+report the development multitask-coverage-only fallback. UGR masks are not used
+to select the training feature space. No holdout masks or condition values enter
+mask construction. Mask-source resampling is logged separately from statistical maps.
 
-The fixed mask uses all development participants without labels. Thus CV is
-conditional on development-wide coverage, not a claim of fully inductive mask
-estimation. Holdout masks never contribute. All primary grids must match. Verified
-same-space secondary maps may be linearly resampled to the reference grid, recorded
-per image under private diagnostics. Nonfinite primary voxels stop analysis;
-nonfinite secondary units are reported as missing. Header-only inventory cannot
-certify unread holdout intensities.
+The mask is fixed across all development models and uses no labels or performance.
+CV inference is conditional on this development-wide coverage mask. Shared Reward
+reference grids must agree; clearly same-MNI-space task maps on other grids are
+linearly resampled in analysis copies with each operation logged. No source writes.
+Header inspection establishes finite geometry and nonempty files, not finite unread
+holdout voxels. A nonfinite/inaccessible required development map stops the revised
+pipeline rather than silently producing different cell-specific cohorts after locking.
 
-Vectorize in NumPy C-order under the saved boolean mask. Construct representations,
-then subtract each representation's mean across mask voxels. No unit norm, pooled
-z-scoring, feature selection, PCA, or hyperparameter search. Save image norms.
+Construct each representation, vectorize under the same boolean mask in C-order,
+and subtract that map's spatial mean. No unit norm, global z-scoring, task scaling,
+PCA, supervised feature selection, or performance-driven preprocessing. Save norms.
+All task/participant pairs have equal sample weight; residual norm differences may
+influence pooled fitting and are reported rather than tuned away.
+
+## Model and evaluation architecture
+
 Use LinearSVC(C=1, dual=True, class_weight=None, max_iter=100000, tol=0.0001,
-random_state=20260928). SOCIAL=+1, COMPUTER=−1. Nonconvergence raises an error;
-there is no silently accepted unconverged model.
+random_state=20260928). Nonconvergence stops the run. No hyperparameter search or
+algorithm comparison. SOCIAL=+1 and NONSOCIAL=−1 in both families.
 
-Train five fold models. Score every participant's primary, secondary, specificity,
-and run-level maps only with the model for the fold holding that participant out.
-The intercept cancels in positive-minus-negative margins. After all predictions
-are saved, fit one final model on all development participants and save weights,
-intercept, software versions, class orientation, repository SHAs, mask/split hashes,
-and preprocessing. The final model is not used to score any RF1 participant here.
+For each of the five participant folds:
 
-## Statistics and interpretation
+1. **Task-specific reward models / 3×3 matrix:** train one model on each reward
+   paradigm using training participants only; apply it to all three paradigms in
+   the held-out participants. Diagonal cells test unseen participants within task;
+   off-diagonal cells test unseen participants and unseen paradigms.
+2. **Primary leave-one-paradigm-out tests:** for each reward paradigm B, train on
+   the other two paradigms A/C using only training participants. Score B only in
+   held-out participants. Explicit guards reject both participant overlap and B's
+   presence in the model's training-task metadata. Three prespecified tests are
+   reported separately; do not treat the three margins per participant as independent.
+3. **Common reward model:** train on all three reward paradigms in training
+   participants. Score held-out participants' reward maps, UGR pmod/constants,
+   Shared Reward neutral maps, Trust outcome decompositions, both Shared Reward
+   runs, and all three decision/context maps. Its within-paradigm tests assess
+   unseen people; they are not presented as unseen-paradigm validation.
+4. **Secondary decision/context family:** fit each task-specific context model and
+   the complete 3×3 matrix, using the same participant folds. Fit a common context
+   model on all three clean context paradigms and apply it to held-out context,
+   reward, UGR, and neutral maps. Reward→context and context→reward applications
+   are therefore participant-independent in both directions.
 
-Forced choice is margin > 0; exact zero is counted as incorrect and reported as a
-tie. Report N, correct N, accuracy, two-sided Clopper–Pearson 95% interval, two-sided
-exact binomial p versus .50, mean/median margin, and the percentile 95% interval of
-10,000 participant bootstrap means (seed 20260928). No task-driven model revision
-or best-algorithm selection. P values are unadjusted pilot summaries, not confirmatory
-familywise claims. Overlapping CV training sets mean simple binomial/bootstrap
-intervals describe participant predictions conditional on this development procedure;
-they do not capture full training-set or model-selection uncertainty.
+After all CV predictions are written, fit final common and task-specific models
+on all development participants for both families. The final common reward model
+receives six maps per participant (three social/nonsocial pairs), equally weighted.
+Save final weights, fold weights, intercepts, training-task metadata, runtime
+versions, source SHAs, mask/split hashes, and iteration counts. No final model
+is applied to the holdout or used for development performance estimates.
 
-Reliability correlates out-of-fold run-1/run-2 margins: Pearson r, Spearman rho,
-and ICC(3,1) = (MS_subject−MS_error)/(MS_subject+(k−1)MS_error), k=2.
-This is two-way mixed **consistency**, single measurement; it intentionally ignores
-systematic run offsets. Constant vectors yield undefined correlations/ICC. Also
-report both run accuracies and an unlabelled scatterplot. Fold coefficients are
-compared by spatial Pearson correlation under the same mask; overlapping training
-samples can increase similarity. Coefficients are not activation/localization maps.
+## Statistics and comparison
 
-## Future external adapter interface
+Each reported cell has one paired margin per participant, score(social) minus
+score(nonsocial); the intercept cancels. Forced choice is margin>0. Report N,
+correct N, ties (counted incorrect), accuracy, two-sided Clopper–Pearson 95% CI,
+two-sided exact binomial p against .50, mean/median margin, and the percentile
+95% CI from 10,000 participant bootstrap means (seed 20260928). Never pool rows
+across paradigms as independent people. The three LOPO tests are prespecified
+primary pilot tests; p values are unadjusted, not a confirmatory multiplicity claim.
+Overlapping training sets mean these intervals do not capture full model-fitting
+uncertainty. No task result changes the analysis specification.
 
-No external dataset or holdout scoring is implemented. A future reviewed adapter
-should yield records containing `participant_id`, `positive_map`, `negative_map`,
-optional `run`, and `reference_grid` (explicit MNI template identity, shape, affine,
-and units). Verify identity before any resampling and reject unknown coordinate
-systems. Supply an explicit permitted cohort at every data boundary.
+Report common reward-model OOF Shared Reward run-margin Pearson r, Spearman rho,
+ICC(3,1), both run accuracies, and an unlabelled scatter. ICC(3,1) is two-way mixed,
+consistency, single measurement: (MS_subject−MS_error)/(MS_subject+(k−1)MS_error),
+k=2. Constant vectors yield undefined coefficients. It is not absolute-agreement ICC.
 
-The reusable numerical primitives are `build_mask.spatial_center(data, mask)`,
-`build_mask.reconstruct(vector, mask)`, `signature_pilot.center_pair(pair)`,
-and `reporting.performance(margins, analysis, seed, bootstrap_samples)`.
-`signature_pilot.score_pair(pair, subject, model, guard, development_subjects,
-analysis)` implements centered linear decision scoring, forced choice, and the
-OOF identity check; its current guard deliberately permits only development.
-An external adapter will require a separate explicit authorization/cohort guard
-and a frozen model loader using `provenance/model.json` and the saved weights;
-it must not bypass or loosen the RF1 holdout guard. The same centering, dot product
-plus saved intercept, margin rule, and reporting functions then apply. External
-scanner/sample differences belong in that future protocol, not this pilot.
+Compute all task/common reward/context map correlations separately for each CV
+fold and for final development maps. Report each model's 5×5 fold stability matrix
+and off-diagonal mean/min/max. Weight correlations are descriptive, affected by
+shared training data and correlated features; they are not psychological localization
+or proof of construct identity. Bidirectional cross-family decoding adds evidence
+about common versus distinct information but cannot alone prove a selective mechanism.
 
-Software API references: [LinearSVC](https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html)
-for the explicit classifier settings and [SciPy binomtest](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binomtest.html)
-for the exact binomial test and proportion interval. Runtime versions are recorded
-with each final model; these documentation links do not replace version provenance.
+Reports explicitly address: within-task decoding; all cross-task transfers;
+unseen-paradigm LOPO performance; task weight similarity; UGR common-model transfer;
+and reward/context similarity versus dissociation. Strong UGR transfer is consistent
+with broader social-value information. Weak UGR transfer with successful reward
+decoding is consistent with greater reward/outcome specificity, subject to power,
+reliability, and measurement differences. Neither outcome prompts tuning.
+
+## Future external adapter
+
+A future reviewed adapter supplies participant ID, positive/negative maps, optional
+run, and explicit template/grid metadata. It can reuse `spatial_center`,
+`reconstruct`, `center_pair`, guarded `score_pair`, and `reporting.performance`.
+The current guard permits only locked development participants. External validation
+requires a separately authorized cohort guard and a frozen-model loader using the
+saved common reward weight map and its intercept in `provenance/model.json`.
+Do not loosen the RF1 holdout guard. The future internal validation can evaluate
+all three reward paradigms and UGR in the same 50 unseen participants after freeze
+and a specified, ideally preregistered confirmatory protocol.
+
+API references: [LinearSVC](https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html)
+and [SciPy binomtest](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binomtest.html).
+Runtime versions are recorded rather than inferred from online documentation.

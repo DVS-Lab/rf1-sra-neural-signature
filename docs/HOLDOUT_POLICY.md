@@ -1,35 +1,37 @@
-# Internal holdout policy
+# Internal multitask holdout policy — v2
 
-The N=50 holdout is independent internal validation, not a development fold.
-It is selected from mechanically eligible ses-01 Shared Reward participants,
-before any voxel-level modeling, using seed 20260928. Age quantile × FlipAngle
-stratification tries quintiles, quartiles, tertiles, then FlipAngle alone. Every
-fallback is recorded. Unknown metadata are explicit categories, never imputed;
-unusable strata cause a clear failure rather than an unannounced random split.
+Exactly N=50 participants form the **internal multitask validation set**. They
+must have complete required ses-01 Shared Reward, Trust, socialdoors, monetary
+doors, and UGR activation maps. Selection from Shared Reward alone is prohibited.
+The complete intersection must contain at least 250 participants before selection,
+leaving at least 200 for development. Otherwise stop and report exact overlap Ns.
 
-Only file existence, geometry headers, BIDS/acquisition metadata, age, and sex are
-inspected for inventory and balance. Holdout voxel arrays, mask values, pattern
-expression, predictions, and accuracy are not accessed. Inventory is header-only
-for everyone, even before membership exists. Finite geometry is not a claim that
-unread voxel values are finite. Development voxel validity is checked after the
-split; primary nonfinite data stop the run without redrawing the holdout.
+Selection precedes any voxel-level modeling and uses seed 20260928, age quantile
+× Shared Reward FlipAngle stratification, and explicitly recorded sparse-stratum
+fallbacks. No neural, behavioral, or phenotype outcome balances the split.
+File existence, geometry headers, BIDS/acquisition metadata, age, and available sex
+may be inspected for inventory and description. Holdout voxel arrays, masks,
+pattern expression, performance, and model selection remain inaccessible.
 
-`work/splits/subject_split_v1.tsv` is private and must be securely backed up.
-`provenance/subject_split_v1.json` records seed, exact method, aggregate balance,
-and its SHA256. Existing membership is reused. Lost membership, hash mismatch,
-or cohort drift stop processing. The explicit `--regenerate-split` override
-archives old membership locally and warns prominently. Redrawing after development
-has started can invalidate the claimed independence; the option is an operational
-escape hatch, not scientific permission to redraw.
+Persist `work/splits/subject_split_v1.tsv` locally and back it up securely with
+`provenance/subject_split_v1.json`. The filename is retained for infrastructure
+compatibility, but the JSON must specify `cohort_definition: multitask_complete_v2`.
+A legacy single-task split is not silently reused, even when membership matches.
+A missing TSV, checksum mismatch, or changed eligible cohort stops execution.
+`--regenerate-split` is an explicit dangerous override that archives prior membership
+and metadata and warns prominently. Redrawing cannot erase prior neural exposure;
+it is not permission to choose a more favorable cohort or result.
 
-Every participant-data loading, fitting, and scoring entry point requires an
-explicit development list and a guard derived from the locked partition. The
-loader checks the subject before even opening the image; scoring additionally
-rejects any participant who trained that fold model. There is no command or API
-for applying the final model to holdout participants in this version.
+All loading/fitting/scoring boundaries require an explicit development list and
+its locked-partition guard. Multitask fitting records the union of all participants
+in every training paradigm. OOF scoring rejects anyone in that union; LOPO also
+rejects any supposedly held-out paradigm in the model's training tasks. These
+rules apply to reward, secondary context, UGR, reliability, and every cross-family
+application. No holdout-scoring command is implemented.
 
-After development methods and the signature have been frozen, ideally with a
-preregistered confirmatory analysis, a separately reviewed implementation can
-evaluate the holdout once. Only after that independent validation may a final
-distributable model optionally be refit on all eligible RF1 participants. Such a
-refit must not be presented as the independently validated development model.
+After development is frozen and the confirmatory protocol specified, ideally
+preregistered, a separately reviewed implementation may evaluate the common reward
+signature across all three reward paradigms and UGR in these same 50 people once.
+Only after that independent validation may an optional final distributable model
+be refit on all eligible RF1 participants; it is distinct from the validated
+frozen development model.

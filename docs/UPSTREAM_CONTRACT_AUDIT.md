@@ -45,3 +45,12 @@ Linux2 validation still must establish that completed FEAT outputs and saved
 design evidence are present at these paths, the original MNI BOLD header paths
 remain readable, and the canonical metadata/exclusion directory are accessible.
 The dry run inventories those contracts without loading voxels or creating a split.
+
+## Trans-task architecture revision
+
+The same checked-out current templates were re-inspected for clean decision/context
+contrasts: Trust cope1=`c_C`, cope2=`c_F`, cope3=`c_S` (EVs 1, 2, 3 respectively),
+and separate socialdoors/doors cope3=`decision` (EV3). Shared Reward decision
+copes remain 27/28/29 (EVs 12/13/14). Their labels, EV titles, and nonzero vectors
+are now included in runtime contract validation. UGR constants remain broad epochs
+and are not promoted to isolated decision contrasts. No source template changed.
