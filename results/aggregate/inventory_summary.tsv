@@ -1,0 +1,18 @@
+category	reason	n
+total_bids_participants		354
+source_excluded		2
+sharedreward_complete		0
+trust_complete		292
+socialdoors_complete		336
+doors_complete		336
+ugr_complete		316
+multitask_complete		0
+doors	L1_1:missing_feat_directory	16
+sharedreward	L1_1:missing_feat_directory	352
+sharedreward	L1_2:missing_feat_directory	352
+sharedreward	L2_0:missing_feat_directory	352
+socialdoors	L1_1:missing_feat_directory	16
+trust	L2_0:incomplete_feat	12
+trust	L2_0:missing_feat_directory	48
+ugr	L2_0:missing_feat_directory	36
+metadata	age_missing	0

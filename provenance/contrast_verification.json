@@ -1,0 +1,27 @@
+[
+  {
+    "task": "sharedreward",
+    "template": "templates/L1_task-sharedreward_model-1_type-act.fsf",
+    "sha256": "d91632996babdcb523f3eaf1fdad5a4eeee57d5acc539f881e65c54fbb66ef01"
+  },
+  {
+    "task": "trust",
+    "template": "templates/L1_task-trust_model-1_type-act.fsf",
+    "sha256": "e9d469890e6fd53acef7b788badde09c53ebfac1a5a7a1bda94b34faf94c121f"
+  },
+  {
+    "task": "socialdoors",
+    "template": "templates/L1_task-socialdoors_model-1_type-act.fsf",
+    "sha256": "d5bdba975637e1e70cd1b2157f538522ef9691ddab8a06d64e54a8019e4029df"
+  },
+  {
+    "task": "doors",
+    "template": "templates/L1_task-doors_model-1_type-act.fsf",
+    "sha256": "9eac48e657922635af4fd1941d2259319989f821e154b4294ed67c957e2aa3b7"
+  },
+  {
+    "task": "ugr",
+    "template": "templates/L1_task-ugr_model-3_type-act.fsf",
+    "sha256": "8e4684bd316d57d68741114ab58ad5936ec08342568ffd1fbe40688f4364c1bc"
+  }
+]
