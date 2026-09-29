@@ -216,3 +216,21 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# RF1 neural-signature private/local products
+/work/
+/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+*.log
+*.joblib
+*.npy
+*.npz
+*participants*.tsv
+*subject_split*.tsv
+*development_folds*.tsv
+*predictions*.tsv
+*availability*.tsv
+*image_metrics*.tsv

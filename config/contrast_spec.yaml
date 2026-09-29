@@ -1,0 +1,183 @@
+sharedreward:
+  repository: sharedreward
+  model: 1
+  n_copes: 34
+  template: templates/L1_task-sharedreward_model-1_type-act.fsf
+  smoothing: '0'
+  suffix: smTo-6
+  copes:
+    1:
+      name: C_pun
+      weights:
+        1: 1.0
+    2:
+      name: C_rew
+      weights:
+        2: 1.0
+    3:
+      name: F_pun
+      weights:
+        3: 1.0
+    4:
+      name: F_rew
+      weights:
+        4: 1.0
+    5:
+      name: S_pun
+      weights:
+        5: 1.0
+    6:
+      name: S_rew
+      weights:
+        6: 1.0
+    7:
+      name: C_neu
+      weights:
+        7: 1.0
+    8:
+      name: F_neu
+      weights:
+        8: 1.0
+    9:
+      name: S_neu
+      weights:
+        9: 1.0
+    27:
+      name: F_dec
+      weights:
+        12: 1.0
+    28:
+      name: S_dec
+      weights:
+        13: 1.0
+    29:
+      name: C_dec
+      weights:
+        14: 1.0
+  ev_titles:
+    1: C_pun
+    2: C_rew
+    3: F_pun
+    4: F_rew
+    5: S_pun
+    6: S_rew
+    7: C_neu
+    8: F_neu
+    9: S_neu
+    12: F_dec
+    13: S_dec
+    14: C_dec
+trust:
+  repository: trust
+  model: 1
+  n_copes: 18
+  template: templates/L1_task-trust_model-1_type-act.fsf
+  smoothing: SMOOTH
+  suffix: sm-5
+  copes:
+    4:
+      name: C_def
+      weights:
+        4: 1.0
+    5:
+      name: C_rec
+      weights:
+        5: 1.0
+    6:
+      name: F_def
+      weights:
+        6: 1.0
+    7:
+      name: F_rec
+      weights:
+        7: 1.0
+    8:
+      name: S_def
+      weights:
+        8: 1.0
+    9:
+      name: S_rec
+      weights:
+        9: 1.0
+  ev_titles:
+    4: C_def
+    5: C_rec
+    6: F_def
+    7: F_rec
+    8: S_def
+    9: S_rec
+socialdoors:
+  repository: socdoors
+  model: 1
+  n_copes: 4
+  template: templates/L1_task-socialdoors_model-1_type-act.fsf
+  smoothing: '5'
+  suffix: sm-5
+  copes:
+    4:
+      name: win-loss
+      weights:
+        1: 1.0
+        2: -1.0
+  ev_titles:
+    1: win
+    2: loss
+doors:
+  repository: socdoors
+  model: 1
+  n_copes: 4
+  template: templates/L1_task-doors_model-1_type-act.fsf
+  smoothing: '5'
+  suffix: sm-5
+  copes:
+    4:
+      name: win-loss
+      weights:
+        1: 1.0
+        2: -1.0
+  ev_titles:
+    1: win
+    2: loss
+ugr:
+  repository: ugr
+  model: 3
+  n_copes: 17
+  template: templates/L1_task-ugr_model-3_type-act.fsf
+  smoothing: '5'
+  suffix: sm-5
+  copes:
+    1:
+      name: nonsocial_high_constant
+      weights:
+        1: 1.0
+    3:
+      name: nonsocial_low_constant
+      weights:
+        3: 1.0
+    5:
+      name: social_high_constant
+      weights:
+        5: 1.0
+    7:
+      name: social_low_constant
+      weights:
+        7: 1.0
+    13:
+      name: nonsocial (pmod)
+      weights:
+        2: 1.0
+        4: 1.0
+    14:
+      name: social (pmod)
+      weights:
+        6: 1.0
+        8: 1.0
+  ev_titles:
+    1: nonsocial_high_constant
+    2: nonsocial_high_pmod
+    3: nonsocial_low_constant
+    4: nonsocial_low_pmod
+    5: social_high_constant
+    6: social_high_pmod
+    7: social_low_constant
+    8: social_low_pmod
