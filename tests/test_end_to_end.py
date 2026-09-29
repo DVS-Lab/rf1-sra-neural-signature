@@ -26,7 +26,13 @@ def test_full_pilot_dry_run_no_writes_and_locked_holdout(cohort, monkeypatch):
     before = source_digest(c)
     before_files = {str(p) for p in c.root.rglob('*') if p.is_file()}
     run(c, dry_run=True)
-    assert before_files == {str(p) for p in c.root.rglob('*') if p.is_file()}
+    import shutil
+    source = Path(__file__).resolve().parents[1] / 'code'
+    shutil.copytree(source, c.root/'code', ignore=shutil.ignore_patterns('__pycache__'))
+    cli = subprocess.run(['bash', str(c.root/'code/run_pilot.sh'), '--dry-run'], text=True, capture_output=True, env={**os.environ, 'PYTHON': sys.executable})
+    assert cli.returncode == 0, cli.stderr
+    assert 'DRY RUN PASSED' in cli.stdout
+    assert before_files == {str(p) for p in c.root.rglob('*') if p.is_file() and not p.is_relative_to(c.root/'code')}
     assert not c.output('work/splits/subject_split_v1.tsv').exists()
     split = make_split(c, frame)
     holdout = set(split[split.split == 'holdout'].subject)
@@ -44,8 +50,10 @@ def test_full_pilot_dry_run_no_writes_and_locked_holdout(cohort, monkeypatch):
     assert before == source_digest(c)
     assert reads
     perf = pd.read_csv(c.output('results/aggregate/performance_summary.tsv'), sep='\t')
-    assert int(perf.loc[perf.analysis == 'primary', 'n'].iloc[0]) == 20
-    assert perf.set_index('analysis').loc['socialdoors','n'] > 0
+    assert perf.n.eq(20).all()
+    assert len(perf[perf.model_scope == 'pairwise']) == 18
+    assert len(perf[perf.model_scope == 'lopo']) == 3
+    assert len(perf[perf.model_scope == 'cross_family']) == 6
     for path in list((c.root/'results').rglob('*.tsv')) + list((c.root/'reports').glob('*.md')) + list((c.root/'provenance').rglob('*.json')):
         assert not any(s in path.read_text() for s in frame.subject), path
     for name in ['cv_predictions.tsv', 'cross_task_predictions.tsv']:
@@ -53,8 +61,16 @@ def test_full_pilot_dry_run_no_writes_and_locked_holdout(cohort, monkeypatch):
         assert not set(predictions.subject) & holdout
     assert json.loads(c.output('provenance/model.json').read_text())['holdout_scored'] is False
     assert json.loads(c.output('provenance/run_status.json').read_text())['status'] == 'complete'
-    assert len(list((c.root/'results/maps').glob('*.nii.gz'))) == 7
-    assert len(list((c.root/'results/figures').glob('*.png'))) == 5
+    assert len(list((c.root/'results/maps').glob('*.nii.gz'))) == 64
+    assert len(list((c.root/'results/figures').glob('*.png'))) == 9
+    audit = pd.read_csv(c.output('work/diagnostics/model_membership.tsv'), sep='\t')
+    for (_, fold), group in audit.groupby(['model', 'fold']):
+        assert not set(group[group.role == 'train'].subject) & set(group[group.role == 'test'].subject)
+    models = json.loads(c.output('provenance/model.json').read_text())['models']
+    assert all('ugr' not in model['training_tasks'] for model in models)
+    for model in models:
+        if 'lopo-' in model['model']:
+            assert model['model'].split('lopo-')[1] not in model['training_tasks']
 
 
 def test_shell_launcher_dry_run(cfg):
@@ -68,6 +84,7 @@ def test_shell_launcher_dry_run(cfg):
     shutil.copytree(source, c.root/'code', ignore=shutil.ignore_patterns('__pycache__'))
     result = subprocess.run(['bash', str(c.root/'code/run_pilot.sh'), '--dry-run'], text=True, capture_output=True,
                             env={**os.environ, 'PYTHON': sys.executable})
-    assert result.returncode == 0, result.stderr
-    assert 'DRY RUN PASSED' in result.stdout
+    assert result.returncode == 1
+    assert 'STOP before split' in result.stderr
+    assert 'Exact task intersections' in result.stdout
     assert not c.output('work/splits/subject_split_v1.tsv').exists()

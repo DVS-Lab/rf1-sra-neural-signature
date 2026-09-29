@@ -9,14 +9,18 @@ from utils import PipelineError
 def test_contrast_arithmetic():
     maps = {i: np.array([float(i*i)]) for i in range(1, 35)}
     sr = representations('sharedreward', maps)
-    assert sr['primary'][0] == 9  # ((16-9)+(36-25))/2
-    assert sr['primary'][1] == 3
+    assert sr['reward'][0] == 9  # ((16-9)+(36-25))/2
+    assert sr['reward'][1] == 3
     assert sr['neutral'][0] == 72.5
     assert sr['decision'][0] == 756.5
     trust = representations('trust', maps)
-    assert trust['trust'][0] == 15
-    assert trust['trust'][1] == 9
-    assert trust['trust_friend_stranger'][0] == 13
+    assert trust['reward'][0] == 15
+    assert trust['reward'][1] == 9
+    assert trust['friend_stranger'][0] == 13
+    assert trust['decision'][0] == 6.5 and trust['decision'][1] == 1
+    from signature_pilot import doors_representations
+    doors = doors_representations({3: 8, 4: 10}, {3: 2, 4: 7})
+    assert doors == {'reward': (10, 7), 'decision': (8, 2)}
     ugr = representations('ugr', maps)
     assert ugr['ugr_pmod'][0] == 196 and ugr['ugr_pmod'][1] == 169
     assert ugr['ugr_constant'][0] == 37 and ugr['ugr_constant'][1] == 5

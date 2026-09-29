@@ -72,8 +72,11 @@ def test_fixed_95_percent_mask_and_template_fallback(cfg):
         data = np.ones((3,3,3))
         if i == 0: data[0,0,0] = 0  # 19/20: retained
         if i < 2: data[0,0,1] = 0  # 18/20: removed
-        for k in cfg.contrasts['sharedreward']['copes']:
-            save_nii(feat_dir(cfg, subject, 'sharedreward') / f'cope{k}.feat/mask.nii.gz', data)
+        for task in ['sharedreward', 'trust']:
+            for k in cfg.contrasts[task]['copes']:
+                save_nii(feat_dir(cfg, subject, task) / f'cope{k}.feat/mask.nii.gz', data)
+        for task in ['socialdoors', 'doors']:
+            save_nii(feat_dir(cfg, subject, task, 'L1', 1) / 'mask.nii.gz', data)
     save_nii(cope_path(cfg, subjects[0], 'sharedreward', 1), np.ones((3,3,3)))
     mask, reference = build_mask(cfg, guard, subjects)
     assert mask[0,0,0] and not mask[0,0,1]

@@ -26,6 +26,11 @@ def cfg(tmp_path, monkeypatch):
     for key in ['PROJECTS_ROOT', 'BIDS_ROOT', 'FMRIPREP_ROOT', 'SOURCEDATA_EXCLUSIONS_ROOT', 'TEMPLATEFLOW_HOME']:
         monkeypatch.delenv(key, raising=False)
     for key in paths['repositories']: monkeypatch.delenv('RF1_'+key.upper()+'_ROOT', raising=False)
+    analysis_path = root / 'config/analysis.yaml'
+    analysis = yaml.safe_load(analysis_path.read_text())
+    analysis['minimum_multitask_n'] = 55  # Explicit synthetic-only small fixture, never production default.
+    analysis['bootstrap_samples'] = 300
+    analysis_path.write_text(yaml.safe_dump(analysis))
     c = load_config(root=root)
     for repo in [root, *c.repos.values()]:
         repo.mkdir(parents=True, exist_ok=True)
@@ -129,12 +134,13 @@ def make_subject(c, subject, secondary=True, index=0):
 def metadata(n=100):
     return pd.DataFrame({'subject': [f'sub-fixture{i:03}' for i in range(n)],
                          'age': np.linspace(20, 85, n), 'sex': ['F' if i%2 else 'M' for i in range(n)],
-                         'flip_angle': ['20' if i%2 else '50' for i in range(n)]})
+                         'flip_angle': ['20' if i%2 else '50' for i in range(n)],
+                         **{task: [True]*n for task in ['sharedreward','trust','socialdoors','doors','ugr']}})
 
 
 @pytest.fixture
 def cohort(cfg):
     data = metadata(70)
-    for i, row in data.iterrows(): make_subject(cfg, row.subject, secondary=(i % 3 != 0), index=i)
+    for i, row in data.iterrows(): make_subject(cfg, row.subject, secondary=True, index=i)
     data.rename(columns={'subject': 'participant_id'}).to_csv(cfg.bids / 'participants.tsv', sep='\t', index=False)
     return cfg, data

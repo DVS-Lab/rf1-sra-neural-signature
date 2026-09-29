@@ -47,3 +47,27 @@ def test_infeasible_holdout_fails(cfg):
     frame = metadata()
     frame['flip_angle'] = [str(i) for i in range(len(frame))]
     with pytest.raises(PipelineError, match='infeasible'): make_split(cfg, frame)
+
+
+def test_multitask_minimum_stops_before_any_split(cfg):
+    cfg.analysis['minimum_multitask_n'] = 250
+    with pytest.raises(PipelineError, match='STOP before split'):
+        make_split(cfg, metadata(249))
+    assert not cfg.output('work/splits/subject_split_v1.tsv').exists()
+    split = make_split(cfg, metadata(250))
+    assert (split.split == 'development').sum() == 200
+
+
+def test_no_single_task_fallback_or_legacy_reuse(cfg):
+    data = metadata()
+    data.loc[0, 'ugr'] = False
+    with pytest.raises(PipelineError, match='all five'):
+        make_split(cfg, data)
+    data.loc[0, 'ugr'] = True
+    make_split(cfg, data)
+    path = cfg.output('provenance/subject_split_v1.json')
+    meta = json.loads(path.read_text())
+    meta.pop('cohort_definition')
+    path.write_text(json.dumps(meta))
+    with pytest.raises(PipelineError, match='Legacy single-task'):
+        make_split(cfg, data)

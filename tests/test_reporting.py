@@ -27,4 +27,4 @@ def test_icc31_known_values_and_additive_run_offset():
 
 
 def test_prediction_schema():
-    assert PREDICTION_COLUMNS == ['subject','fold','analysis','positive_score','negative_score','paired_margin','correct']
+    assert PREDICTION_COLUMNS == ['subject','fold','analysis','train_family','train_tasks','test_family','test_task','model_scope','positive_score','negative_score','paired_margin','correct']
