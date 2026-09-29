@@ -12,6 +12,10 @@ import numpy as np
 import pandas as pd
 import yaml
 
+CORE_TASKS = ('sharedreward', 'trust', 'socialdoors', 'doors', 'ugr')
+REWARD_TASKS = ('sharedreward', 'trust', 'socialdoors')
+COHORT_DEFINITION = 'multitask_complete_v2'
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -87,6 +91,10 @@ def load_config(config_dir=None, root=None):
                 'space': 'MNI152NLin6Asym', 'normalization': 'spatial_mean_center', 'coverage': .95}
     if any(analysis.get(k) != v for k, v in required.items()):
         raise PipelineError('Primary analysis settings differ from the frozen pilot contract')
+    if analysis.get('version') != 2 or analysis.get('cohort_definition') != COHORT_DEFINITION:
+        raise PipelineError('Only the revised multitask architecture is supported')
+    if not isinstance(analysis.get('minimum_multitask_n'), int) or analysis['minimum_multitask_n'] < 55:
+        raise PipelineError('Set an explicit minimum multitask cohort of at least 55')
     svm = analysis['classifier']
     if (svm['C'] != 1.0 or svm['dual'] is not True or svm['class_weight'] is not None
             or svm['max_iter'] < 10000):

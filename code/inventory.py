@@ -1,5 +1,6 @@
 """Header-only inventory: never materialize voxels, even before holdout selection."""
 from collections import Counter
+from itertools import combinations
 import json
 from pathlib import Path
 import re
@@ -8,7 +9,7 @@ import nibabel as nib
 import numpy as np
 import pandas as pd
 from preflight import parse_fsf, verify_l1, verify_design_con, verify_l2
-from utils import PipelineError, subject_id, write_tsv
+from utils import CORE_TASKS, PipelineError, subject_id, write_tsv
 
 
 class InputUnavailable(PipelineError):
@@ -204,23 +205,26 @@ def inventory(c, write=True):
                 try: geometry.extend(inspect_unit(c, subject, task, level, run))
                 except InputUnavailable as exc: reasons.append(f'{level}_{run or 0}:{exc}')
                 except PipelineError:
-                    if task == 'sharedreward':
-                        raise PipelineError('Primary completed design contradicts the scientific contract; inspect local FEAT designs')
-                    reasons.append('scientific_contract_mismatch')
+                    raise PipelineError(f'Core {task} completed design contradicts the scientific contract; inspect local FEAT designs')
             if not row['ses01']: reasons.append('missing_ses01')
             row[task] = not reasons
             row[task + '_reason'] = ';'.join(sorted(set(reasons)))
             for reason in set(reasons): missing[(task, reason)] += 1
-        row['eligible'] = row['sharedreward']
+        row['eligible'] = all(row[task] for task in CORE_TASKS)
         rows.append(row)
     table = pd.DataFrame(rows)
     if table.empty: raise PipelineError('No non-source-excluded BIDS participants')
     eligible = table[table.eligible]
-    counts['sharedreward_eligible'] = len(eligible)
-    counts['sharedreward_socialdoors_pair'] = int((eligible.socialdoors & eligible.doors).sum())
-    counts['sharedreward_trust'] = int(eligible.trust.sum())
-    counts['sharedreward_ugr'] = int(eligible.ugr.sum())
-    counts['complete_all_four'] = int((eligible.socialdoors & eligible.doors & eligible.trust & eligible.ugr).sum())
+    for task in CORE_TASKS:
+        counts[task + '_complete'] = int(table[task].sum())
+    counts['multitask_complete'] = len(eligible)
+    overlap = []
+    for size in range(1, len(CORE_TASKS) + 1):
+        for tasks in combinations(CORE_TASKS, size):
+            overlap.append({'tasks': '+'.join(tasks), 'n': int(table[list(tasks)].all(axis=1).sum())})
+    print('  Exact task intersections:', flush=True)
+    for item in overlap:
+        print(f"    {item['tasks']}: N={item['n']}", flush=True)
     summary = [{'category': k, 'reason': '', 'n': v} for k, v in counts.items()]
     summary += [{'category': task, 'reason': reason, 'n': n} for (task, reason), n in sorted(missing.items())]
     summary += [{'category': 'metadata', 'reason': flag, 'n': int(n)}
@@ -230,8 +234,9 @@ def inventory(c, write=True):
         write_tsv(c, 'work/inventory/task_availability.tsv', table)
         write_tsv(c, 'work/inventory/image_headers.tsv', geometry)
         write_tsv(c, 'results/aggregate/inventory_summary.tsv', summary)
+        write_tsv(c, 'results/aggregate/task_overlap.tsv', overlap)
         summarize_qc(c, set(table.subject))
-    print(f'  BIDS N={len(subjects)}; excluded N={counts["source_excluded"]}; eligible N={len(eligible)}', flush=True)
+    print(f'  BIDS N={len(subjects)}; excluded N={counts["source_excluded"]}; multitask-complete N={len(eligible)}', flush=True)
     return table, summary
 
 

@@ -99,6 +99,18 @@ trust:
       name: S_rec
       weights:
         9: 1.0
+    1:
+      name: c_C
+      weights:
+        1: 1.0
+    2:
+      name: c_F
+      weights:
+        2: 1.0
+    3:
+      name: c_S
+      weights:
+        3: 1.0
   ev_titles:
     4: C_def
     5: C_rec
@@ -106,6 +118,9 @@ trust:
     7: F_rec
     8: S_def
     9: S_rec
+    1: c_C
+    2: c_F
+    3: c_S
 socialdoors:
   repository: socdoors
   model: 1
@@ -119,9 +134,14 @@ socialdoors:
       weights:
         1: 1.0
         2: -1.0
+    3:
+      name: decision
+      weights:
+        3: 1.0
   ev_titles:
     1: win
     2: loss
+    3: decision
 doors:
   repository: socdoors
   model: 1
@@ -135,9 +155,14 @@ doors:
       weights:
         1: 1.0
         2: -1.0
+    3:
+      name: decision
+      weights:
+        3: 1.0
   ev_titles:
     1: win
     2: loss
+    3: decision
 ugr:
   repository: ugr
   model: 3

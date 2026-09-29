@@ -1,4 +1,4 @@
-version: 1
+version: 2
 session: '01'
 seed: 20260928
 holdout_n: 50
@@ -13,3 +13,5 @@ classifier:
   max_iter: 100000
   tol: 0.0001
 bootstrap_samples: 10000
+cohort_definition: multitask_complete_v2
+minimum_multitask_n: 250

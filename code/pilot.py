@@ -7,7 +7,7 @@ import json
 import sys
 from build_mask import build_mask
 from inventory import inventory
-from make_split import make_split, make_folds, guard_from_split
+from make_split import make_split, make_folds, guard_from_split, require_multitask_cohort
 from preflight import preflight
 from reporting import report
 from signature_pilot import run_models
@@ -30,8 +30,9 @@ def run(c, dry_run=False, regenerate_split=False):
     repos, contracts, versions = preflight(c)
     if dry_run:
         print('Dry-run: full mechanical inventory using headers only; no output writes.', flush=True)
-        inventory(c, write=False)
-        print('Planned: locked N=50 split -> five development folds -> fixed mask -> OOF primary/cross-task/specificity/reliability -> final DEV model -> aggregate reports.', flush=True)
+        table, _ = inventory(c, write=False)
+        require_multitask_cohort(c, table[table.eligible])
+        print('Planned: locked N=50 split -> five development folds -> fixed mask -> task-specific CV -> pairwise cross-decoding -> leave-one-paradigm-out -> common-model probes/reliability -> final DEV model -> aggregate reports.', flush=True)
         print('DRY RUN PASSED. No split, voxel matrix, classifier, or result was created.', flush=True)
         return
     with run_lock(c):
@@ -41,7 +42,7 @@ def run(c, dry_run=False, regenerate_split=False):
         write_json(c, 'provenance/contrast_verification.json', contracts)
         write_json(c, 'provenance/run_status.json', {'run_id': run_id, 'status': 'in_progress'})
         try:
-            print('Inventory: primary eligibility, secondary availability, metadata', flush=True)
+            print('Inventory: multitask completeness and exact task overlaps, metadata', flush=True)
             table, _ = inventory(c)
             eligible = table[table.eligible].copy()
             print('Holdout lock: selection/reuse before voxel access', flush=True)

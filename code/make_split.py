@@ -4,7 +4,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedShuffleSplit, StratifiedKFold, KFold
-from utils import DevelopmentGuard, PipelineError, sha256, write_json, write_tsv
+from utils import CORE_TASKS, COHORT_DEFINITION, DevelopmentGuard, PipelineError, sha256, write_json, write_tsv
 
 
 def strata_candidates(frame):
@@ -39,7 +39,16 @@ def validate_split(split, eligible):
         raise PipelineError('Eligibility changed since the locked split. Restore inputs or review cohort drift; no automatic regeneration')
 
 
+def require_multitask_cohort(c, eligible):
+    if not set(CORE_TASKS) <= set(eligible.columns) or not eligible[list(CORE_TASKS)].all(axis=None):
+        raise PipelineError('Split requires complete core maps in all five task implementations; no single-task fallback')
+    minimum = c.analysis['minimum_multitask_n']
+    if len(eligible) < minimum:
+        raise PipelineError(f'Multitask-complete N={len(eligible)} is below the explicit minimum N={minimum}; STOP before split. See the exact task-overlap Ns above and results/aggregate/task_overlap.tsv on a real launch')
+
+
 def make_split(c, eligible, regenerate=False):
+    require_multitask_cohort(c, eligible)
     eligible = eligible.sort_values('subject').reset_index(drop=True)
     if eligible.subject.duplicated().any() or len(eligible) < 55:
         raise PipelineError('At least 55 unique eligible participants required for N=50 holdout and five folds')
@@ -49,6 +58,8 @@ def make_split(c, eligible, regenerate=False):
     if path.exists() and not regenerate:
         split = pd.read_csv(path, sep='\t', dtype=str)
         validate_split(split, eligible)
+        if meta_path.exists() and json.loads(meta_path.read_text()).get('cohort_definition') != COHORT_DEFINITION:
+            raise PipelineError('Legacy single-task split cannot be reused as a multitask validation set; explicit reviewed regeneration is required')
         if not meta_path.exists() or json.loads(meta_path.read_text())['sha256'] != sha256(path):
             raise PipelineError('Locked split hash missing or mismatched; restore matching TSV and provenance')
         print('  Reusing locked N=50 holdout; membership unchanged.', flush=True)
@@ -59,7 +70,10 @@ def make_split(c, eligible, regenerate=False):
         warnings.warn('DANGER: --regenerate-split replaces independent validation membership. Prior exposure can invalidate the holdout.', stacklevel=2)
         if path.exists():
             old = pd.read_csv(path, sep='\t', dtype=str)
-            write_tsv(c, f'work/splits/archive/split-{sha256(path)}.tsv', old)
+            old_hash = sha256(path)
+            write_tsv(c, f'work/splits/archive/split-{old_hash}.tsv', old)
+            if meta_path.exists():
+                write_json(c, f'work/splits/archive/split-{old_hash}.json', json.loads(meta_path.read_text()))
     chosen = None
     attempts = []
     for method, labels in strata_candidates(eligible):
@@ -80,7 +94,8 @@ def make_split(c, eligible, regenerate=False):
     write_tsv(c, relative, split)
     summary = {label: describe(eligible[split.split == label]) for label in ['development', 'holdout']}
     write_json(c, 'provenance/subject_split_v1.json',
-               {'seed': c.analysis['seed'], 'holdout_n': 50, 'development_n': len(eligible)-50,
+               {'cohort_definition': COHORT_DEFINITION, 'minimum_multitask_n': c.analysis['minimum_multitask_n'],
+                'core_tasks': CORE_TASKS, 'seed': c.analysis['seed'], 'holdout_n': 50, 'development_n': len(eligible)-50,
                 'stratification_variables': ['age', 'FlipAngle'], 'method': method,
                 'fallback_attempts': attempts, 'distributions': summary, 'sha256': sha256(path)})
     print(f'  Locked exactly 50 holdout participants using {method}. Fallbacks: {attempts}', flush=True)
