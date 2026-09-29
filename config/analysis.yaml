@@ -1,0 +1,15 @@
+version: 1
+session: '01'
+seed: 20260928
+holdout_n: 50
+folds: 5
+coverage: 0.95
+space: MNI152NLin6Asym
+normalization: spatial_mean_center
+classifier:
+  C: 1.0
+  dual: true
+  class_weight: null
+  max_iter: 100000
+  tol: 0.0001
+bootstrap_samples: 10000

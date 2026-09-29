@@ -1,0 +1,59 @@
+import numpy as np
+import pytest
+from signature_pilot import representations
+from inventory import cope_path
+from preflight import verify_l1, parse_fsf
+from utils import PipelineError
+
+
+def test_contrast_arithmetic():
+    maps = {i: np.array([float(i*i)]) for i in range(1, 35)}
+    sr = representations('sharedreward', maps)
+    assert sr['primary'][0] == 9  # ((16-9)+(36-25))/2
+    assert sr['primary'][1] == 3
+    assert sr['neutral'][0] == 72.5
+    assert sr['decision'][0] == 756.5
+    trust = representations('trust', maps)
+    assert trust['trust'][0] == 15
+    assert trust['trust'][1] == 9
+    assert trust['trust_friend_stranger'][0] == 13
+    ugr = representations('ugr', maps)
+    assert ugr['ugr_pmod'][0] == 196 and ugr['ugr_pmod'][1] == 169
+    assert ugr['ugr_constant'][0] == 37 and ugr['ugr_constant'][1] == 5
+
+
+def test_doors_separate_l1(cfg):
+    pos = cope_path(cfg, 'sub-fixture000', 'socialdoors', 4, 'L1', 1)
+    neg = cope_path(cfg, 'sub-fixture000', 'doors', 4, 'L1', 1)
+    assert pos != neg and 'L1_task-socialdoors' in str(pos) and 'L1_task-doors' in str(neg)
+    assert str(pos).endswith('stats/cope4.nii.gz')
+    with pytest.raises(PipelineError, match='separate L1'): cope_path(cfg, 'sub-fixture000', 'socialdoors', 4)
+
+
+def test_current_template_vectors_not_just_names(cfg):
+    spec = cfg.contrasts['sharedreward']
+    values = parse_fsf(cfg.repos['sharedreward'] / spec['template'])
+    verify_l1(values, spec)
+    values['fmri(con_real4.4)'] = '-1'
+    with pytest.raises(PipelineError, match='weights'): verify_l1(values, spec)
+
+
+def test_ugr_pmod_weights(cfg):
+    assert cfg.contrasts['ugr']['copes'][13]['weights'] == {2: 1., 4: 1.}
+    assert cfg.contrasts['ugr']['copes'][14]['weights'] == {6: 1., 8: 1.}
+
+
+def test_ev_order_drift_fails(cfg):
+    spec = cfg.contrasts['trust']
+    values = parse_fsf(cfg.repos['trust'] / spec['template'])
+    values['fmri(evtitle5)'] = 'C_def'
+    with pytest.raises(PipelineError, match='EV ordering'): verify_l1(values, spec)
+
+
+def test_l2_mean_contract(cfg):
+    from preflight import verify_l2
+    spec = cfg.contrasts['sharedreward']
+    values = parse_fsf(cfg.repos['sharedreward'] / 'templates/L2_task-sharedreward_model-1_type-act.fsf')
+    verify_l2(values, spec)
+    values['fmri(evg2.1)'] = '-1'
+    with pytest.raises(PipelineError, match='intercept-only'): verify_l2(values, spec)

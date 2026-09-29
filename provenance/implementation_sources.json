@@ -1,0 +1,78 @@
+[
+  {
+    "repository": "rf1-sra-linux2",
+    "sha": "c44dd97dfe0a778fb48113546a3e60d776be38c2",
+    "files": {
+      "README.md": "3e599cc3ab8f8634f536492ca0a27ddb2d321c67ab279f04828a7e366078668b",
+      "code/README.md": "1b202bfe95356d142e69b48c7818572e86098e974d443634ca84cfa54c6c2c9c",
+      "code/pipeline_common.sh": "47b18dedb9a6d762913f0643f1ac5fa11816c31887faaeb2ddaebd8d17b2bf34",
+      "qc/README.md": "7fd1385a23d7e01d6457e0a64e4af3c1114ebe679313aff472580642c24ff2e4",
+      "qc/participants/README.md": "91dda25138cb1ba874d47bf206f87a2586665d037e05ad31adf95ff922891b7b"
+    }
+  },
+  {
+    "repository": "rf1-sra-sharedreward",
+    "sha": "d716f84412902671b82adfa2a22c265c09c2de01",
+    "files": {
+      "README.md": "96f64e58278aa3307d2d3d8f42b37adebd994a82c5b375233afc3c4de04835fb",
+      "code/README.md": "19b78479066e65b71370036c132c961416a4259dba764be04049d324bb85bb4e",
+      "code/WORKFLOW_AUDIT.md": "efc0c1e61469c9b0f1d25fb110a8a300bce89777f686a9e223c87458bd9856a8",
+      "code/project_config.sh": "b538a9edb2040a8da53b84e424cc07e6e0ede34f89167a4922452b250abd65f5",
+      "templates/L1_task-sharedreward_model-1_type-act.fsf": "cf23311dc4d7b33693f2f08bb0d7880f9ae747c2afdfd3cd08adad76999c1025",
+      "templates/L2_task-sharedreward_model-1_type-act.fsf": "45a487c3b641d183191160ce24309c85a74b225271222607cb4e6960a538c501",
+      "templates/README.md": "730187a5ebee6175367877af79ae45413786fed7f2b933343dd579349aecfe3e",
+      "templates/CONTRAST_CROSSWALK.tsv": "fd19a61cd1bc4daf4fd06d9d515f888d10b42809eb089d511a422129eea0cdd4",
+      "code/build_L1_manifest.py": "4f08a09f8c8b506e0bbd497b0562db413f44d58075e678c309ce265f62b06cde",
+      "code/build_L2_manifest.py": "309af5d1ee49d1c52ee6565f066bcd806f514407b9f7accdf0862da8ac8bb818"
+    }
+  },
+  {
+    "repository": "rf1-sra-socdoors",
+    "sha": "95661049e0bd46b52b276e7364533b4e51843b69",
+    "files": {
+      "README.md": "bb0ffabf2b6165470270592557af3c49bf2996d635fb95ff5ba330d5d233412a",
+      "code/README.md": "856b396065946ce8db6c8a4b2de8b744daed6600341695b345daf269a2c804ea",
+      "code/WORKFLOW_AUDIT.md": "405491a05bef8dcde5827ccc969ed83f7bd6cc313557acceeea3201fe3730212",
+      "code/project_config.sh": "a028bb2b644c7957951ec918831528c9e202f4bdcbf4715b294ec95451845a62",
+      "templates/L1_task-doors_model-1_type-act.fsf": "9eac48e657922635af4fd1941d2259319989f821e154b4294ed67c957e2aa3b7",
+      "templates/L2_task-socialdoors_model-1_type-act.fsf": "dcd3f24f8af7d92d58c72d24dc171fea8ec046e9e0bf2fa2606e6abbeca0ca3d",
+      "templates/L1_task-socialdoors_model-1_type-act.fsf": "d5bdba975637e1e70cd1b2157f538522ef9691ddab8a06d64e54a8019e4029df",
+      "templates/README.md": "6b9d64a97d3f6dc5e1b8ed385abd7d6ecdc83bf51d56e086bce44524565047ac",
+      "code/build_L1_manifest.py": "7b0784735f07c1e69cb25cce123a4e76a0d904e126688e638aebc554c83368dd",
+      "code/build_L2_manifest.py": "7791b24d8d496d36b7c147e8ff68122da96c0ca4fdf5cec3320253dca29ec698"
+    }
+  },
+  {
+    "repository": "rf1-sra-trust",
+    "sha": "bc731ddd143eea8737f42c22e7e334f5a9dc5532",
+    "files": {
+      "README.md": "fe3c1f3ffd7108c6adc9b0ba17df3fea30fe71b0c9c9914bcf745aecdf7b3ea3",
+      "code/README.md": "596b9aa801161482cd92ff74f916a8b5997cb342a3bc22c19774fa19ec082242",
+      "code/WORKFLOW_AUDIT.md": "0547ee13dc2fecf45f827ed22af90b73e9643c5d6ba3b2d5672651b6c8378deb",
+      "code/project_config.sh": "e1e1ae1274bdbe8d55e52c6a5251639a1d0ea349567d042b71071e7d367e32af",
+      "templates/L2_task-trust_model-1_type-act.fsf": "6a5ff2df185fd955cfc0b329b7659e27d367bf38939ad6d23df4a9acaf34cefd",
+      "templates/L1_task-trust_model-1_type-act.fsf": "e9d469890e6fd53acef7b788badde09c53ebfac1a5a7a1bda94b34faf94c121f",
+      "templates/README.md": "3a407a450b436a34630a9305c8b699bd543a7d39b7cfec6a9a56e5f6701782d8",
+      "code/build_L1_manifest.py": "8f62ee8021b9b8724bf5ccf2d6ed8cff02bc40c97cb3eb112acf518c09bd96d7",
+      "code/build_L2_manifest.py": "172ec969dd2ee8d08a9a4a624ca2f0290aaa88c16d2ecddce7d3b5d44d2a2100",
+      "code/audit_outputs.py": "7a412d5b469a07de5cdb32aacb24e86924edfd07329461c7322c2082a184ae24"
+    }
+  },
+  {
+    "repository": "rf1-sra-ugr",
+    "sha": "4b44a8db136487df3f68fccf014848f9e593cf8d",
+    "files": {
+      "README.md": "1464ea8b8dc634e5bfbda00612815cb9e8cdd73efd5d316361d14c464a1acdee",
+      "code/README.md": "298f5bcb6c120ba4b479a9bb095bea6677f24f5831b5781f4c590a79621e23f7",
+      "code/WORKFLOW_AUDIT.md": "c82ea117d9dfa76bb626d5d46e7a7f15f8fd159ab1135f74244c1d03c4486e6f",
+      "code/project_config.sh": "e9f19fb23dfa91397519c073eb38af806fea1473de05fe02d4d563fc8eb77837",
+      "templates/L1_task-ugr_model-3_type-act.fsf": "8e4684bd316d57d68741114ab58ad5936ec08342568ffd1fbe40688f4364c1bc",
+      "templates/L2_task-ugr_model-3_type-act.fsf": "cadc4405f7d2d7cd48377ce5c5e2a030b57dcb9d6afdd6ba49f6aa0b940b9f26",
+      "templates/README.md": "c70b9bed278589e49e638b03cb6345708bad6bc8f01ee17aa304ee8b4e68ec2b",
+      "code/build_L1_manifest.py": "c34d21ed956ce6524b02ba33eb749a85de6ff073588335d2730f94ab5f3589e4",
+      "code/build_L2_manifest.py": "618f20923e69a1a4e417eb6ccb4adb0941e4b358d7317610b1cf8a887eb5c75e",
+      "code/audit_workflow.py": "c24033c589961c0ad6260934ec663b35a0845c620037d85dcbfdab40b236ea43",
+      "code/gen_model3_evs.py": "cf63e6994057873763950aeb7ab1ee5ebe89585fe6ee4e448e713b41a2eeeede"
+    }
+  }
+]
