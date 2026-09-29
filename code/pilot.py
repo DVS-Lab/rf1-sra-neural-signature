@@ -54,11 +54,11 @@ def run(c, dry_run=False, regenerate_split=False):
                                sha256(c.output('work/splits/subject_split_v1.tsv')))
             print('Analysis mask: development data only', flush=True)
             mask, reference = build_mask(c, guard, development_subjects)
-            print('Models: participant-blocked CV, OOF transfer, specificity, reliability', flush=True)
-            primary, cross, weights, diagnostics = run_models(c, table, folds, mask, reference,
+            print('Models: symmetric task CV, 3x3 matrices, LOPO, common-model boundary tests', flush=True)
+            predictions, weights, diagnostics = run_models(c, table, folds, mask, reference,
                                                              guard, development_subjects, versions, repos)
             print('Reporting: aggregate metrics and shareable figures', flush=True)
-            report(c, table, split, primary, cross, weights, repos, diagnostics)
+            report(c, table, split, predictions, weights, repos, diagnostics)
             write_json(c, 'provenance/run_status.json', {'run_id': run_id, 'status': 'complete', 'holdout_scored': False})
         except Exception:
             # No subject IDs or source-exclusion reasons in public failure status.

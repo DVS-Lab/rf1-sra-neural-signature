@@ -47,19 +47,33 @@ def build_mask(c, guard, development_subjects):
     # A development participant supplies geometry, without condition-dependent masking.
     reference = nib.load(reference_path)
     counts = np.zeros(reference.shape, dtype=np.uint32)
+    mask_sources = []
     for subject in subjects:
-        # Intersection of required L2 condition masks gives a participant coverage mask.
+        # Common spatial support across all three clean paradigm pairs, with no labels.
         participant = np.ones(reference.shape, dtype=bool)
-        for k in c.contrasts['sharedreward']['copes']:
-            path = feat_dir(c, subject, 'sharedreward') / f'cope{k}.feat/mask.nii.gz'
-            image = load_development_image(c, path, subject, guard, development_subjects)
-            if not same_grid(image, reference): raise PipelineError('Development mask grids disagree')
-            participant &= image.get_fdata(dtype=np.float32) > 0
+        for task in ['sharedreward', 'trust', 'socialdoors', 'doors']:
+            if task in ['socialdoors', 'doors']:
+                paths = [feat_dir(c, subject, task, 'L1', 1) / 'mask.nii.gz']
+            else:
+                paths = [feat_dir(c, subject, task) / f'cope{k}.feat/mask.nii.gz'
+                         for k in c.contrasts[task]['copes']]
+            for path in paths:
+                image = load_development_image(c, path, subject, guard, development_subjects)
+                resampled = not same_grid(image, reference)
+                if resampled:
+                    if task == 'sharedreward':
+                        raise PipelineError('Shared Reward reference mask grids disagree')
+                    image = resample_from_to(image, (reference.shape, reference.affine), order=0)
+                participant &= image.get_fdata(dtype=np.float32) > 0
+                mask_sources.append({'subject': subject, 'task': task, 'path': str(path),
+                                     'resampled': resampled, 'interpolation': 'nearest' if resampled else 'none'})
         counts += participant
+    from utils import write_tsv
+    write_tsv(c, 'work/diagnostics/mask_sources.tsv', mask_sources)
     mask = counts / len(subjects) >= c.analysis['coverage']
     template_candidates = sorted(c.templateflow.glob('tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_res-02_desc-brain_mask.nii.gz'))
     template = None
-    method = 'development_FEAT_coverage_only; TemplateFlow mask unavailable'
+    method = 'development_multitask_FEAT_coverage_only; TemplateFlow mask unavailable'
     if len(template_candidates) == 1:
         template = template_candidates[0]
         header_info(template, c.analysis['space'])
@@ -68,13 +82,15 @@ def build_mask(c, guard, development_subjects):
         data = img.get_fdata(dtype=np.float32)
         if not np.isfinite(data).all(): raise PipelineError('TemplateFlow mask contains nonfinite values')
         mask &= data > 0
-        method = 'TemplateFlow_MNI152NLin6Asym_intersect_95pct_development_FEAT'
+        method = 'TemplateFlow_MNI152NLin6Asym_intersect_95pct_development_multitask_FEAT'
     if mask.sum() < 2: raise PipelineError('Analysis mask has fewer than two voxels')
     save_image(c, 'results/maps/analysis_mask.nii.gz', mask.astype(np.uint8), reference)
     # Keep participant-bearing reference paths private.
     write_json(c, 'work/diagnostics/mask_reference.json', {'reference_image': str(reference_path)})
     write_json(c, 'provenance/analysis_mask.json',
                {'method': method, 'coverage_threshold': c.analysis['coverage'], 'development_n': len(subjects),
+                'coverage_tasks': ['sharedreward', 'trust', 'socialdoors', 'doors'],
+                'ugr_masks_used': False,
                 'voxel_count': int(mask.sum()), 'dimensions': reference.shape,
                 'voxel_sizes': reference.header.get_zooms(), 'affine': reference.affine,
                 'reference': 'First sorted development Shared Reward L2 grid; exact path in local work/diagnostics/mask_reference.json',
