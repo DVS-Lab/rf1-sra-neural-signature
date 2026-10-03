@@ -1,0 +1,29 @@
+{
+  "review_only": true,
+  "exclusions_applied": false,
+  "holdout_scored": false,
+  "split_sha256": "65eb781cd0b10773678c902d157741a91241750f284b8f887c81d2f8e6e56323",
+  "inventory_sha256": "0d064a11c0f4a536d0ab8d28bfc9749b917ddcdc355309a97caf86691ef23c81",
+  "qc_sha256": "5ff3f9980477b00f76d4e9c85ba8dddd3940e3cac8ae589d60746790fa4b187a",
+  "policies": {
+    "tsnr_coverage_fd": [
+      "tsnr_outlier",
+      "brain_coverage_outlier",
+      "fd_mean_outlier"
+    ],
+    "prior_four_metric_policy": [
+      "tsnr_outlier",
+      "brain_coverage_outlier",
+      "fd_mean_outlier",
+      "tedana_outlier"
+    ]
+  },
+  "rule": "Reject task if any run contributing to its existing map has any selected flag; unknown QC does not pass.",
+  "thresholds": "Existing canonical per-paradigm QC flags; no threshold re-estimation.",
+  "outside_locked_cohort": "Descriptive candidates only. No assignment to development/holdout.",
+  "limitations": [
+    "Original inventory task flags still include its contrast requirements; this is not a fresh reward-only inventory.",
+    "Shared Reward uses frozen retained runs. Trust current L2 uses both runs. No maps are recombined.",
+    "No UGR or decision-map values accessed. Only metadata tables are read."
+  ]
+}
