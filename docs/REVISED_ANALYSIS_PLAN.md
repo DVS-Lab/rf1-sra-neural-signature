@@ -21,6 +21,10 @@ and monetary Doors. Require only the contrast outputs used by v4: SR COPE1-6,
 Trust COPE4-9, and both Doors COPE1,2,4. UGR and decision-phase maps no longer gate
 eligibility. Original subject-exclusion directories remain authoritative.
 Full design provenance, image geometry, and the frozen aging audit remain checked.
+The `rf1-sra-sharedreward` repository remains a read-only provenance dependency:
+aging's saved fingerprints reference harmonized RF1 input images there. All Shared
+Reward analysis COPEs still come from `sharedreward-aging`; restoring this dependency
+does not switch to the original repository's FEAT models.
 
 | Sample | Required task implementations | Analyses |
 | --- | --- | --- |

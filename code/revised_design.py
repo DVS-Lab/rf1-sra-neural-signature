@@ -36,8 +36,10 @@ def revised_config(base, scope='inventory'):
             for cohort in COHORTS):
         raise PipelineError('Unknown revised output scope')
     fields = {key: deepcopy(getattr(base, key)) for key in Config.__dataclass_fields__}
+    # Aging's fitted maps live in aging, but their saved provenance references
+    # harmonized RF1 BOLD inputs in the original sharedreward repository.
     fields['repos'] = {key: value for key, value in fields['repos'].items()
-                       if key in ('linux2', 'aging', 'trust', 'socdoors')}
+                       if key in ('linux2', 'sharedreward', 'aging', 'trust', 'socdoors')}
     specs = fields['contrasts']
     specs.pop('ugr')
     specs['trust']['copes'] = {k: value for k, value in specs['trust']['copes'].items() if k in range(4, 10)}

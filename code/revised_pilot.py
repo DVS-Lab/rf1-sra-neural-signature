@@ -34,6 +34,7 @@ def run(base, dry_run=False, sample_only=False):
     with (nullcontext() if dry_run else run_lock(base)):
         print('Revised preflight: reward-condition contrasts; no UGR or decision-phase maps', flush=True)
         repos, contracts, versions = preflight(c)
+        print('Revised inventory: verifying retained input provenance and image headers; no voxel values read.', flush=True)
         frame = inventory(c, write=not dry_run)
         samples, summary = reconstruct(base, frame, policies, spec['include_new_development'],
                                        write=not dry_run, holdout_mode=spec['holdout_mode'])

@@ -32,6 +32,40 @@ def write_qc(cfg, frame):
     return path
 
 
+def test_revised_aging_provenance_keeps_harmonized_sharedreward_source(cfg, monkeypatch):
+    from aging_source import aging_directory, verify_stamp
+    import shutil
+    make_subject(cfg, 'sub-fixture000', secondary=False)
+    base = aging_directory(cfg, 'sub-fixture000', 'L1', 1)
+    path = base/'pooled-model-inputs.json'
+    data = json.loads(path.read_text())
+    # Real aging outputs retain fingerprints of harmonized RF1 BOLD inputs in
+    # rf1-sra-sharedreward, although the fitted COPEs themselves live in aging.
+    source = cfg.repos['sharedreward']/'derivatives/harmonized/source_bold.nii.gz'
+    source.parent.mkdir(parents=True)
+    shutil.copyfile(data['images'][0]['path'], source)
+    item = {'path': str(source), 'size': source.stat().st_size,
+            'mtime_ns': source.stat().st_mtime_ns}
+    data['images'][0] = item
+    path.write_text(json.dumps(data))
+    monkeypatch.setattr(nib, 'load', lambda *a, **k: pytest.fail('Provenance read image'))
+    for scope in ('inventory', 'tsnr_coverage_fd/partner_pair',
+                  'tsnr_coverage_fd/three_paradigm', 'prior_four_metric_policy/partner_pair',
+                  'prior_four_metric_policy/three_paradigm'):
+        revised = revised_config(cfg, scope)
+        verify_stamp(revised, base, 'L1')
+        assert revised.contrasts['sharedreward']['repository'] == 'aging'
+        assert 'ugr' not in revised.repos and 'ugr' not in revised.contrasts
+    item['mtime_ns'] -= 1
+    path.write_text(json.dumps(data))
+    with pytest.raises(PipelineError, match='image-input fingerprint changed'):
+        verify_stamp(revised, base, 'L1')
+    item['path'] = str(cfg.root.parent/'unconfigured/source_bold.nii.gz')
+    path.write_text(json.dumps(data))
+    with pytest.raises(PipelineError, match='image outside configured source repositories'):
+        verify_stamp(revised, base, 'L1')
+
+
 def test_reconstruction_topup_is_locked_and_all_original_holdouts_stay_protected(cfg, monkeypatch):
     split = setup_lock(cfg)
     frame = metadata(100)
