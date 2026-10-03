@@ -1,3 +1,5 @@
+> Historical v3 policy. The approved current reconstruction and analysis are documented in [REVISED_ANALYSIS_PLAN.md](REVISED_ANALYSIS_PLAN.md). Original holdout assignments remain protected.
+
 # Internal multitask holdout policy — v3
 
 Exactly N=50 participants form the **internal multitask validation set**. They

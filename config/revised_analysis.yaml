@@ -1,0 +1,9 @@
+version: v4_social_reward_context_closeness
+primary_qc_policy: tsnr_coverage_fd
+sensitivity_qc_policy: prior_four_metric_policy
+include_new_development: true
+holdout_mode: top_up_pair
+holdout_target_primary: 50
+# Approved reconstruction supersedes the old N>=250 / N>=200 development gate.
+# All original holdouts remain protected, including QC failures.
+# Supplement candidates must not occur in the original split.

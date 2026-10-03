@@ -149,7 +149,7 @@ def l1_evidence(c, subject, task, run):
     return values
 
 
-def inspect_unit(c, subject, task, level, run=None):
+def inspect_unit(c, subject, task, level, run=None, required_copes_only=False):
     """Validate completion and actual design provenance, then required map headers."""
     spec = c.contrasts[task]
     base = feat_dir(c, subject, task, level, run)
@@ -158,7 +158,7 @@ def inspect_unit(c, subject, task, level, run=None):
         l1_evidence(c, subject, task, run)
         required = [base / x for x in ['design.mat', 'design.con', 'mask.nii.gz', 'cluster_mask_zstat1.nii.gz']]
         required += [base / f'stats/cope{k}.nii.gz' for k in
-                     (spec['copes'] if task == 'sharedreward' else range(1, spec['n_copes'] + 1))]
+                     (spec['copes'] if task == 'sharedreward' or required_copes_only else range(1, spec['n_copes'] + 1))]
         masks = [base / 'mask.nii.gz']
     else:
         if not (base / 'design.fsf').is_file(): raise InputUnavailable('missing_design_evidence')
@@ -172,7 +172,7 @@ def inspect_unit(c, subject, task, level, run=None):
         if task == 'sharedreward':
             verify_stamp(c, base, 'L2', [feat_dir(c, subject, task, 'L1', r) for r in [1, 2]])
         required = [base / 'design.mat', base / 'design.con']
-        for k in (spec['copes'] if task == 'sharedreward' else range(1, spec['n_copes'] + 1)):
+        for k in (spec['copes'] if task == 'sharedreward' or required_copes_only else range(1, spec['n_copes'] + 1)):
             required.extend(base / f'cope{k}.feat' / x for x in
                             ['design.mat', 'design.con', 'mask.nii.gz', 'stats/cope1.nii.gz',
                              'stats/zstat1.nii.gz', 'cluster_mask_zstat1.nii.gz'])

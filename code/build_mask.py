@@ -41,7 +41,8 @@ def save_image(c, relative, data, reference):
     with atomic_output(c, relative) as path: nib.save(image, path)
 
 
-def build_mask(c, guard, development_subjects):
+def build_mask(c, guard, development_subjects, coverage_tasks=None):
+    coverage_tasks = tuple(coverage_tasks or ['sharedreward', 'trust', 'socialdoors', 'doors'])
     subjects = sorted(development_subjects)
     guard.check(subjects, development_subjects)
     reference_path = cope_path(c, subjects[0], 'sharedreward', 1)
@@ -52,7 +53,7 @@ def build_mask(c, guard, development_subjects):
     for subject in subjects:
         # Common spatial support across all three clean paradigm pairs, with no labels.
         participant = np.ones(reference.shape, dtype=bool)
-        for task in ['sharedreward', 'trust', 'socialdoors', 'doors']:
+        for task in coverage_tasks:
             paths = mask_paths(c, subject, task)
             for path in paths:
                 image = load_development_image(c, path, subject, guard, development_subjects)
@@ -86,7 +87,7 @@ def build_mask(c, guard, development_subjects):
     write_json(c, 'work/diagnostics/mask_reference.json', {'reference_image': str(reference_path)})
     write_json(c, 'provenance/analysis_mask.json',
                {'method': method, 'coverage_threshold': c.analysis['coverage'], 'development_n': len(subjects),
-                'coverage_tasks': ['sharedreward', 'trust', 'socialdoors', 'doors'],
+                'coverage_tasks': coverage_tasks,
                 'ugr_masks_used': False,
                 'voxel_count': int(mask.sum()), 'dimensions': reference.shape,
                 'voxel_sizes': reference.header.get_zooms(), 'affine': reference.affine,

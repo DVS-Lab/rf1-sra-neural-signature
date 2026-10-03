@@ -1,3 +1,48 @@
+# RF1-SRA social reward, context, and closeness — current v4 launch
+
+The current analysis reconstructs QC-qualified samples for **Shared Reward–Trust**
+and **Shared Reward–Trust–Social/monetary Doors**, preserving distinct partner maps.
+UGR and decision-phase maps are not inputs or eligibility requirements. See the
+[revised analysis plan](docs/REVISED_ANALYSIS_PLAN.md) for exact contrasts and tests.
+
+Primary QC uses tSNR, coverage, and mean FD; the historical four-metric rule is a
+sensitivity analysis. The primary partner-pair validation roster targets exactly
+**50 QC-qualified participants**, supplementing surviving original holdouts only
+with new participants before any of their voxel data is read. All original holdouts,
+including QC failures, remain barred from training. Other analyses use the eligible
+subset of that same roster. No holdout-scoring command is implemented.
+
+On Linux2, from this repository with the existing analysis Python environment:
+
+```bash
+git pull --ff-only
+bash code/run_revised.sh --dry-run
+bash code/run_revised.sh
+```
+
+The second command checks the fresh inventory and proposed reconstruction without
+saving membership or reading voxel values. The third locks samples and reruns all
+revised development models. It requires the original private split and fold files;
+never delete them or move development participants into validation. You can use
+`--sample-only` to lock/review counts before the full run. Set `PYTHON` if necessary.
+
+Read `results/revised/samples/cohort_summary.tsv`, then
+`reports/revised/<policy>/<cohort>/REPORT.md`. Commit public `results/`, `reports/`,
+and `provenance/` after successful completion; keep all `work/` outputs private.
+The revised command does not overwrite the completed v3 results.
+
+The prior N>=250 / N>=200 development gate belongs to v3 and was superseded by the
+approved QC-qualified reconstruction. The approximate primary sample from the posted
+QC review is 184 development + 50 validation; only the fresh Linux2 inventory can
+establish final counts. Validation remains unscored during development.
+
+---
+
+# Archived v3 pilot documentation
+
+The instructions below describe the completed historical pilot. Use the v4 launcher
+above for the revised question; `run_pilot.sh` intentionally retains v3 behavior.
+
 # RF1-SRA trans-task social-reward neural signature
 
 Estimate common and task-specific social-versus-nonsocial reward information across
