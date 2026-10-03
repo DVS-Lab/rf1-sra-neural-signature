@@ -1,0 +1,16 @@
+task	source_root	root_exists	layout	expected_input	directory_n
+sharedreward	/ZPOOL/data/projects/sharedreward-aging/derivatives/fsl/rf1	True	sub-<ID>/ses-01/L1_task-sharedreward_model-fulltrial_type-act_run-1_sm-6.feat	True	343
+sharedreward	/ZPOOL/data/projects/sharedreward-aging/derivatives/fsl/rf1	True	sub-<ID>/ses-01/L1_task-sharedreward_model-fulltrial_type-act_run-2_sm-6.feat	True	312
+sharedreward	/ZPOOL/data/projects/sharedreward-aging/derivatives/fsl/rf1	True	sub-<ID>/ses-01/L2_task-sharedreward_model-fulltrial_type-act_sm-6.gfeat	True	309
+sharedreward	/ZPOOL/data/projects/rf1-sra-linux2/derivatives/fsl	True	sub-<ID>/ses-01/L1_task-sharedreward_model-fulltrial_type-act_run-1_sm-6.feat	False	0
+sharedreward	/ZPOOL/data/projects/rf1-sra-linux2/derivatives/fsl	True	sub-<ID>/ses-01/L1_task-sharedreward_model-fulltrial_type-act_run-2_sm-6.feat	False	0
+sharedreward	/ZPOOL/data/projects/rf1-sra-linux2/derivatives/fsl	True	sub-<ID>/ses-01/L2_task-sharedreward_model-fulltrial_type-act_sm-6.gfeat	False	0
+trust	/ZPOOL/data/projects/rf1-sra-trust/derivatives/fsl	True	sub-<ID>/ses-01/L1_task-trust_ses-01_model-1_type-act_run-1_sm-5.feat	True	342
+trust	/ZPOOL/data/projects/rf1-sra-trust/derivatives/fsl	True	sub-<ID>/ses-01/L1_task-trust_ses-01_model-1_type-act_run-2_sm-5.feat	True	304
+trust	/ZPOOL/data/projects/rf1-sra-trust/derivatives/fsl	True	sub-<ID>/ses-01/L2_task-trust_ses-01_model-1_type-act_sm-5.gfeat	True	304
+socialdoors	/ZPOOL/data/projects/rf1-sra-socdoors/derivatives/fsl	True	sub-<ID>/ses-01/L1_task-socialdoors_ses-01_model-1_type-act_run-1_sm-5.feat	True	336
+socialdoors	/ZPOOL/data/projects/rf1-sra-socdoors/derivatives/fsl	True	sub-<ID>/ses-01/L2_task-socialdoors_ses-01_model-1_type-act_sm-5.gfeat	False	334
+doors	/ZPOOL/data/projects/rf1-sra-socdoors/derivatives/fsl	True	sub-<ID>/ses-01/L1_task-doors_ses-01_model-1_type-act_run-1_sm-5.feat	True	336
+ugr	/ZPOOL/data/projects/rf1-sra-ugr/derivatives/fsl	True	sub-<ID>/ses-01/L1_task-ugr_ses-01_model-3_type-act_run-1_sm-5.feat	True	342
+ugr	/ZPOOL/data/projects/rf1-sra-ugr/derivatives/fsl	True	sub-<ID>/ses-01/L1_task-ugr_ses-01_model-3_type-act_run-2_sm-5.feat	True	317
+ugr	/ZPOOL/data/projects/rf1-sra-ugr/derivatives/fsl	True	sub-<ID>/ses-01/L2_task-ugr_ses-01_model-3_type-act_sm-5.gfeat	True	316

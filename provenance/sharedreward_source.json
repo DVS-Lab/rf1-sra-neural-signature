@@ -1,0 +1,13 @@
+{
+  "contract": "fulltrial-retained-contrasts-v3",
+  "epoch": "full_trial_decision_through_outcome",
+  "audit": "logs/records/full-analysis-20260930-203949-441196",
+  "summary_sha256": "6ef1f7ee8caa86a55a991924c6f08874d023c7c3dcbb094d5448b4631bb1941c",
+  "candidates_sha256": "d3571af4af043d0906e9360348c625756b718bfa5c731e0c1a7f2bb682ecf786",
+  "l1_manifest_sha256": "1d46f25516e389f9f902401a46b69b68983e33ea8be32af504c9a140f0cfc425",
+  "l2_manifest_sha256": "b0ac1ec0b2ba8014566f5dddf07e8acc5bdaf987fdaffa57cdb83b71a16a9357",
+  "verified_rf1_subjects": 346,
+  "fixed_effects_n": 309,
+  "l1_passthrough_n": 37,
+  "ratings_filter_applied": false
+}
