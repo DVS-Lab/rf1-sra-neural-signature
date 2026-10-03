@@ -1,0 +1,30 @@
+split	variable	category	value
+development	n		211.0
+development	age_n		211.0
+development	age_missing		0.0
+development	age_mean		46.12322274881517
+development	age_sd		18.024163174357387
+development	age_min		20.0
+development	age_q25		28.0
+development	age_median		46.0
+development	age_q75		62.0
+development	age_max		89.0
+development	flipangle_counts	50	188.0
+development	flipangle_counts	20	23.0
+development	sex_counts	F	113.0
+development	sex_counts	M	93.0
+development	sex_counts	O	5.0
+holdout	n		50.0
+holdout	age_n		50.0
+holdout	age_missing		0.0
+holdout	age_mean		47.2
+holdout	age_sd		18.642720306011224
+holdout	age_min		21.0
+holdout	age_q25		28.25
+holdout	age_median		52.5
+holdout	age_q75		62.0
+holdout	age_max		83.0
+holdout	flipangle_counts	50	44.0
+holdout	flipangle_counts	20	6.0
+holdout	sex_counts	F	32.0
+holdout	sex_counts	M	18.0

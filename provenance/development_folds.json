@@ -1,0 +1,114 @@
+{
+  "seed": 20260928,
+  "method": "age_4_quantiles_x_flipangle",
+  "fallback_attempts": [
+    "age_5_quantiles_x_flipangle: fewer than five participants per stratum"
+  ],
+  "sha256": "9cb3a0330b7168687c41e9b41d4ac6183ad47136b399bf723b3b61b1f283d02e",
+  "split_sha256": "65eb781cd0b10773678c902d157741a91241750f284b8f887c81d2f8e6e56323",
+  "folds": {
+    "1": {
+      "n": 43,
+      "age_n": 43,
+      "age_missing": 0,
+      "age_mean": 46.53488372093023,
+      "age_sd": 17.76881810954141,
+      "age_min": 20.0,
+      "age_q25": 29.0,
+      "age_median": 49.0,
+      "age_q75": 61.0,
+      "age_max": 80.0,
+      "flipangle_counts": {
+        "50": 38,
+        "20": 5
+      },
+      "sex_counts": {
+        "F": 20,
+        "M": 20,
+        "O": 3
+      }
+    },
+    "2": {
+      "n": 42,
+      "age_n": 42,
+      "age_missing": 0,
+      "age_mean": 44.904761904761905,
+      "age_sd": 18.175042555470057,
+      "age_min": 21.0,
+      "age_q25": 28.0,
+      "age_median": 43.5,
+      "age_q75": 61.5,
+      "age_max": 74.0,
+      "flipangle_counts": {
+        "50": 37,
+        "20": 5
+      },
+      "sex_counts": {
+        "F": 26,
+        "M": 15,
+        "O": 1
+      }
+    },
+    "3": {
+      "n": 42,
+      "age_n": 42,
+      "age_missing": 0,
+      "age_mean": 45.214285714285715,
+      "age_sd": 18.819470605402156,
+      "age_min": 21.0,
+      "age_q25": 25.25,
+      "age_median": 46.5,
+      "age_q75": 61.25,
+      "age_max": 72.0,
+      "flipangle_counts": {
+        "50": 37,
+        "20": 5
+      },
+      "sex_counts": {
+        "F": 22,
+        "M": 20
+      }
+    },
+    "4": {
+      "n": 42,
+      "age_n": 42,
+      "age_missing": 0,
+      "age_mean": 47.5,
+      "age_sd": 18.23458252881047,
+      "age_min": 21.0,
+      "age_q25": 29.25,
+      "age_median": 47.0,
+      "age_q75": 61.0,
+      "age_max": 89.0,
+      "flipangle_counts": {
+        "50": 38,
+        "20": 4
+      },
+      "sex_counts": {
+        "F": 22,
+        "M": 19,
+        "O": 1
+      }
+    },
+    "5": {
+      "n": 42,
+      "age_n": 42,
+      "age_missing": 0,
+      "age_mean": 46.45238095238095,
+      "age_sd": 17.858798994049746,
+      "age_min": 21.0,
+      "age_q25": 28.25,
+      "age_median": 45.0,
+      "age_q75": 62.0,
+      "age_max": 73.0,
+      "flipangle_counts": {
+        "50": 38,
+        "20": 4
+      },
+      "sex_counts": {
+        "F": 23,
+        "M": 19
+      }
+    }
+  }
+}

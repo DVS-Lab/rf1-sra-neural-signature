@@ -1,0 +1,851 @@
+{
+  "architecture": "trans_task_v3_aging_fulltrial",
+  "cohort_definition": "multitask_complete_v3_aging_fulltrial",
+  "classes": {
+    "social": 1,
+    "nonsocial": -1
+  },
+  "primary_family": "reward",
+  "secondary_family": "decision/context",
+  "reward_paradigms": [
+    "sharedreward",
+    "trust",
+    "socialdoors"
+  ],
+  "decision_paradigms": [
+    "trust",
+    "socialdoors"
+  ],
+  "sharedreward_source": {
+    "contract": "fulltrial-retained-contrasts-v3",
+    "epoch": "full_trial_decision_through_outcome",
+    "audit": "logs/records/full-analysis-20260930-203949-441196",
+    "summary_sha256": "6ef1f7ee8caa86a55a991924c6f08874d023c7c3dcbb094d5448b4631bb1941c",
+    "candidates_sha256": "d3571af4af043d0906e9360348c625756b718bfa5c731e0c1a7f2bb682ecf786",
+    "l1_manifest_sha256": "1d46f25516e389f9f902401a46b69b68983e33ea8be32af504c9a140f0cfc425",
+    "l2_manifest_sha256": "b0ac1ec0b2ba8014566f5dddf07e8acc5bdaf987fdaffa57cdb83b71a16a9357",
+    "verified_rf1_subjects": 346,
+    "fixed_effects_n": 309,
+    "l1_passthrough_n": 37,
+    "ratings_filter_applied": false
+  },
+  "unavailable_probes": [
+    "sharedreward_decision",
+    "sharedreward_neutral"
+  ],
+  "ugr_role": "social valuation / broader decision-context boundary probe; never trained",
+  "estimator": "sklearn.svm.LinearSVC",
+  "parameters": {
+    "C": 1.0,
+    "class_weight": null,
+    "dual": true,
+    "fit_intercept": true,
+    "intercept_scaling": 1,
+    "loss": "squared_hinge",
+    "max_iter": 100000,
+    "multi_class": "ovr",
+    "penalty": "l2",
+    "random_state": 20260928,
+    "tol": 0.0001,
+    "verbose": 0
+  },
+  "software_versions": {
+    "numpy": "1.26.4",
+    "pandas": "2.3.3",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.8.0",
+    "nibabel": "5.3.2",
+    "PyYAML": "6.0",
+    "matplotlib": "3.7.1"
+  },
+  "development_n": 211,
+  "mask_sha256": "ab500c9dd88f6e0e6f91ba313a54a9c4a85dff2d9ccc2554d8967db0ac414a0d",
+  "split_sha256": "65eb781cd0b10773678c902d157741a91241750f284b8f887c81d2f8e6e56323",
+  "preprocessing": "COPE arithmetic; per-map spatial mean centering; no unit normalization; equal pairs per participant and paradigm",
+  "source_repository_shas": {
+    "rf1-sra-neural-signature": "bfd928abe70cf03590598efedf3d3954827a8556",
+    "rf1-sra-linux2": "302dccf4ed04619bb94a557c3ec39c7a8f09cb1e",
+    "rf1-sra-sharedreward": "d716f84412902671b82adfa2a22c265c09c2de01",
+    "rf1-sra-trust": "bc731ddd143eea8737f42c22e7e334f5a9dc5532",
+    "rf1-sra-socdoors": "e77700ddf09a2fe9ab7e6ce9b32bc298082d419e",
+    "rf1-sra-ugr": "0a6715565b065e13ff03368700df952b2180fb13",
+    "sharedreward-aging": "6ffef27d417c46484925fe068e70c3289c1a9d73"
+  },
+  "models": [
+    {
+      "model": "reward_task-sharedreward",
+      "fold": 1,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 168,
+      "intercept": 2.908728600114035e-06,
+      "n_iter": 16,
+      "map": "results/maps/reward_task-sharedreward_fold-1_weights.nii.gz",
+      "map_sha256": "1231f80e637455c764f4a451b8dc7125bfdc78bbabc17965a4f29dfe1517c7da"
+    },
+    {
+      "model": "reward_task-trust",
+      "fold": 1,
+      "family": "reward",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 168,
+      "intercept": 2.7316285210279355e-07,
+      "n_iter": 18,
+      "map": "results/maps/reward_task-trust_fold-1_weights.nii.gz",
+      "map_sha256": "9deb755a9674f4d12e23e0c141a56b97b9303aaef3bb771aec0ee821b5300136"
+    },
+    {
+      "model": "reward_task-socialdoors",
+      "fold": 1,
+      "family": "reward",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 168,
+      "intercept": -5.38511404801975e-09,
+      "n_iter": 21,
+      "map": "results/maps/reward_task-socialdoors_fold-1_weights.nii.gz",
+      "map_sha256": "b490f909f1fbf6801ab0567b394ce511e63ad006a85b13512ed81155c4f1ed5e"
+    },
+    {
+      "model": "reward_lopo-sharedreward",
+      "fold": 1,
+      "family": "reward",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 168,
+      "intercept": 3.2505135505688436e-07,
+      "n_iter": 24,
+      "map": "results/maps/reward_lopo-sharedreward_fold-1_weights.nii.gz",
+      "map_sha256": "a08fc4004fc771f088164ed05941814fab0185112bdf89b2e428f0c81621548d"
+    },
+    {
+      "model": "reward_lopo-trust",
+      "fold": 1,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 168,
+      "intercept": 3.448805599566309e-06,
+      "n_iter": 24,
+      "map": "results/maps/reward_lopo-trust_fold-1_weights.nii.gz",
+      "map_sha256": "914c633628f15fc3f63962b21852650a0f2200e8a19260f2c3aa034f45476989"
+    },
+    {
+      "model": "reward_lopo-socialdoors",
+      "fold": 1,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 168,
+      "intercept": 3.289941025158436e-06,
+      "n_iter": 21,
+      "map": "results/maps/reward_lopo-socialdoors_fold-1_weights.nii.gz",
+      "map_sha256": "50b70d8a517cd24d5a81f57115b434f767cc14ab5cfc264d9753ea8d47291439"
+    },
+    {
+      "model": "common_reward_signature",
+      "fold": 1,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 168,
+      "intercept": 3.878509553386358e-06,
+      "n_iter": 29,
+      "map": "results/maps/common_reward_signature_fold-1_weights.nii.gz",
+      "map_sha256": "0f9d11c0ad989f794d5f3705ad38b2eee91245b6c6c7bf3610631a90643f23fc"
+    },
+    {
+      "model": "decision_task-trust",
+      "fold": 1,
+      "family": "decision",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 168,
+      "intercept": -6.500968964011027e-08,
+      "n_iter": 162,
+      "map": "results/maps/decision_task-trust_fold-1_weights.nii.gz",
+      "map_sha256": "647523834f9c559465f1bc46c8d8b26384a01960c666f004f0bbead99ed0fadb"
+    },
+    {
+      "model": "decision_task-socialdoors",
+      "fold": 1,
+      "family": "decision",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 168,
+      "intercept": 7.1624990105458895e-09,
+      "n_iter": 48,
+      "map": "results/maps/decision_task-socialdoors_fold-1_weights.nii.gz",
+      "map_sha256": "2b594368413d6e5474966e6bb8a8ac2ffc32145a0a7dd098140b3122d7f0cb16"
+    },
+    {
+      "model": "common_decision_signature",
+      "fold": 1,
+      "family": "decision",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 168,
+      "intercept": -7.510499218957842e-08,
+      "n_iter": 167,
+      "map": "results/maps/common_decision_signature_fold-1_weights.nii.gz",
+      "map_sha256": "913d20da4b8d1673b3d4d2824cccd25bbf01004191c80d130cad31d6c048f93d"
+    },
+    {
+      "model": "reward_task-sharedreward",
+      "fold": 2,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 169,
+      "intercept": 2.6844961794321415e-06,
+      "n_iter": 17,
+      "map": "results/maps/reward_task-sharedreward_fold-2_weights.nii.gz",
+      "map_sha256": "9c677fee7e45120b6753e6a1ba4f85a1f93ecefa9cee7504d57c4628da000ff2"
+    },
+    {
+      "model": "reward_task-trust",
+      "fold": 2,
+      "family": "reward",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": 2.1161198395898026e-07,
+      "n_iter": 19,
+      "map": "results/maps/reward_task-trust_fold-2_weights.nii.gz",
+      "map_sha256": "27dad15b62a6bf95da61f5713963a636f3decb016a582e4771ee9327b3395278"
+    },
+    {
+      "model": "reward_task-socialdoors",
+      "fold": 2,
+      "family": "reward",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": -3.282287114820328e-09,
+      "n_iter": 20,
+      "map": "results/maps/reward_task-socialdoors_fold-2_weights.nii.gz",
+      "map_sha256": "f6e60967371dbffcfc067155aa46407501bc70e32cc8524a66806094940e9f78"
+    },
+    {
+      "model": "reward_lopo-sharedreward",
+      "fold": 2,
+      "family": "reward",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 2.3445421175621065e-07,
+      "n_iter": 24,
+      "map": "results/maps/reward_lopo-sharedreward_fold-2_weights.nii.gz",
+      "map_sha256": "1188b3a5217c158e73d525ae876986d657b3de56e7e2c9cc4a5e381d8cd340cb"
+    },
+    {
+      "model": "reward_lopo-trust",
+      "fold": 2,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.290953896228511e-06,
+      "n_iter": 22,
+      "map": "results/maps/reward_lopo-trust_fold-2_weights.nii.gz",
+      "map_sha256": "4808eb0d2d33babd1695b0d9efb6c8e247309327793b0308fbec1065ac0a4d15"
+    },
+    {
+      "model": "reward_lopo-socialdoors",
+      "fold": 2,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": 2.9276519489518487e-06,
+      "n_iter": 21,
+      "map": "results/maps/reward_lopo-socialdoors_fold-2_weights.nii.gz",
+      "map_sha256": "0722e39b7d201b04244a92febfd1418e406da85a1f9259d96f6c6a8f0d35cd1c"
+    },
+    {
+      "model": "common_reward_signature",
+      "fold": 2,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.4989165427116425e-06,
+      "n_iter": 27,
+      "map": "results/maps/common_reward_signature_fold-2_weights.nii.gz",
+      "map_sha256": "b0b598444e2b3e903ecc70aebb98b5e5677c28d6b1e43ca740a48b2e52351b21"
+    },
+    {
+      "model": "decision_task-trust",
+      "fold": 2,
+      "family": "decision",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": -6.371589296360299e-08,
+      "n_iter": 164,
+      "map": "results/maps/decision_task-trust_fold-2_weights.nii.gz",
+      "map_sha256": "afa9020b85e0c38f3f40508c8cb3490ca0dd6306e3a8b11c849b6f61256b778f"
+    },
+    {
+      "model": "decision_task-socialdoors",
+      "fold": 2,
+      "family": "decision",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 2.2382429705474266e-09,
+      "n_iter": 49,
+      "map": "results/maps/decision_task-socialdoors_fold-2_weights.nii.gz",
+      "map_sha256": "755151bdadd33598e490c9535b66bf53798610c3b70c6a9d1683af8cb53d36d6"
+    },
+    {
+      "model": "common_decision_signature",
+      "fold": 2,
+      "family": "decision",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": -8.946626245529207e-08,
+      "n_iter": 206,
+      "map": "results/maps/common_decision_signature_fold-2_weights.nii.gz",
+      "map_sha256": "236ff07d14c1d859e23f6695be86daef9ce0f6e43b770e1318ed50f305913dee"
+    },
+    {
+      "model": "reward_task-sharedreward",
+      "fold": 3,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 169,
+      "intercept": 2.939148354102025e-06,
+      "n_iter": 16,
+      "map": "results/maps/reward_task-sharedreward_fold-3_weights.nii.gz",
+      "map_sha256": "cc26c311ab0bc096e041f48bbece735a4ea977e5e6dc8039b7c107540d0da63b"
+    },
+    {
+      "model": "reward_task-trust",
+      "fold": 3,
+      "family": "reward",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": 2.1351289842349349e-07,
+      "n_iter": 18,
+      "map": "results/maps/reward_task-trust_fold-3_weights.nii.gz",
+      "map_sha256": "92952986514bc351c5902d50f7187d34a3664a93a2473648d3817a47b1819792"
+    },
+    {
+      "model": "reward_task-socialdoors",
+      "fold": 3,
+      "family": "reward",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": -1.3471771968159519e-08,
+      "n_iter": 18,
+      "map": "results/maps/reward_task-socialdoors_fold-3_weights.nii.gz",
+      "map_sha256": "f12c1ba3cc45917e1412dc5e37f4015e90f009c558eaa2d1fc37a63183efb12b"
+    },
+    {
+      "model": "reward_lopo-sharedreward",
+      "fold": 3,
+      "family": "reward",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 2.495736216652429e-07,
+      "n_iter": 24,
+      "map": "results/maps/reward_lopo-sharedreward_fold-3_weights.nii.gz",
+      "map_sha256": "0d566ad1ab104abb1433bc2cd636367a24213204f415f0cdcfbace7399d33246"
+    },
+    {
+      "model": "reward_lopo-trust",
+      "fold": 3,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.496061397849325e-06,
+      "n_iter": 24,
+      "map": "results/maps/reward_lopo-trust_fold-3_weights.nii.gz",
+      "map_sha256": "d22c15871c80cb82b4858825174ea5e8ba578a014aa545b6bd2a436f009c25f3"
+    },
+    {
+      "model": "reward_lopo-socialdoors",
+      "fold": 3,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": 3.0844887802286936e-06,
+      "n_iter": 21,
+      "map": "results/maps/reward_lopo-socialdoors_fold-3_weights.nii.gz",
+      "map_sha256": "2c60e08956b4bf411b0b2a5a8c6f3755344d57170bb4259fd2959f6f4717bc0d"
+    },
+    {
+      "model": "common_reward_signature",
+      "fold": 3,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.6403184348104965e-06,
+      "n_iter": 28,
+      "map": "results/maps/common_reward_signature_fold-3_weights.nii.gz",
+      "map_sha256": "1000ade1614f7bfd3eec5085658db7eccdb79b8aaf789a689111ccc8e808ce40"
+    },
+    {
+      "model": "decision_task-trust",
+      "fold": 3,
+      "family": "decision",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": -7.047838640312958e-08,
+      "n_iter": 163,
+      "map": "results/maps/decision_task-trust_fold-3_weights.nii.gz",
+      "map_sha256": "8e915a20efda23c2a613527a57c78a76d1fd8dcdd959ea72fc39b956a69e268a"
+    },
+    {
+      "model": "decision_task-socialdoors",
+      "fold": 3,
+      "family": "decision",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 2.7608184628541277e-09,
+      "n_iter": 46,
+      "map": "results/maps/decision_task-socialdoors_fold-3_weights.nii.gz",
+      "map_sha256": "29d558e345b5b170ca7040325e683954cf3c1b596533fd9120e3a99be96a740b"
+    },
+    {
+      "model": "common_decision_signature",
+      "fold": 3,
+      "family": "decision",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": -9.917923432702507e-08,
+      "n_iter": 171,
+      "map": "results/maps/common_decision_signature_fold-3_weights.nii.gz",
+      "map_sha256": "2a10b1c9439234728cdfcf5e32d5f06df5c886e15ad90a0747c79de4a67ea15b"
+    },
+    {
+      "model": "reward_task-sharedreward",
+      "fold": 4,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 169,
+      "intercept": 2.667113973059541e-06,
+      "n_iter": 17,
+      "map": "results/maps/reward_task-sharedreward_fold-4_weights.nii.gz",
+      "map_sha256": "1acdd2d8c8e464e4d1894a566c617dd02e2feebfa5e0f078a81af9967064ac53"
+    },
+    {
+      "model": "reward_task-trust",
+      "fold": 4,
+      "family": "reward",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": 2.431427095893933e-07,
+      "n_iter": 18,
+      "map": "results/maps/reward_task-trust_fold-4_weights.nii.gz",
+      "map_sha256": "1f600f5feb241b066af56232fbc76befce3b217e933babbf0e126f9970a08623"
+    },
+    {
+      "model": "reward_task-socialdoors",
+      "fold": 4,
+      "family": "reward",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": -1.8987361723339627e-08,
+      "n_iter": 19,
+      "map": "results/maps/reward_task-socialdoors_fold-4_weights.nii.gz",
+      "map_sha256": "6e150a4e4cb0bdb8fa869be70e1325f4cf8941a42406fbf7fe07ab86030d86ce"
+    },
+    {
+      "model": "reward_lopo-sharedreward",
+      "fold": 4,
+      "family": "reward",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.142794260357725e-07,
+      "n_iter": 24,
+      "map": "results/maps/reward_lopo-sharedreward_fold-4_weights.nii.gz",
+      "map_sha256": "27bdc31f7f59c0716807203ab002d82ffb58526e0b537244bb30bac1dd519cd0"
+    },
+    {
+      "model": "reward_lopo-trust",
+      "fold": 4,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.3016880337600043e-06,
+      "n_iter": 24,
+      "map": "results/maps/reward_lopo-trust_fold-4_weights.nii.gz",
+      "map_sha256": "e4911c497d7b733a2b3816605b0f414afc438cbcc9892086087497d716df3fb6"
+    },
+    {
+      "model": "reward_lopo-socialdoors",
+      "fold": 4,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": 3.0250255993655354e-06,
+      "n_iter": 21,
+      "map": "results/maps/reward_lopo-socialdoors_fold-4_weights.nii.gz",
+      "map_sha256": "734fd281d468858fedb929051717c845e20f896438b3383be37a9b2ecf2fe76e"
+    },
+    {
+      "model": "common_reward_signature",
+      "fold": 4,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.6603164244026708e-06,
+      "n_iter": 27,
+      "map": "results/maps/common_reward_signature_fold-4_weights.nii.gz",
+      "map_sha256": "f492414dec8135b4f73adb22b9fa7d2cfc277e21f5aa943e2bf64a79854edafc"
+    },
+    {
+      "model": "decision_task-trust",
+      "fold": 4,
+      "family": "decision",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": -7.438732020224897e-08,
+      "n_iter": 167,
+      "map": "results/maps/decision_task-trust_fold-4_weights.nii.gz",
+      "map_sha256": "cc6cc3a39503c6bcf4d213d9a6a2d32c1a09cd0c2f6fc8a891549f2ea2437642"
+    },
+    {
+      "model": "decision_task-socialdoors",
+      "fold": 4,
+      "family": "decision",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 5.2260228562611424e-09,
+      "n_iter": 46,
+      "map": "results/maps/decision_task-socialdoors_fold-4_weights.nii.gz",
+      "map_sha256": "136a848f6a61ee6cc438a842c07014663f87ba26b727a61a663a43c3dda10532"
+    },
+    {
+      "model": "common_decision_signature",
+      "fold": 4,
+      "family": "decision",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": -9.677341143368596e-08,
+      "n_iter": 174,
+      "map": "results/maps/common_decision_signature_fold-4_weights.nii.gz",
+      "map_sha256": "34b8ab54fcf8bfd2550c88b38ee7704a141cca9dbcca5864385541c1aed65c6a"
+    },
+    {
+      "model": "reward_task-sharedreward",
+      "fold": 5,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 169,
+      "intercept": 2.9555759793959294e-06,
+      "n_iter": 17,
+      "map": "results/maps/reward_task-sharedreward_fold-5_weights.nii.gz",
+      "map_sha256": "68c1a8a1b77ece229976fae20dff7c5b0d729423c4062f2b615025d99a24208a"
+    },
+    {
+      "model": "reward_task-trust",
+      "fold": 5,
+      "family": "reward",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": 2.3971599371278426e-07,
+      "n_iter": 17,
+      "map": "results/maps/reward_task-trust_fold-5_weights.nii.gz",
+      "map_sha256": "acdff6f3c5c33d710d85caaef12e5a847026a5f11a09f43725675309bb3fca30"
+    },
+    {
+      "model": "reward_task-socialdoors",
+      "fold": 5,
+      "family": "reward",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 1.3544983562338884e-09,
+      "n_iter": 17,
+      "map": "results/maps/reward_task-socialdoors_fold-5_weights.nii.gz",
+      "map_sha256": "0d743f91ebed5b2f3596e198cd667c150464636d7cf61bc10094bb033c37e0f9"
+    },
+    {
+      "model": "reward_lopo-sharedreward",
+      "fold": 5,
+      "family": "reward",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 2.7526661586871536e-07,
+      "n_iter": 23,
+      "map": "results/maps/reward_lopo-sharedreward_fold-5_weights.nii.gz",
+      "map_sha256": "dac85bce83cafce754647af63e5e6f639f6f5dc02604b7d159e52ed5398ec991"
+    },
+    {
+      "model": "reward_lopo-trust",
+      "fold": 5,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.5552516117671056e-06,
+      "n_iter": 21,
+      "map": "results/maps/reward_lopo-trust_fold-5_weights.nii.gz",
+      "map_sha256": "6406b64a6dbbd58aab0074a99ac6a0dca5227ed17df5a3434c76edb32f9a75d3"
+    },
+    {
+      "model": "reward_lopo-socialdoors",
+      "fold": 5,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": 3.3852956373622516e-06,
+      "n_iter": 20,
+      "map": "results/maps/reward_lopo-socialdoors_fold-5_weights.nii.gz",
+      "map_sha256": "d0f8fe92f48dc8b2854bdd49a24d5c0c39c2f248effdea16a427101afaac800f"
+    },
+    {
+      "model": "common_reward_signature",
+      "fold": 5,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.933770029904554e-06,
+      "n_iter": 25,
+      "map": "results/maps/common_reward_signature_fold-5_weights.nii.gz",
+      "map_sha256": "91299ce29b669b40d50c2f4598ed2f4ce57761aa9efc904d3a6e7cb31ebae54b"
+    },
+    {
+      "model": "decision_task-trust",
+      "fold": 5,
+      "family": "decision",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 169,
+      "intercept": -4.796864401955959e-08,
+      "n_iter": 152,
+      "map": "results/maps/decision_task-trust_fold-5_weights.nii.gz",
+      "map_sha256": "38c393d55e72d9ea6096ef0e43b72ffa07e6f71c0b2b89ac85e29cb4d501770f"
+    },
+    {
+      "model": "decision_task-socialdoors",
+      "fold": 5,
+      "family": "decision",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": 3.5198460311871253e-09,
+      "n_iter": 41,
+      "map": "results/maps/decision_task-socialdoors_fold-5_weights.nii.gz",
+      "map_sha256": "240d84065ebfb699eb5a5d73bfc74d823e2d43bac0b6b85e96b3722cf2d44d25"
+    },
+    {
+      "model": "common_decision_signature",
+      "fold": 5,
+      "family": "decision",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 169,
+      "intercept": -5.658433747377289e-08,
+      "n_iter": 146,
+      "map": "results/maps/common_decision_signature_fold-5_weights.nii.gz",
+      "map_sha256": "9c45e7ea7fdbe786c7758c6eb9eab3e9e2963b88165dbd36ee9ddcdb67318b9b"
+    },
+    {
+      "model": "common_reward_signature",
+      "fold": 0,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 211,
+      "intercept": 4.679358239638726e-06,
+      "n_iter": 30,
+      "map": "results/maps/common_reward_signature_DEV_weights.nii.gz",
+      "map_sha256": "a90d703df97ee9e7e23f597494344fdfe9373925d3aadd99d0b04abc703738cb"
+    },
+    {
+      "model": "reward_task-sharedreward",
+      "fold": 0,
+      "family": "reward",
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 211,
+      "intercept": 3.476239631504839e-06,
+      "n_iter": 18,
+      "map": "results/maps/reward_task-sharedreward_DEV_weights.nii.gz",
+      "map_sha256": "90f37130dcf4ad9e81707fe1525cb60a697dc6cbab238bf417959be39f14c42e"
+    },
+    {
+      "model": "reward_task-trust",
+      "fold": 0,
+      "family": "reward",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 211,
+      "intercept": 2.6608483527406707e-07,
+      "n_iter": 20,
+      "map": "results/maps/reward_task-trust_DEV_weights.nii.gz",
+      "map_sha256": "00ca511bad0b588e06e1cb7ce60fdc50c9cb0e0c9c2de942787cb42180633ba1"
+    },
+    {
+      "model": "reward_task-socialdoors",
+      "fold": 0,
+      "family": "reward",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 211,
+      "intercept": -8.621823795835138e-09,
+      "n_iter": 21,
+      "map": "results/maps/reward_task-socialdoors_DEV_weights.nii.gz",
+      "map_sha256": "0268ef76d723998bf014dd6c9f98c36247cbca8f4f53ee176b238d0206c9db53"
+    },
+    {
+      "model": "common_decision_signature",
+      "fold": 0,
+      "family": "decision",
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 211,
+      "intercept": -1.0079583745513042e-07,
+      "n_iter": 173,
+      "map": "results/maps/common_decision_signature_DEV_weights.nii.gz",
+      "map_sha256": "d2c7d6077800b944a917f25d06ead9bc132eb9535acb5be575f84f38cdb435c9"
+    },
+    {
+      "model": "decision_task-trust",
+      "fold": 0,
+      "family": "decision",
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 211,
+      "intercept": -7.914836845079014e-08,
+      "n_iter": 169,
+      "map": "results/maps/decision_task-trust_DEV_weights.nii.gz",
+      "map_sha256": "0ef70e53c08a0becae24b3a291b25ad2bc9c13aa1c70763d34532f82c006fbd6"
+    },
+    {
+      "model": "decision_task-socialdoors",
+      "fold": 0,
+      "family": "decision",
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 211,
+      "intercept": 3.889395587775527e-09,
+      "n_iter": 43,
+      "map": "results/maps/decision_task-socialdoors_DEV_weights.nii.gz",
+      "map_sha256": "2e867ac7185bf9193c1d6cc87a8a6e89f38193854f2ead1fa178d5a6a8012479"
+    }
+  ],
+  "holdout_scored": false
+}

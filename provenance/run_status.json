@@ -1,5 +1,5 @@
 {
-  "run_id": "20261003T040505.010801Z",
-  "status": "failed",
-  "note": "Outputs may be partial; rerun after resolving local diagnostic failure."
+  "run_id": "20261003T115842.774831Z",
+  "status": "complete",
+  "holdout_scored": false
 }

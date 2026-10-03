@@ -1,0 +1,64 @@
+{
+  "cohort_definition": "multitask_complete_v3_aging_fulltrial",
+  "minimum_multitask_n": 250,
+  "core_tasks": [
+    "sharedreward",
+    "trust",
+    "socialdoors",
+    "doors",
+    "ugr"
+  ],
+  "seed": 20260928,
+  "holdout_n": 50,
+  "development_n": 211,
+  "stratification_variables": [
+    "age",
+    "FlipAngle"
+  ],
+  "method": "age_5_quantiles_x_flipangle",
+  "fallback_attempts": [],
+  "distributions": {
+    "development": {
+      "n": 211,
+      "age_n": 211,
+      "age_missing": 0,
+      "age_mean": 46.12322274881517,
+      "age_sd": 18.024163174357387,
+      "age_min": 20.0,
+      "age_q25": 28.0,
+      "age_median": 46.0,
+      "age_q75": 62.0,
+      "age_max": 89.0,
+      "flipangle_counts": {
+        "50": 188,
+        "20": 23
+      },
+      "sex_counts": {
+        "F": 113,
+        "M": 93,
+        "O": 5
+      }
+    },
+    "holdout": {
+      "n": 50,
+      "age_n": 50,
+      "age_missing": 0,
+      "age_mean": 47.2,
+      "age_sd": 18.642720306011224,
+      "age_min": 21.0,
+      "age_q25": 28.25,
+      "age_median": 52.5,
+      "age_q75": 62.0,
+      "age_max": 83.0,
+      "flipangle_counts": {
+        "50": 44,
+        "20": 6
+      },
+      "sex_counts": {
+        "F": 32,
+        "M": 18
+      }
+    }
+  },
+  "sha256": "65eb781cd0b10773678c902d157741a91241750f284b8f887c81d2f8e6e56323"
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "model": "reward_task-sharedreward",
+    "mean_off_diagonal": 0.7334014639136859,
+    "min_off_diagonal": 0.7155610346755825,
+    "max_off_diagonal": 0.7546004956008506
+  },
+  {
+    "model": "reward_task-trust",
+    "mean_off_diagonal": 0.7350820852539035,
+    "min_off_diagonal": 0.6996661132220892,
+    "max_off_diagonal": 0.765107445939233
+  },
+  {
+    "model": "reward_task-socialdoors",
+    "mean_off_diagonal": 0.7332516404869562,
+    "min_off_diagonal": 0.7016968704267554,
+    "max_off_diagonal": 0.7606512098112579
+  },
+  {
+    "model": "reward_lopo-sharedreward",
+    "mean_off_diagonal": 0.7238595901899776,
+    "min_off_diagonal": 0.6918458299639383,
+    "max_off_diagonal": 0.7561523945480909
+  },
+  {
+    "model": "reward_lopo-trust",
+    "mean_off_diagonal": 0.7238333365780186,
+    "min_off_diagonal": 0.7071533721093859,
+    "max_off_diagonal": 0.744833196208681
+  },
+  {
+    "model": "reward_lopo-socialdoors",
+    "mean_off_diagonal": 0.7230263462482662,
+    "min_off_diagonal": 0.7015728053030891,
+    "max_off_diagonal": 0.7507061213771921
+  },
+  {
+    "model": "common_reward_signature",
+    "mean_off_diagonal": 0.7151072824378911,
+    "min_off_diagonal": 0.6977423210500855,
+    "max_off_diagonal": 0.7402696399172254
+  },
+  {
+    "model": "decision_task-trust",
+    "mean_off_diagonal": 0.8150941899338745,
+    "min_off_diagonal": 0.7472204516733659,
+    "max_off_diagonal": 0.8686614488713079
+  },
+  {
+    "model": "decision_task-socialdoors",
+    "mean_off_diagonal": 0.8459097907661055,
+    "min_off_diagonal": 0.7747781471261651,
+    "max_off_diagonal": 0.9081005642704837
+  },
+  {
+    "model": "common_decision_signature",
+    "mean_off_diagonal": 0.8129530666328332,
+    "min_off_diagonal": 0.737626405376369,
+    "max_off_diagonal": 0.8722893856307278
+  }
+]
