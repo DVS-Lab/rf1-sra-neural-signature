@@ -1,0 +1,44 @@
+{
+  "analysis_voxels": 83731,
+  "analysis_voxel_mm": [
+    2.700000047683716,
+    2.700000047683716,
+    2.9700000286102295
+  ],
+  "native_grid_template_brain_voxels": 84479,
+  "native_grid_template_retained_pct": 99.11457285242486,
+  "template_sha256": "e4e2b284170271afdafe26ac0997b2af5a0f5ddac35e28a7e796b52e8bc5adb1",
+  "mask_sha256": "ab500c9dd88f6e0e6f91ba313a54a9c4a85dff2d9ccc2554d8967db0ac414a0d",
+  "comparison_grid": "Full TemplateFlow res-02 brain grid; nearest-neighbor mask resampling",
+  "regional_reference": "Historical combined cerebellum/brainstem exclusion mask; not a fine anatomical atlas",
+  "whole_brain": {
+    "target_voxels": 228483,
+    "retained_voxels": 222912,
+    "retained_pct": 97.5617441997873,
+    "outside_analysis_fov_pct": 0.0
+  },
+  "cerebellum_brainstem": {
+    "target_voxels": 25072,
+    "retained_voxels": 23842,
+    "retained_pct": 95.09412890874282,
+    "outside_analysis_fov_pct": 0.0
+  },
+  "other_brain": {
+    "target_voxels": 203411,
+    "retained_voxels": 199070,
+    "retained_pct": 97.86589712454095,
+    "outside_analysis_fov_pct": 0.0
+  },
+  "missing_voxel_world_bounds_mm": [
+    [
+      -70.0,
+      -106.0,
+      -72.0
+    ],
+    [
+      70.0,
+      72.0,
+      80.0
+    ]
+  ]
+}

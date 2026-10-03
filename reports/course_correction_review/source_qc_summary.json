@@ -1,0 +1,60 @@
+{
+  "source_sha": "302dccf4ed04619bb94a557c3ec39c7a8f09cb1e",
+  "qc_sha256": "5ff3f9980477b00f76d4e9c85ba8dddd3940e3cac8ae589d60746790fa4b187a",
+  "scope": "All canonical ses-01 QC runs in each task, not the N=261 complete cohort or its locked split; not restricted to retained aging runs.",
+  "note": "Counts overlap across metrics/tasks. No analysis exclusions applied.",
+  "tasks": [
+    {
+      "task": "sharedreward",
+      "available_qc_runs": 668,
+      "participants": 348,
+      "tsnr_outlier": 0,
+      "brain_coverage_outlier": 31,
+      "fd_mean_outlier": 36,
+      "tedana_outlier": 56,
+      "any_three_metric_runs": 67,
+      "any_four_metric_runs": 113,
+      "participants_any_three_metric_flag": 47,
+      "participants_any_four_metric_flag": 77
+    },
+    {
+      "task": "trust",
+      "available_qc_runs": 652,
+      "participants": 344,
+      "tsnr_outlier": 0,
+      "brain_coverage_outlier": 25,
+      "fd_mean_outlier": 48,
+      "tedana_outlier": 65,
+      "any_three_metric_runs": 73,
+      "any_four_metric_runs": 128,
+      "participants_any_three_metric_flag": 50,
+      "participants_any_four_metric_flag": 85
+    },
+    {
+      "task": "socialdoors",
+      "available_qc_runs": 337,
+      "participants": 337,
+      "tsnr_outlier": 1,
+      "brain_coverage_outlier": 15,
+      "fd_mean_outlier": 18,
+      "tedana_outlier": 22,
+      "any_three_metric_runs": 33,
+      "any_four_metric_runs": 50,
+      "participants_any_three_metric_flag": 33,
+      "participants_any_four_metric_flag": 50
+    },
+    {
+      "task": "doors",
+      "available_qc_runs": 337,
+      "participants": 337,
+      "tsnr_outlier": 1,
+      "brain_coverage_outlier": 13,
+      "fd_mean_outlier": 25,
+      "tedana_outlier": 23,
+      "any_three_metric_runs": 38,
+      "any_four_metric_runs": 55,
+      "participants_any_three_metric_flag": 38,
+      "participants_any_four_metric_flag": 55
+    }
+  ]
+}
