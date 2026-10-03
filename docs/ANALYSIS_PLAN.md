@@ -1,4 +1,4 @@
-# Trans-task social-reward pilot — architecture v2
+# Trans-task social-reward pilot — architecture v3
 
 ## Question and cohort
 
@@ -11,7 +11,11 @@ Use only ses-01 participants with complete required core activation maps in all
 five implementations: sharedreward, trust, socialdoors, doors, ugr. Inventory
 records individual availability privately and reports every nonempty combination
 of the five tasks (31 exact intersections), plus task-specific missingness. The
-intersection includes clean decision/context maps and Shared Reward run maps.
+intersection includes Trust and Doors decision/context maps and the six verified
+Shared Reward full-trial reward-condition maps. Shared Reward participants may
+have one retained run (L1 passthrough) or two retained runs (fixed-effects L2).
+The retained runs are read from the pinned aging audit, preserving its resolved
+source decisions. Reliability is a two-run development subset, not a cohort gate.
 Missing secondary paradigms no longer permit inclusion in a single-task cohort.
 
 The explicitly chosen launch gate is **N≥250 multitask-complete**, so reserving
@@ -21,7 +25,8 @@ The synthetic test config deliberately uses a lower gate, labeled as a fixture.
 Changing the production gate requires an explicit pre-analysis configuration
 revision; its value is recorded with the split and report.
 
-Canonical source exclusion is based solely on directory existence. No new motion,
+Canonical source exclusion uses directory existence; Shared Reward additionally
+uses only the retained runs from the verified aging manifest. No new motion,
 behavioral, or questionnaire thresholds are introduced. Non-mandatory imaging
 flags are descriptive. No private raw behavior is read. Actual completed designs
 must match current EV ordering, contrast weights, smoothing, and fixed-effects
@@ -37,7 +42,7 @@ then FlipAngle alone; record all fallbacks. Never infer missing age/FlipAngle.
 Unknown and discrepant acquisition values are explicit categories. Sex is described,
 not used as a class target. These demographics never enter the neural classifier.
 
-Persist and hash membership. Reject legacy single-task split provenance, missing
+Persist and hash membership. Reject legacy single-task or phase-resolved v2 split provenance, missing
 private membership, changed hashes, and cohort drift. No automatic redraw.
 Create five deterministic participant folds within development, using feasible
 age/FlipAngle strata; explicitly report participant KFold fallback when necessary.
@@ -50,16 +55,24 @@ All arithmetic uses existing COPEs in memory. L2 k means `copek.feat/stats/cope1
 
 | Family / paradigm | SOCIAL (+1) | NONSOCIAL (−1) |
 | --- | --- | --- |
-| Reward: Shared Reward L2 | ((4−3)+(6−5))/2 | 2−1 |
+| Reward: Shared Reward verified full-trial subject output | ((4−3)+(6−5))/2 | 2−1 |
 | Reward: Trust L2 | ((7−6)+(9−8))/2 | 5−4 |
 | Reward: Social/monetary Doors | socialdoors L1 run-1 cope4 | doors L1 run-1 cope4 |
-| Secondary decision: Shared Reward L2 | (27+28)/2 | 29 |
 | Secondary decision: Trust L2 | (2+3)/2, friend/stranger choice | 1, computer choice |
 | Secondary decision: Social/monetary Doors | socialdoors L1 run-1 cope3 | doors L1 run-1 cope3 |
 | UGR offer/fairness probe L2 | 14 | 13 |
 | UGR broader social context probe L2 | (5+7)/2 | (1+3)/2 |
-| Shared Reward neutral probe L2 | (8+9)/2 | 7 |
 | Shared Reward reliability L1, each run | ((4−3)+(6−5))/2 | 2−1 |
+
+Shared Reward COPE1–6 retain the computer/friend/stranger punishment/reward
+condition identities, but model **full trials from decision onset through outcome
+offset**, not isolated outcome epochs. Activation COPE27/28 are punishment
+comparisons and must never be interpreted as decision maps; activation COPE29
+does not exist. Shared Reward decision-phase tests and the neutral probe (outside
+the verified primary candidate set) are reported unavailable. The common reward
+construct therefore combines full-trial Shared Reward condition differences with
+Trust and Doors outcome contrasts; this timing difference limits specificity claims.
+No ds003745 or PPI data enter this RF1 analysis.
 
 Trust descriptive outcome decompositions are friend vs computer (7−6 vs 5−4),
 stranger vs computer (9−8 vs 5−4), and friend vs stranger (7−6 vs 9−8).
@@ -112,13 +125,13 @@ For each of the five participant folds:
    reported separately; do not treat the three margins per participant as independent.
 3. **Common reward model:** train on all three reward paradigms in training
    participants. Score held-out participants' reward maps, UGR pmod/constants,
-   Shared Reward neutral maps, Trust outcome decompositions, both Shared Reward
-   runs, and all three decision/context maps. Its within-paradigm tests assess
+   Trust outcome decompositions, paired retained Shared Reward runs where available,
+   and Trust/Doors decision/context maps. Its within-paradigm tests assess
    unseen people; they are not presented as unseen-paradigm validation.
 4. **Secondary decision/context family:** fit each task-specific context model and
-   the complete 3×3 matrix, using the same participant folds. Fit a common context
-   model on all three clean context paradigms and apply it to held-out context,
-   reward, UGR, and neutral maps. Reward→context and context→reward applications
+   the complete **Trust/Doors 2×2 matrix**, using the same participant folds. Fit a
+   common context model on these two paradigms and apply it to their held-out context
+   maps, all three reward paradigms, and UGR maps. Reward→context and context→reward applications
    are therefore participant-independent in both directions.
 
 After all CV predictions are written, fit final common and task-specific models
@@ -140,7 +153,8 @@ primary pilot tests; p values are unadjusted, not a confirmatory multiplicity cl
 Overlapping training sets mean these intervals do not capture full model-fitting
 uncertainty. No task result changes the analysis specification.
 
-Report common reward-model OOF Shared Reward run-margin Pearson r, Spearman rho,
+Using only development participants with two retained verified runs, report the
+subset N and omitted single-run N, common reward-model OOF Shared Reward run-margin Pearson r, Spearman rho,
 ICC(3,1), both run accuracies, and an unlabelled scatter. ICC(3,1) is two-way mixed,
 consistency, single measurement: (MS_subject−MS_error)/(MS_subject+(k−1)MS_error),
 k=2. Constant vectors yield undefined coefficients. It is not absolute-agreement ICC.

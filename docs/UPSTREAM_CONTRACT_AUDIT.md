@@ -1,5 +1,42 @@
 # Implementation source audit
 
+## Active Shared Reward adapter (approved 2026-10-02)
+
+The user approved using the completed RF1 activation outputs in
+`sharedreward-aging`, retaining verified one-/two-run strategies and marking
+Shared Reward phase-specific decision analyses unavailable. The active source
+was inspected at `323902ca9dd11871d04219a2f89c40ddb3bfa5d3`. Its frozen audit is
+`logs/records/full-analysis-20260930-203949-441196`: 346 RF1 activation subjects,
+309 fixed-effects and 37 L1 passthrough; all six reward-condition maps verified.
+These are source-audit counts, not the five-task intersection or final cohort.
+
+The adapter reads the audit's final summary and candidate table, checks the
+frozen L1/L2 manifest and contrast-table hashes, and selects only `dataset=rf1`,
+`session=01`, `type=act`. Each candidate must match its canonical participant,
+strategy, retained runs, contrast label and COPE/VARCOPE/mask path. Saved model
+provenance, actual FSF/design.con reward vectors, smoothing, BOLD grid evidence,
+completion files and required map headers are checked without voxel loading.
+Recorded small-file input hashes and image-input size/mtime fingerprints are
+checked for staleness, consistent with the upstream audit's provenance boundary.
+
+The canonical fixed-effects path is:
+
+```text
+sharedreward-aging/derivatives/fsl/rf1/sub-<ID>/ses-01/
+  L2_task-sharedreward_model-fulltrial_type-act_sm-6.gfeat/cope<K>.feat/stats/cope1.nii.gz
+```
+
+Single-run subjects use the manifest's retained L1
+`L1_task-sharedreward_model-fulltrial_type-act_run-<R>_sm-6.feat/stats/cope<K>.nii.gz`.
+No excluded run is loaded or imputed. The primary COPE set is 1–6; neutral maps
+are outside the verified candidate set, and COPE27/28 are punishment comparisons,
+not decision maps. This is a ten-EV/28-contrast full-trial model, not the earlier
+14-EV/34-contrast phase-resolved model. FEAT smoothing remains zero on total-6-mm
+BOLD. The original audited RF1-only source below remains a resource dependency;
+its phase-resolved statistical outputs are no longer inputs to this pipeline.
+
+## Historical phase-resolved implementation audit
+
 The source GitHub checkouts were read during implementation. No Linux2 data were
 available and no RF1 voxel analysis was performed. Exact SHAs and inspected file
 hashes are in `provenance/implementation_sources.json`; these are implementation
@@ -19,8 +56,9 @@ QC policy documentation, and UGR offer-centering implementation. Linux2 uses
 `code/pipeline_common.sh`; it has no `code/project_config.sh` or
 `code/WORKFLOW_AUDIT.md` at the inspected HEAD.
 
-All requested COPE numbers and substantive definitions agree with current
-activation templates. Important operational distinctions:
+The original requested COPE numbers agreed with the then-selected phase-resolved
+activation templates. Historical operational distinctions (superseded above for
+Shared Reward):
 
 - Shared Reward is the phase-resolved 14-EV/34-COPE model. The separate aging
   repository's pooled full-trial model is scientifically different and is not used.

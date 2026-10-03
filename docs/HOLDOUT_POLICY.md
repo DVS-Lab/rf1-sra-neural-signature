@@ -1,10 +1,15 @@
-# Internal multitask holdout policy — v2
+# Internal multitask holdout policy — v3
 
 Exactly N=50 participants form the **internal multitask validation set**. They
 must have complete required ses-01 Shared Reward, Trust, socialdoors, monetary
 doors, and UGR activation maps. Selection from Shared Reward alone is prohibited.
 The complete intersection must contain at least 250 participants before selection,
 leaving at least 200 for development. Otherwise stop and report exact overlap Ns.
+
+Shared Reward completeness is defined by verified RF1 full-trial activation and
+its retained one-/two-run strategy. Neither missing decision-phase maps nor a
+single retained run disqualifies an otherwise complete participant. Reliability
+uses only the two-run development subset.
 
 Selection precedes any voxel-level modeling and uses seed 20260928, age quantile
 × Shared Reward FlipAngle stratification, and explicitly recorded sparse-stratum
@@ -15,8 +20,8 @@ pattern expression, performance, and model selection remain inaccessible.
 
 Persist `work/splits/subject_split_v1.tsv` locally and back it up securely with
 `provenance/subject_split_v1.json`. The filename is retained for infrastructure
-compatibility, but the JSON must specify `cohort_definition: multitask_complete_v2`.
-A legacy single-task split is not silently reused, even when membership matches.
+compatibility, but the JSON must specify `cohort_definition: multitask_complete_v3_aging_fulltrial`.
+A legacy single-task or phase-resolved v2 split is not silently reused, even when membership matches.
 A missing TSV, checksum mismatch, or changed eligible cohort stops execution.
 `--regenerate-split` is an explicit dangerous override that archives prior membership
 and metadata and warns prominently. Redrawing cannot erase prior neural exposure;

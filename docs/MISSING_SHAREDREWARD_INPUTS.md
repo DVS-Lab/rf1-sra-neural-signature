@@ -1,5 +1,27 @@
 # Shared Reward zero-input investigation
 
+## Resolution: use the existing aging outputs
+
+On 2026-10-02 the user approved adapting to verified RF1 full-trial activation in
+`sharedreward-aging`, preserving its one-/two-run subject strategies and marking
+Shared Reward phase-specific decision analyses unavailable. The earlier proposal
+to require new phase-resolved FEAT models is superseded. No upstream processing
+is needed for this adapter. The old reader searched the RF1-only model directory;
+it never searched the completed aging model location.
+
+The active adapter uses `derivatives/fsl/rf1/sub-<ID>/ses-01/` within
+`sharedreward-aging`, with `model-fulltrial_type-act_sm-6` L2 or the verified
+retained L1. All six reward-condition maps are verified for 346 RF1 participants
+in the frozen audit (309 two-run and 37 one-run). The five-task intersection must
+still be established by Linux2 inventory and meet N>=250 before selecting N=50.
+The primary three-paradigm reward design is retained with explicit full-trial
+timing; secondary decision analyses now use Trust/Doors only. Neutral probes are
+unavailable because those maps are outside the verified upstream candidate set.
+
+See [active source contract](UPSTREAM_CONTRACT_AUDIT.md) and
+[analysis plan](ANALYSIS_PLAN.md). The chronology below records the investigation
+before this approved change and is not the current input requirement.
+
 ## Recheck on 2026-10-02
 
 The pooled-model execution gap is now resolved. At `sharedreward-aging` revision
