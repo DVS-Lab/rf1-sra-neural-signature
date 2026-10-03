@@ -1,0 +1,27 @@
+# Descriptive characterization only. No changes to v4 or validation access.
+version: 1
+seed: 20260928
+bootstrap_samples: 1000
+permutations: 200
+sign_stability: 0.975
+minimum_cluster_voxels: 20
+expected_development_n:
+  partner_pair: 192
+  three_paradigm: 178
+oof_atol: 1.0e-05
+oof_rtol: 2.0e-05
+glass_brain: true
+frozen_code_sha256:
+  code/revised_design.py: 8a516998ca4384c8b077ba2dabe31b479bae0d6d733984d6f8691f0b6d2ded65
+  code/revised_models.py: 7d50440251d9af5cd3de829e2c217abe0358fe1027028ed976e68f55b1d1bbd3
+  code/revised_samples.py: 3c6278734774bdde267994157b3e3bab97662ebd3156131b7a21a6151dff5096
+  code/revised_reporting.py: aa2f99adec1e6c8f330452b8f9f9182f2e5b610412d80b4b90bac527012fd3c9
+  code/revised_pilot.py: d476cc53f589128a56d249fac989b09a683630e7994e863af185849fd6029a5d
+  code/build_mask.py: 7d96f12d3a138988ee778feb778671c98332479a12f3c98bd49f8ad2a25fb6ba
+  code/inventory.py: 97ac232d99afb63ae5c1eb1d10d0447cd0b02bdf1dd285699922ddefabad90c2
+  code/aging_source.py: 895924e8e6ce3d2ce7073b9085451fa08fed0d39ba23ffdcd10826b5185cc0a5
+  code/utils.py: a63770fa89751e624b1758813a3f644bba66fb54019dd1fb215619ee8376b331
+  code/make_split.py: f199f418d7b986ab6b13f599e27ea43bc341dccf6a4f2107ca09379095d521a7
+  config/analysis.yaml: 4b8018607e6f175c5c7a427157ce0fb9528fd66935be68fea2d53b492b163401
+  config/contrast_spec.yaml: a38b779cbb03797638110c07da19501b3d46d771eff86162228bd1fc764d18e4
+  config/revised_analysis.yaml: 04fc3dbfaa79384ea40a9b967ea0e9ac23cb852ab8afeb2490110feaa85a07ab

@@ -1,5 +1,12 @@
 # RF1-SRA social reward, context, and closeness — current v4 launch
 
+The completed v4 results can now be characterized without changing the analysis:
+see [characterization instructions](docs/CHARACTERIZATION.md). On Linux2, run
+`bash code/run_characterization.sh --dry-run`, then
+`bash code/run_characterization.sh`. The private membership audit and OOF
+reconstruction must pass first; the 50-person validation sample stays locked.
+Use `--plots-only` to retry plotting after the checkpointed computations finish.
+
 The current analysis reconstructs QC-qualified samples for **Shared Reward–Trust**
 and **Shared Reward–Trust–Social/monetary Doors**, preserving distinct partner maps.
 UGR and decision-phase maps are not inputs or eligibility requirements. See the
