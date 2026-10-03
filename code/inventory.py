@@ -200,22 +200,34 @@ def inspect_unit(c, subject, task, level, run=None):
     return rows
 
 
+def bids_entities(name):
+    entities = dict(p.split('-', 1) for p in name.split('_') if '-' in p)
+    # BIDS run/echo indices are integers; leading zeros do not change identity.
+    for key in ('run', 'echo'):
+        if key in entities and entities[key].isdigit(): entities[key] = str(int(entities[key]))
+    return entities
+
+
 def flip_angle(c, subject):
-    """Resolve applicable BIDS JSON inheritance; reject conflicting echoes/runs."""
-    run_angles = []
-    for run in [1, 2]:
-        folder = c.bids / subject / 'ses-01' / 'func'
-        bolds = sorted(folder.glob(f'{subject}_ses-01_task-sharedreward_run-{run}_*bold.nii*'))
+    """Recover same-person ses-01 metadata; never assign from another participant."""
+    entry = load_aging_index(c).get(subject)
+    required_runs = entry['runs'] if entry else (1, 2)
+    folder = c.bids / subject / 'ses-01' / 'func'
+    run_angles, incomplete_runs = {}, set()
+    bolds = sorted(folder.glob('*bold.nii*'))
+    for run in (1, 2):
         values = []
         for bold in bolds:
-            name = bold.name.split('.nii')[0]
-            entities = dict(p.split('-', 1) for p in name.split('_') if '-' in p)
+            entities = bids_entities(bold.name.split('.nii')[0])
+            if (entities.get('sub') != subject.removeprefix('sub-') or entities.get('ses') != '01'
+                    or entities.get('task') != 'sharedreward' or entities.get('run') != str(run)):
+                continue
             if entities.get('part', 'mag') != 'mag' or 'space' in entities or 'desc' in entities: continue
             angle = None
             for directory in [c.bids, c.bids / subject, c.bids / subject / 'ses-01', folder]:
                 matches = []
                 for path in directory.glob('*bold.json'):
-                    ent = dict(p.split('-', 1) for p in path.stem.split('_') if '-' in p)
+                    ent = bids_entities(path.stem)
                     if all(entities.get(k) == v for k, v in ent.items()): matches.append((len(ent), path))
                 by_specificity = {}
                 for specificity, path in sorted(matches):
@@ -227,14 +239,20 @@ def flip_angle(c, subject):
                         by_specificity[specificity] = value
                         angle = value
             values.append(angle)
-        if not values or any(x is None or not np.isfinite(x) for x in values):
-            run_angles.append(None)
-        elif not np.allclose(values, values[0], atol=1e-6, rtol=0):
-            return 'discrepant', 'flipangle_echo_mismatch'
-        else: run_angles.append(values[0])
-    if any(x is None for x in run_angles): return 'missing', 'missing_flipangle'
-    if not np.isclose(*run_angles, atol=1e-6, rtol=0): return 'discrepant', 'flipangle_run_mismatch'
-    return f'{run_angles[0]:g}', ''
+        observed = [x for x in values if x is not None and np.isfinite(x)]
+        if not values or len(observed) != len(values): incomplete_runs.add(run)
+        if observed:
+            if not np.allclose(observed, observed[0], atol=1e-6, rtol=0):
+                return 'discrepant', 'flipangle_echo_mismatch'
+            run_angles[run] = observed[0]
+    observed = list(run_angles.values())
+    if not observed: return 'missing', 'missing_flipangle'
+    if not np.allclose(observed, observed[0], atol=1e-6, rtol=0):
+        return 'discrepant', 'flipangle_run_mismatch'
+    # A missing echo/run may inherit the unanimous observed same-session task value.
+    # Absent, unretained runs need no recovery and do not disqualify L1 passthrough.
+    flag = 'flipangle_recovered_within_subject' if set(required_runs) & incomplete_runs else ''
+    return f'{observed[0]:g}', flag
 
 
 def inventory(c, write=True):

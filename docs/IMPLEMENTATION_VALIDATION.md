@@ -46,9 +46,32 @@ Python 3.13.5; numpy 2.1.3; pandas 2.2.3; scipy 1.15.3; scikit-learn 1.6.1;
 nibabel 5.3.2; PyYAML 6.0.2; matplotlib 3.10.0; pytest 8.3.4.
 Real runs record their own software and repository versions.
 
+## October 3 metadata correction
+
+The committed Linux2 inventory at `91b6981` establishes 346 Shared Reward-complete
+and 261 five-task-complete participants. Its run status is failed; no real split
+or model result is claimed. One eligible participant has missing FlipAngle, which
+makes all permitted holdout strata infeasible when selecting a new split.
+
+The metadata reader previously required both raw runs regardless of the verified
+one-run strategy. It now requires metadata for retained runs, accepts equivalent
+integer run/echo labels, and permits explicitly flagged recovery from unanimous
+same-participant, same-session Shared Reward observations. Missing values cannot
+hide a conflicting observed run/echo. With no recorded evidence, group remains
+unknown; nothing is assigned from other participants or outcomes.
+
+Focused inventory/split regression tests: **18 passed in 14.62 seconds**.
+End-to-end regression tests: **3 passed in 273.22 seconds**, including the full
+synthetic pipeline, no-write dry-run, locked holdout voxel protection, source
+immutability, public-output privacy, and persisted split reuse.
+Coverage includes each one-run strategy, BIDS inheritance with padded run labels,
+missing-run recovery, absence of all recorded values, run/echo conflicts despite
+missing echoes, and a 261-person synthetic cohort selecting 50 holdout/211 development.
+
 ## Linux2 check still required
 
 Pull main and run `bash code/run_pilot.sh --dry-run`. This must establish current
 file availability, saved input/design provenance, headers, demographics and the
-five-task intersection. The frozen audit's 346 RF1 activation subjects are not a
-claim that 250 are multitask-complete. No holdout is selected by dry-run.
+five-task intersection. The October 3 inventory
+passed the cohort gate with N=261; rerun after the metadata correction to verify
+that the real missing value can be resolved. No holdout is selected by dry-run.

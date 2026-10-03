@@ -38,7 +38,9 @@ identify a template variant. Missing mechanical evidence makes that task unavail
 
 Before any voxel access, select N=50 from the multitask-complete cohort with seed
 20260928. Try age quintile × Shared Reward FlipAngle strata, quartiles, tertiles,
-then FlipAngle alone; record all fallbacks. Never infer missing age/FlipAngle.
+then FlipAngle alone; record all fallbacks. Never infer missing age. Resolve
+FlipAngle from same-participant ses-01 Shared Reward BIDS metadata as specified
+in `HOLDOUT_POLICY.md`; never assign a group from other participants.
 Unknown and discrepant acquisition values are explicit categories. Sex is described,
 not used as a class target. These demographics never enter the neural classifier.
 

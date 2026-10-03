@@ -20,14 +20,16 @@ def test_inventory_exclusions_session_missingness_headers_only(cfg, monkeypatch)
     assert 'source_excluded' in aggregate and not any(s in aggregate for s in frame.subject)
 
 
-def test_flipangle_discrepancy_not_inferred(cfg):
+def test_flipangle_recovers_missing_run_but_rejects_discrepancy(cfg):
     make_subject(cfg, 'sub-fixture000', secondary=False)
     assert flip_angle(cfg, 'sub-fixture000')[0] == '50'
     path = next((cfg.bids/'sub-fixture000/ses-01/func').glob('*run-2*bold.json'))
     path.write_text('{"FlipAngle":20}')
     assert flip_angle(cfg, 'sub-fixture000') == ('discrepant', 'flipangle_run_mismatch')
     path.unlink()
-    assert flip_angle(cfg, 'sub-fixture000')[0] == 'missing'
+    assert flip_angle(cfg, 'sub-fixture000') == ('50', 'flipangle_recovered_within_subject')
+    for path in (cfg.bids/'sub-fixture000/ses-01/func').glob('*bold.json'): path.unlink()
+    assert flip_angle(cfg, 'sub-fixture000') == ('missing', 'missing_flipangle')
 
 
 def test_primary_ambiguous_design_fails(cfg):
@@ -93,3 +95,55 @@ def test_sharedreward_expected_path_counts_require_directories(cfg, monkeypatch)
     rows = summarize_feat_paths(cfg, ['sub-fixture000'])
     found = [r for r in rows if r['directory_n']]
     assert len(found) == 1 and found[0]['expected_input'] and found[0]['directory_n'] == 1
+
+
+def raw_metadata(cfg, subject, run, angle, echo=1):
+    import json
+    folder = cfg.bids / subject / 'ses-01/func'
+    folder.mkdir(parents=True, exist_ok=True)
+    stem = f'{subject}_ses-01_task-sharedreward_run-{run}_echo-{echo}_part-mag_bold'
+    (folder / f'{stem}.nii.gz').touch()  # Metadata resolver must not read voxel data.
+    path = folder / f'{stem}.json'
+    path.write_text(json.dumps({} if angle is None else {'FlipAngle': angle}))
+    return path
+
+
+@pytest.mark.parametrize('run', [1, 2])
+def test_single_retained_run_has_observed_flipangle(cfg, run):
+    subject = 'sub-fixture000'
+    register_aging_subject(cfg, subject, (run,))
+    raw_metadata(cfg, subject, run, 20)
+    assert flip_angle(cfg, subject) == ('20', '')
+
+
+def test_flipangle_numeric_indices_and_inheritance(cfg):
+    subject = 'sub-fixture000'
+    register_aging_subject(cfg, subject)
+    raw_metadata(cfg, subject, '01', None).unlink()
+    raw_metadata(cfg, subject, '02', None).unlink()
+    (cfg.bids / 'task-sharedreward_run-1_bold.json').write_text('{"FlipAngle":50}')
+    (cfg.bids / 'task-sharedreward_run-2_bold.json').write_text('{"FlipAngle":50}')
+    assert flip_angle(cfg, subject) == ('50', '')
+
+
+def test_flipangle_missing_echo_does_not_hide_conflicting_observations(cfg):
+    subject = 'sub-fixture000'
+    register_aging_subject(cfg, subject)
+    raw_metadata(cfg, subject, 1, None, echo=1)
+    raw_metadata(cfg, subject, 1, 20, echo=2)
+    raw_metadata(cfg, subject, 2, 50)
+    assert flip_angle(cfg, subject) == ('discrepant', 'flipangle_run_mismatch')
+    raw_metadata(cfg, subject, 1, 50, echo=3)
+    assert flip_angle(cfg, subject) == ('discrepant', 'flipangle_echo_mismatch')
+
+
+def test_recorded_single_run_metadata_permits_261_person_split(cfg):
+    from make_split import make_split
+    frame = metadata(261)
+    subject = frame.subject.iloc[0]
+    register_aging_subject(cfg, subject, (2,))
+    raw_metadata(cfg, subject, 2, 50)
+    frame.loc[0, 'flip_angle'] = flip_angle(cfg, subject)[0]
+    cfg.analysis['minimum_multitask_n'] = 250
+    split = make_split(cfg, frame)
+    assert split.split.value_counts().to_dict() == {'development': 211, 'holdout': 50}

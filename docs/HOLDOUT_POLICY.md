@@ -14,6 +14,19 @@ uses only the two-run development subset.
 Selection precedes any voxel-level modeling and uses seed 20260928, age quantile
 × Shared Reward FlipAngle stratification, and explicitly recorded sparse-stratum
 fallbacks. No neural, behavioral, or phenotype outcome balances the split.
+FlipAngle uses the verified retained Shared Reward run(s), supports BIDS inheritance
+and equivalent integer indices (`run-1` / `run-01`), and checks all observed ses-01
+Shared Reward run/echo values for agreement. An absent unretained run is not missing
+metadata. Per the October 3 authorization to recover missing acquisition groups,
+a missing retained run/echo value may use the unanimous recorded value from the
+same participant's same-session Shared Reward acquisition. Such recovery is flagged
+`flipangle_recovered_within_subject` in the private inventory and counted in public
+metadata summaries. No value is inferred from age, neighboring participant IDs,
+other participants, neural data, or the mere existence of two possible groups.
+If no recorded value exists, or recorded values conflict, the status remains
+missing/discrepant; the pipeline does not silently choose a group or relax the
+holdout stratification policy. Existing locked holdout membership is always reused.
+
 File existence, geometry headers, BIDS/acquisition metadata, age, and available sex
 may be inspected for inventory and description. Holdout voxel arrays, masks,
 pattern expression, performance, and model selection remain inaccessible.
