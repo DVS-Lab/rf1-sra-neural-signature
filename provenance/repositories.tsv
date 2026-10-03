@@ -1,7 +1,8 @@
 repository	absolute_path	branch	head_sha	status
-rf1-sra-neural-signature	/ZPOOL/data/projects/rf1-sra-neural-signature	main	ea3f7415d1c38e12d54a6551b1c96f8cc09c440b	dirty
-rf1-sra-linux2	/ZPOOL/data/projects/rf1-sra-linux2	main	c44dd97dfe0a778fb48113546a3e60d776be38c2	clean
-rf1-sra-sharedreward	/ZPOOL/data/projects/rf1-sra-sharedreward	main	670571339f97bc831cd6e4fd17a7cff42b9315a6	dirty
+rf1-sra-neural-signature	/ZPOOL/data/projects/rf1-sra-neural-signature	main	1eb3ab6719a057b65e548178738935b77ee6beb9	clean
+rf1-sra-linux2	/ZPOOL/data/projects/rf1-sra-linux2	main	302dccf4ed04619bb94a557c3ec39c7a8f09cb1e	clean
+rf1-sra-sharedreward	/ZPOOL/data/projects/rf1-sra-sharedreward	main	d716f84412902671b82adfa2a22c265c09c2de01	dirty
 rf1-sra-trust	/ZPOOL/data/projects/rf1-sra-trust	main	bc731ddd143eea8737f42c22e7e334f5a9dc5532	clean
-rf1-sra-socdoors	/ZPOOL/data/projects/rf1-sra-socdoors	main	95661049e0bd46b52b276e7364533b4e51843b69	clean
-rf1-sra-ugr	/ZPOOL/data/projects/rf1-sra-ugr	main	4b44a8db136487df3f68fccf014848f9e593cf8d	clean
+rf1-sra-socdoors	/ZPOOL/data/projects/rf1-sra-socdoors	main	e77700ddf09a2fe9ab7e6ce9b32bc298082d419e	clean
+rf1-sra-ugr	/ZPOOL/data/projects/rf1-sra-ugr	main	0a6715565b065e13ff03368700df952b2180fb13	clean
+sharedreward-aging	/ZPOOL/data/projects/sharedreward-aging	main	6ffef27d417c46484925fe068e70c3289c1a9d73	clean
