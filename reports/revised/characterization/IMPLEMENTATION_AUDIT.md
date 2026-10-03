@@ -1,6 +1,6 @@
 # Implementation and leakage audit
 
-**NOT PASSED. No new scientific outputs are authorized.**
+**PENDING: private membership files are unavailable in this local checkout. No real-data scientific outputs were generated.**
 
 CHARACTERIZATION AUDIT STOP: private revised sample manifest unavailable
 

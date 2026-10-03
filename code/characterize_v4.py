@@ -149,10 +149,11 @@ def run(base,dry_run=False,plots_only=False,spec=None):
             write_audit(out,'**NOT PASSED. No new scientific outputs are authorized.**\n\n'+str(exc)+'\n\nStatic review found no evident supervised leakage; the complete runtime/private-file audit has not passed. This is not a clean audit certification.')
             raise
         before=frozen_snapshot(base)
+        versions={p:importlib.metadata.version(p) for p in ['numpy','scipy','scikit-learn','nibabel','pandas','matplotlib']}
         key=digest({'snapshot':before,'settings':spec,'compute_code':sha256(base.root/'code/characterization_compute.py'),
                     'orchestration_code':sha256(base.root/'code/characterize_v4.py'),
                     'audit_code':sha256(base.root/'code/characterization_audit.py'),
-                    'software':{p:importlib.metadata.version(p) for p in ['numpy','scipy','scikit-learn','nibabel']}})
+                    'software':versions})
         path=out.output('work/frozen_inputs.json')
         if path.exists(): require(json.loads(path.read_text())['fingerprint']==key,'original inputs/software/computation changed since checkpoint')
         write_audit(out,'**Membership and static implementation checks PASSED.** No leakage problem found in recorded membership or preprocessing. Numerical OOF reconstruction is pending; no scientific outputs have yet been authorized by this audit stage.')
@@ -160,6 +161,15 @@ def run(base,dry_run=False,plots_only=False,spec=None):
             print('CHARACTERIZATION DRY RUN PASSED: membership/hash audit only; no voxel reads, models, or scientific outputs. OOF numerical check remains pending.',flush=True)
             return
         write_json(out,'work/frozen_inputs.json',{'fingerprint':key,'snapshot':before})
+        write_json(out,'provenance/characterization.json',{
+                   'fingerprint':key,'source_snapshot_sha256':digest(before),'settings':spec,
+                   'software_versions':versions,'holdout_scored':False,
+                   'original_model_software':{cohort:scopes[(PRIMARY,cohort)]['model']['software_versions'] for cohort in TARGETS},
+                   'source_sample_manifest_sha256':scopes[(PRIMARY,'partner_pair')]['model']['sample_manifest_sha256'],
+                   'bootstrap_unit':'Whole participants, including all model tasks/classes; 1000 deterministic resamples',
+                   'permutation_scheme':'One independent sign per participant, shared across tasks and applied to training and test labels; full five-fold refitting',
+                   'haufe_definition':'Cov(X, Xw+b) / Var(Xw+b), exact spatially centered development training maps; no feature z-scoring',
+                   'cluster_definition':'Separate positive/negative 6-neighbor components of bootstrap-mean Haufe values with sign proportion >= .975; minimum 20 voxels; descriptive only'})
         complete=out.output('work/computation_complete.json')
         if plots_only: require(complete.exists(),'--plots-only requires completed audited computations')
         stage='OOF verification'

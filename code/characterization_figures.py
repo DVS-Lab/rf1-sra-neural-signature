@@ -80,7 +80,7 @@ def brain_figures(out,stem,volume,mask,reference,family,kind,spec):
             except ImportError: continue
             fig=plt.figure(figsize=(9,3.5))
             plot_glass_brain(nib.Nifti1Image(shown.astype(np.float32),aff),display_mode='lyrz',
-                            plot_abs=False,colorbar=True,cmap='RdBu_r',vmin=-vmax,vmax=vmax,
+                            plot_abs=False,colorbar=True,cmap='RdBu_r',symmetric_cbar=True,vmax=vmax,
                             threshold=None,figure=fig,title=f'{kind}: {view}; {direction}')
             save(out,stem+'_glass_'+suffix,fig,vector=False)
     fig,ax=plt.subplots(figsize=(6,3.5)); ax.hist(values,bins=80,color='#476b85')
@@ -225,7 +225,7 @@ def reliability_figures(out,scopes):
             ax.set(xlabel='Run 1 OOF margin',ylabel='Run 2 OOF margin',title=FAMILY[family]+' — '+LABELS[task]+f'\nN={len(g)}; r={r:.2f}; ρ={rho:.2f}; ICC(3,1)={icc:.2f}')
             summary.append({'cohort':cohort,'family':family,'task':task,'n':len(g),'pearson_r':r,'spearman_rho':rho,'icc_3_1':icc})
     fig.suptitle('Figure 6. Run-level reliability of individual OOF margins\nStrong condition decoding does not establish stable individual differences',fontsize=14)
-    fig.tight_layout(); save(out,'Figure6_run_reliability',fig); write_tsv(out,'results/aggregate/reliability.tsv',summary)
+    fig.tight_layout(rect=(0,0,1,.95)); save(out,'Figure6_run_reliability',fig); write_tsv(out,'results/aggregate/reliability.tsv',summary)
 
 
 def qc_figure(out,robustness):

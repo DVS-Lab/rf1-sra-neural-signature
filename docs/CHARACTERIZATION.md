@@ -101,3 +101,25 @@ The report does not automatically name brain networks from coordinates. Review
 the actual maps before interpreting perceptual versus broader anatomical
 contributions. This limitation is stated, and no cherry-picked exclusion mask is
 constructed. All final results are development characterization, not validation.
+
+## Local implementation validation
+
+The full repository regression suite passed 67 tests on 2026-10-03. Subsequent
+characterization checks also cover corrupted OOF margins and unrelated private
+image files; the seven-test characterization suite exercises exact Haufe algebra,
+participant-level permutation logic, bootstrap restart/integrity, descriptive
+cluster coordinates, holdout rejection, original-file preservation and a full
+synthetic characterization with Figure 1–6 rendering. Main figures and slice
+mosaics were visually reviewed; a reliability-title overlap was corrected.
+
+A real-data local dry run stops before NIfTI access because the Linux2 private
+manifest is absent. The checked-in characterization REPORT and implementation
+audit are explicitly pending status records. Real Haufe/bootstrap/permutation
+results and anatomical conclusions require the Linux2 launch and figure review.
+
+Final follow-up: all seven characterization tests passed (94.64 seconds),
+including both added protection tests. The optional Nilearn path was also rendered
+on synthetic volumes for all three display thresholds. It uses signed projections
+and a symmetric colorbar, following the
+[Nilearn plotting API](https://nilearn.github.io/stable/modules/generated/nilearn.plotting.plot_glass_brain.html).
+No atlas was downloaded.

@@ -29,6 +29,18 @@ def test_haufe_matches_covariance_definition():
     with pytest.raises(PipelineError,match='variance'): haufe(x,np.zeros(9))
 
 
+def test_snapshot_never_opens_unrelated_private_images(cfg,monkeypatch):
+    path=cfg.root/'work/user_files/sub-held000.nii.gz'
+    path.parent.mkdir(parents=True); path.write_bytes(b'forbidden private image')
+    import characterization_audit as implementation
+    real_hash=implementation.sha256
+    def guarded_hash(p):
+        assert Path(p)!=path, 'Private image opened during fingerprinting'
+        return real_hash(p)
+    monkeypatch.setattr(implementation,'sha256',guarded_hash)
+    assert str(path.relative_to(cfg.root)) not in frozen_snapshot(cfg)
+
+
 def test_participant_permutation_scrambles_test_labels_and_blocks_tasks(monkeypatch):
     scope=toy_scope(100); rng=np.random.default_rng(3)
     # Very strong class signal; shuffled training and shuffled TEST labels must approach chance.
@@ -75,6 +87,27 @@ def test_descriptive_clusters_separate_sign_and_use_world_coordinates():
     assert all(r['voxel_count']==24 and r['inferential_p']=='not_applicable' for r in rows)
     negative=next(r for r in rows if r['sign']==-1)
     assert negative['x']==6 and negative['peak_absolute_haufe']==3
+
+
+def test_oof_mismatch_stops_before_scientific_outputs(cfg,monkeypatch):
+    scope=toy_scope(10); out=output_config(cfg)
+    x=np.random.default_rng(7).normal(size=(10,2,2,6)).astype(np.float32)
+    w=np.arange(6)/7.; rows=[]
+    for i,subject in enumerate(scope['subjects']):
+        for j,task in enumerate(TASKS['partner_pair']):
+            rows.append({'subject':subject,'family':'valence','train_tasks':'sharedreward+trust',
+                         'test_task':task,'scope':'common','fold':scope['folds'][subject],
+                         'margin':float(x[i,j,0].astype(float)@w-x[i,j,1].astype(float)@w)})
+    scope['predictions']=pd.DataFrame(rows)
+    scope['models']={('valence_common',fold):{} for fold in range(1,6)}
+    import characterization_compute as compute
+    monkeypatch.setattr(compute,'coefficients',lambda *a:(w,.2))
+    spec={'oof_atol':1e-5,'oof_rtol':2e-5}
+    verify_oof(out,scope,'partner_pair',{'valence':x},None,None,spec)
+    scope['predictions'].loc[0,'margin']+=.01
+    with pytest.raises(PipelineError,match='do not reproduce'):
+        verify_oof(out,scope,'partner_pair',{'valence':x},None,None,spec)
+    assert not out.output('results').exists()
 
 
 @pytest.fixture

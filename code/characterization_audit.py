@@ -48,15 +48,24 @@ def digest(value):
 def frozen_snapshot(base):
     """Hash existing results, reports, provenance and private inputs, never source voxels."""
     result = {}
-    for tree in ('results', 'reports', 'provenance', 'work'):
+    for tree in ('results', 'reports', 'provenance'):
         top = base.root/tree
         if not top.exists(): continue
         for p in sorted(top.rglob('*')):
             rel = p.relative_to(base.root)
             if not p.is_file() or tuple(rel.parts[1:3]) == ('revised', 'characterization'): continue
-            if tree == 'work' and p.name == 'pilot.lock': continue
-            # The frozen analysis has no private neural arrays; include all original private inputs.
             result[str(rel)] = sha256(p)
+    # Never sweep arbitrary private files: a user may have placed source/holdout
+    # images in work/. Fingerprint only the explicitly required metadata tables.
+    private=['work/splits/subject_split_v1.tsv','work/splits/development_folds.tsv',
+             'work/revised/samples/manifest.tsv']
+    for policy in (PRIMARY,SENSITIVITY):
+        for cohort in TASKS:
+            private.extend(f'work/revised/{policy}/{cohort}/{name}' for name in
+                           ('model_membership.tsv','oof_predictions.tsv','run_predictions.tsv',
+                            'source_image_metrics.tsv','map_norms.tsv','diagnostics/mask_sources.tsv'))
+    for rel in private:
+        if (base.root/rel).is_file(): result[rel]=sha256(base.root/rel)
     return result
 
 
