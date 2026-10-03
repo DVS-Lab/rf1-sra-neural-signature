@@ -24,6 +24,11 @@ def verify_l1(values, spec, rendered=False):
     smooth = '5' if rendered and spec['smoothing'] == 'SMOOTH' else spec['smoothing']
     if values.get('fmri(smooth)') != smooth or values.get('fmri(regstandard_yn)') != '0':
         raise PipelineError('Unexpected smoothing or registration contract')
+    if spec['model'] == 'fulltrial':
+        if any(values.get(f'fmri({key})') != '10' for key in ['evs_orig', 'evs_real']):
+            raise PipelineError('Shared Reward must be the ten-EV full-trial activation design')
+        if any(values.get(f'fmri(tempfilt_yn{i})') != '0' for i in range(1, 11)):
+            raise PipelineError('Unexpected full-trial EV temporal filtering')
     for i, title in spec['ev_titles'].items():
         if values.get(f'fmri(evtitle{i})') != title:
             raise PipelineError('Activation EV ordering/title mismatch')
@@ -69,7 +74,7 @@ def repository_rows(c):
             return subprocess.check_output(['git', '--no-optional-locks', '-C', str(path), *args], text=True,
                                            stderr=subprocess.DEVNULL).strip()
         try:
-            rows.append({'repository': 'rf1-sra-' + name, 'absolute_path': str(path),
+            rows.append({'repository': 'sharedreward-aging' if name == 'aging' else 'rf1-sra-' + name, 'absolute_path': str(path),
                          'branch': git('rev-parse', '--abbrev-ref', 'HEAD'),
                          'head_sha': git('rev-parse', 'HEAD'),
                          'status': 'dirty' if git('status', '--porcelain') else 'clean'})
@@ -99,6 +104,15 @@ def preflight(c):
     records = []
     for task, spec in c.contrasts.items():
         repo = c.repos[spec['repository']]
+        if task == 'sharedreward':
+            from aging_source import verify_contrast_table, load_aging_index
+            path = verify_contrast_table(c)
+            load_aging_index(c, refresh=True)
+            records.append({'task': task, 'contrast_table': str(path.relative_to(repo)),
+                            'sha256': sha256(path), **c.aging_provenance})
+            print(f'  Shared Reward: verified aging full-trial audit; {len(c.aging_subjects)} RF1 subjects; '
+                  'one-/two-run strategies retained; decision/neutral probes unavailable', flush=True)
+            continue
         path = repo / spec['template']
         verify_l1(parse_fsf(path), spec)
         records.append({'task': task, 'template': str(path.relative_to(repo)), 'sha256': sha256(path)})

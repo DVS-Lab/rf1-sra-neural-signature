@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import binomtest, pearsonr, spearmanr
 from make_split import describe
-from utils import REWARD_TASKS
+from utils import REWARD_TASKS, FAMILY_TASKS
 from utils import atomic_output, write_json, write_tsv, write_text
 
 PERFORMANCE_COLUMNS = ['analysis', 'n', 'n_correct', 'accuracy', 'ci_low', 'ci_high', 'binomial_p',
@@ -83,7 +83,7 @@ def md_table(frame):
 
 
 SUMMARY_KEYS = ['train_family', 'train_tasks', 'test_family', 'test_task', 'model_scope']
-TASK_LABELS = ['Shared Reward', 'Trust', 'Social/monetary Doors']
+TASK_LABELS = {'sharedreward': 'Shared Reward (full trial)', 'trust': 'Trust', 'socialdoors': 'Social/monetary Doors'}
 
 
 def summarize_predictions(c, predictions):
@@ -129,20 +129,22 @@ def weight_summaries(c, weights):
 
 
 def decoding_heatmap(c, summary, family):
+    tasks = FAMILY_TASKS[family]
+    labels = [TASK_LABELS[t] for t in tasks]
     cells = summary[(summary.model_scope == 'pairwise') & (summary.train_family == family)]
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     for ax, measure, title in zip(axes, ['accuracy', 'mean_margin'], ['Forced-choice accuracy', 'Mean paired margin']):
-        values = cells.pivot(index='train_tasks', columns='test_task', values=measure).reindex(index=REWARD_TASKS, columns=REWARD_TASKS).to_numpy()
+        values = cells.pivot(index='train_tasks', columns='test_task', values=measure).reindex(index=tasks, columns=tasks).to_numpy()
         limit = max(float(np.abs(values).max()), 1e-6)
         im = ax.imshow(values, vmin=0 if measure == 'accuracy' else -limit,
                        vmax=1 if measure == 'accuracy' else limit, cmap='viridis' if measure == 'accuracy' else 'coolwarm')
-        for i, train in enumerate(REWARD_TASKS):
-            for j, test in enumerate(REWARD_TASKS):
+        for i, train in enumerate(tasks):
+            for j, test in enumerate(tasks):
                 n = int(cells[(cells.train_tasks == train) & (cells.test_task == test)].n.iloc[0])
                 ax.text(j, i, f'{values[i,j]:.3f}\nN={n}', ha='center', va='center',
                         color='white' if measure == 'accuracy' and values[i,j] < .6 else 'black')
-        ax.set_xticks(range(3), TASK_LABELS, rotation=22, ha='right')
-        ax.set_yticks(range(3), TASK_LABELS)
+        ax.set_xticks(range(len(tasks)), labels, rotation=22, ha='right')
+        ax.set_yticks(range(len(tasks)), labels)
         ax.set(xlabel='Test paradigm (held-out participants)', ylabel='Training paradigm', title=title)
         fig.colorbar(im, ax=ax, shrink=.8)
     fig.suptitle('Reward/outcome cross-decoding' if family == 'reward' else 'SECONDARY decision/context cross-decoding')
@@ -184,7 +186,16 @@ def report(c, inventory, split, predictions, weights, repos, diagnostics):
                            for cat, n in desc[key].items())
     write_tsv(c, 'results/aggregate/sample_summary.tsv', samples)
     rel, paired = reliability(predictions)
+    rel['development_n'] = int((split.split == 'development').sum())
+    rel['single_run_not_scored_n'] = rel['development_n'] - rel['n']
     write_tsv(c, 'results/aggregate/run_reliability.tsv', [rel])
+    availability = [
+        {'analysis': 'sharedreward_decision', 'status': 'unavailable', 'reason': 'Full-trial model has no isolated decision estimates'},
+        {'analysis': 'sharedreward_neutral', 'status': 'unavailable', 'reason': 'Neutral maps are outside the verified upstream candidate set'},
+        {'analysis': 'sharedreward_run_reliability', 'status': 'paired_runs_only',
+         'reason': f'{rel["n"]} development participants with two retained verified runs; no imputation'},
+    ]
+    write_tsv(c, 'results/aggregate/analysis_availability.tsv', availability)
     similarity, stability = weight_summaries(c, weights)
     diagonal = pairwise[(pairwise.train_tasks == pairwise.test_task) & (pairwise.train_family == 'reward')]
     accuracy_figure(c, 'development_accuracy.png', diagonal, diagonal.test_task.tolist(), 'Within-task reward decoding; unseen participants')
@@ -202,13 +213,13 @@ def report(c, inventory, split, predictions, weights, repos, diagnostics):
     ax.set(xlabel='Shared Reward run 1 OOF margin', ylabel='Shared Reward run 2 OOF margin',
            title=f'Common reward model; N={len(paired)}; r={rel["pearson_r"]:.3f}')
     save_figure(c, 'sharedreward_run_reliability.png', fig)
-    task_keys = [f'{family}_task-{task}' for family in ['reward', 'decision'] for task in REWARD_TASKS]
-    labels = [f'{family}: {task}' for family in ['reward', 'decision'] for task in REWARD_TASKS]
+    task_keys = [f'{family}_task-{task}' for family in ['reward', 'decision'] for task in FAMILY_TASKS[family]]
+    labels = [f'{family}: {task}' for family in ['reward', 'decision'] for task in FAMILY_TASKS[family]]
     final = similarity[similarity.fold == 0].pivot(index='model_a', columns='model_b', values='r').loc[task_keys, task_keys]
     fig, ax = plt.subplots(figsize=(9, 7))
     im = ax.imshow(final, vmin=-1, vmax=1, cmap='coolwarm')
-    ax.set_xticks(range(6), labels, rotation=30, ha='right')
-    ax.set_yticks(range(6), labels)
+    ax.set_xticks(range(len(labels)), labels, rotation=30, ha='right')
+    ax.set_yticks(range(len(labels)), labels)
     ax.set_title('Task-specific development weights: spatial similarity')
     fig.colorbar(im, ax=ax, shrink=.75)
     save_figure(c, 'task_weight_similarity.png', fig)
@@ -228,6 +239,9 @@ def report(c, inventory, split, predictions, weights, repos, diagnostics):
     mask_meta = json.loads(c.output('provenance/analysis_mask.json').read_text())
     cols = ['train_tasks', 'test_task', 'n', 'accuracy', 'ci_low', 'ci_high', 'mean_margin', 'margin_ci_low', 'margin_ci_high', 'binomial_p']
     warnings = [
+        'Shared Reward uses verified RF1 full-trial activation from sharedreward-aging: decision onset through outcome offset. Reward-condition differences are not isolated outcome-epoch estimates.',
+        'The secondary decision matrix and common decision signature use Trust and Doors only. Shared Reward decision-phase and unverified neutral probes are unavailable, not null results.',
+        'Single-run Shared Reward participants use the verified retained L1 directly for primary analyses. Reliability uses only the two-retained-run development subset.',
         'Exactly N=50 internal multitask holdout participants were never voxel-loaded or scored.',
         'Every test participant is absent from that model’s training data in every paradigm and family.',
         'LOPO omits the test reward paradigm entirely. Pooled within-task CV tests unseen participants, not unseen paradigms.',
@@ -249,7 +263,8 @@ def report(c, inventory, split, predictions, weights, repos, diagnostics):
     body += '## D. Task-specific and common weight similarity\n\n'
     selected_similarity = similarity[(similarity.fold == 0) & (similarity.model_a < similarity.model_b)]
     body += md_table(selected_similarity[['model_a', 'model_b', 'r']]) + '\n\n'
-    body += '## E. Common signature probes: UGR and neutral/context boundaries\n\n'
+    body += '## Analysis availability\n\n' + md_table(pd.DataFrame(availability)) + '\n\n'
+    body += '## E. Common signature probes: UGR and Trust decompositions\n\n'
     body += md_table(probes[['train_family'] + cols]) + '\n\n'
     body += 'Strong UGR offer-modulation transfer would be consistent with broader social-value information. Weak UGR transfer alongside successful reward cross-decoding would be consistent with greater reward/outcome specificity, subject to measurement and power limitations. Neither result changes the model.\n\n'
     body += '## F. Secondary decision/context and cross-family decoding\n\n'

@@ -6,7 +6,8 @@ import pandas as pd
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.svm import LinearSVC
 from build_mask import vectorize_source, save_image, reconstruct
-from utils import REWARD_TASKS, COHORT_DEFINITION, PipelineError, write_tsv, write_json, sha256
+from utils import REWARD_TASKS, FAMILY_TASKS, COHORT_DEFINITION, PipelineError, write_tsv, write_json, sha256
+from aging_source import aging_entry
 
 FAMILIES = ('reward', 'decision')
 PREDICTION_COLUMNS = ['subject', 'fold', 'analysis', 'train_family', 'train_tasks',
@@ -17,12 +18,8 @@ PREDICTION_COLUMNS = ['subject', 'fold', 'analysis', 'train_family', 'train_task
 def representations(task, maps):
     """Existing COPE arithmetic. UGR is a valuation/context probe, never a reward training task."""
     if task == 'sharedreward':
-        result = {'reward': (((maps[4]-maps[3])+(maps[6]-maps[5]))/2, maps[2]-maps[1])}
-        if 7 in maps:
-            result['neutral'] = ((maps[8]+maps[9])/2, maps[7])
-        if 27 in maps:
-            result['decision'] = ((maps[27]+maps[28])/2, maps[29])
-        return result
+        # Full-trial COPE27/28 are punishment contrasts, never decision estimates.
+        return {'reward': (((maps[4]-maps[3])+(maps[6]-maps[5]))/2, maps[2]-maps[1])}
     if task == 'trust':
         computer, friend, stranger = maps[5]-maps[4], maps[7]-maps[6], maps[9]-maps[8]
         result = {'reward': ((friend+stranger)/2, computer),
@@ -62,8 +59,8 @@ def fit_model(x, subjects, c, guard, development_subjects, fold,
     tasks = tuple(training_tasks)
     if (x.ndim != 4 or x.shape[:3] != (len(subjects), len(tasks), 2)
             or len(set(subjects)) != len(subjects) or not tasks
-            or len(set(tasks)) != len(tasks) or not set(tasks) <= set(REWARD_TASKS)
-            or family not in FAMILIES):
+            or len(set(tasks)) != len(tasks) or family not in FAMILIES
+            or not set(tasks) <= set(FAMILY_TASKS[family])):
         raise PipelineError('Expected paired social/nonsocial maps per unique participant and clean paradigm')
     if not np.isfinite(x).all():
         raise PipelineError('Nonfinite model matrix')
@@ -101,10 +98,10 @@ def load_maps(c, subject, task, mask, reference, guard, development_subjects, di
 
 def load_cohort(c, subjects, mask, reference, guard, development_subjects):
     guard.check(subjects, development_subjects)
-    shape = (len(subjects), len(REWARD_TASKS), 2, int(mask.sum()))
-    arrays = {family: np.empty(shape, dtype=np.float32) for family in FAMILIES}
-    probes = {key: np.empty((len(subjects), 2, shape[-1]), dtype=np.float32)
-              for key in ['neutral', 'ugr_pmod', 'ugr_constant', 'run1', 'run2',
+    arrays = {family: np.empty((len(subjects), len(FAMILY_TASKS[family]), 2, int(mask.sum())), dtype=np.float32)
+              for family in FAMILIES}
+    probes = {key: np.full((len(subjects), 2, int(mask.sum())), np.nan, dtype=np.float32)
+              for key in ['ugr_pmod', 'ugr_constant', 'run1', 'run2',
                           'friend_computer', 'stranger_computer', 'friend_stranger']}
     diagnostics, metrics = [], []
     for i, subject in enumerate(subjects):
@@ -116,15 +113,16 @@ def load_cohort(c, subjects, mask, reference, guard, development_subjects):
                  'trust': representations('trust', sources['trust']),
                  'socialdoors': doors_representations(sources['socialdoors'], sources['doors'])}
         for family in FAMILIES:
-            for j, task in enumerate(REWARD_TASKS):
+            for j, task in enumerate(FAMILY_TASKS[family]):
                 arrays[family][i, j] = center_pair(pairs[task][family])
                 for label, vector in zip(['social', 'nonsocial'], arrays[family][i, j]):
                     metrics.append({'subject': subject, 'family': family, 'task': task,
                                     'condition': label, 'norm': float(np.linalg.norm(vector)),
                                     'spatial_mean': float(vector.mean())})
-        probe_pairs = {'neutral': pairs['sharedreward']['neutral'], **representations('ugr', sources['ugr'])}
+        probe_pairs = representations('ugr', sources['ugr'])
         probe_pairs.update({key: pairs['trust'][key] for key in ['friend_computer', 'stranger_computer', 'friend_stranger']})
-        for run in [1, 2]:
+        # Paired reliability only: do not read excluded/unretained runs for single-run subjects.
+        for run in ([1, 2] if len(aging_entry(c, subject)['runs']) == 2 else []):
             maps = load_maps(c, subject, 'sharedreward', mask, reference, guard, development_subjects,
                              diagnostics, 'L1', run)
             probe_pairs[f'run{run}'] = representations('sharedreward', maps)['reward']
@@ -170,7 +168,7 @@ def run_models(c, inventory, folds, mask, reference, guard, development_subjects
         test_indices = np.flatnonzero(test)
 
         def fit(family, tasks, key):
-            indices = [REWARD_TASKS.index(task) for task in tasks]
+            indices = [FAMILY_TASKS[family].index(task) for task in tasks]
             model = fit_model(arrays[family][~test][:, indices], train_subjects, c, guard,
                               development_subjects, fold, tasks, family)
             save_model(model, key)
@@ -178,17 +176,18 @@ def run_models(c, inventory, folds, mask, reference, guard, development_subjects
             audit.extend({'model': key, 'fold': fold, 'subject': subjects[i], 'role': 'test'} for i in test_indices)
             return model
 
-        def score(model, pairs, test_family, task, scope, unseen=False):
+        def score(model, pairs, test_family, task, scope, unseen=False, paired_runs_only=False):
             name = f'{model.family}:{scope}:{"+".join(model.training_tasks)}->{test_family}:{task}'
             for i in test_indices:
+                if paired_runs_only and len(aging_entry(c, subjects[i])['runs']) != 2: continue
                 rows.append(score_pair(pairs[i], subjects[i], model, guard, development_subjects,
                                        name, test_family, task, scope, unseen))
 
         for family in FAMILIES:
-            # Nine cells share the same participant folds, including every off-diagonal test.
-            for train_task in REWARD_TASKS:
+            # Reward 3x3 and decision 2x2 share the same participant folds.
+            for train_task in FAMILY_TASKS[family]:
                 model = fit(family, (train_task,), f'{family}_task-{train_task}')
-                for j, test_task in enumerate(REWARD_TASKS):
+                for j, test_task in enumerate(FAMILY_TASKS[family]):
                     score(model, arrays[family][:, j], family, test_task, 'pairwise', train_task != test_task)
             if family == 'reward':
                 for held_task in REWARD_TASKS:
@@ -196,16 +195,17 @@ def run_models(c, inventory, folds, mask, reference, guard, development_subjects
                     model = fit(family, training, f'reward_lopo-{held_task}')
                     score(model, arrays[family][:, REWARD_TASKS.index(held_task)], family,
                           held_task, 'lopo', unseen=True)
-            common = fit(family, REWARD_TASKS, f'common_{family}_signature')
-            for j, task in enumerate(REWARD_TASKS):
+            common = fit(family, FAMILY_TASKS[family], f'common_{family}_signature')
+            for j, task in enumerate(FAMILY_TASKS[family]):
                 score(common, arrays[family][:, j], family, task, 'common')
-                other = 'decision' if family == 'reward' else 'reward'
+            other = 'decision' if family == 'reward' else 'reward'
+            for j, task in enumerate(FAMILY_TASKS[other]):
                 score(common, arrays[other][:, j], other, task, 'cross_family')
-            for name in ['ugr_pmod', 'ugr_constant', 'neutral']:
+            for name in ['ugr_pmod', 'ugr_constant']:
                 score(common, probes[name], 'boundary', name, 'probe')
             if family == 'reward':
                 for name in ['run1', 'run2']:
-                    score(common, probes[name], 'reliability', name, 'reliability')
+                    score(common, probes[name], 'reliability', name, 'reliability', paired_runs_only=True)
                 for name in ['friend_computer', 'stranger_computer', 'friend_stranger']:
                     score(common, probes[name], 'trust_decomposition', name, 'probe')
         print(f'  Fold {fold}/5: task models, both matrices, reward LOPO and common-model probes complete; test N={int(test.sum())}', flush=True)
@@ -218,16 +218,18 @@ def run_models(c, inventory, folds, mask, reference, guard, development_subjects
     write_tsv(c, 'work/diagnostics/model_membership.tsv', audit)
     print('  All CV predictions saved. Fitting development-only common and task signatures.', flush=True)
     for family in FAMILIES:
-        for tasks, key in [(REWARD_TASKS, f'common_{family}_signature'),
-                           *[((task,), f'{family}_task-{task}') for task in REWARD_TASKS]]:
-            indices = [REWARD_TASKS.index(task) for task in tasks]
+        for tasks, key in [(FAMILY_TASKS[family], f'common_{family}_signature'),
+                           *[((task,), f'{family}_task-{task}') for task in FAMILY_TASKS[family]]]:
+            indices = [FAMILY_TASKS[family].index(task) for task in tasks]
             model = fit_model(arrays[family][:, indices], subjects, c, guard, development_subjects,
                               0, tasks, family)
             save_model(model, key)
     write_json(c, 'provenance/model.json',
-               {'architecture': 'trans_task_v2', 'cohort_definition': COHORT_DEFINITION,
+               {'architecture': 'trans_task_v3_aging_fulltrial', 'cohort_definition': COHORT_DEFINITION,
                 'classes': {'social': 1, 'nonsocial': -1}, 'primary_family': 'reward',
                 'secondary_family': 'decision/context', 'reward_paradigms': REWARD_TASKS,
+                'decision_paradigms': FAMILY_TASKS['decision'], 'sharedreward_source': c.aging_provenance,
+                'unavailable_probes': ['sharedreward_decision', 'sharedreward_neutral'],
                 'ugr_role': 'social valuation / broader decision-context boundary probe; never trained',
                 'estimator': 'sklearn.svm.LinearSVC', 'parameters': model.estimator.get_params(),
                 'software_versions': versions, 'development_n': len(subjects),

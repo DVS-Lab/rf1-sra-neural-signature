@@ -1,10 +1,9 @@
 sharedreward:
-  repository: sharedreward
-  model: 1
-  n_copes: 34
-  template: templates/L1_task-sharedreward_model-1_type-act.fsf
+  repository: aging
+  model: fulltrial
+  n_copes: 28
   smoothing: '0'
-  suffix: smTo-6
+  suffix: sm-6
   copes:
     1:
       name: C_pun
@@ -30,30 +29,6 @@ sharedreward:
       name: S_rew
       weights:
         6: 1.0
-    7:
-      name: C_neu
-      weights:
-        7: 1.0
-    8:
-      name: F_neu
-      weights:
-        8: 1.0
-    9:
-      name: S_neu
-      weights:
-        9: 1.0
-    27:
-      name: F_dec
-      weights:
-        12: 1.0
-    28:
-      name: S_dec
-      weights:
-        13: 1.0
-    29:
-      name: C_dec
-      weights:
-        14: 1.0
   ev_titles:
     1: C_pun
     2: C_rew
@@ -64,9 +39,7 @@ sharedreward:
     7: C_neu
     8: F_neu
     9: S_neu
-    12: F_dec
-    13: S_dec
-    14: C_dec
+  contrast_table: templates/FULLTRIAL_CONTRAST_CANDIDATE.tsv
 trust:
   repository: trust
   model: 1

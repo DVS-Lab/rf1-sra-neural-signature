@@ -4,8 +4,9 @@ from pathlib import Path
 import nibabel as nib
 from nibabel.processing import resample_from_to
 import numpy as np
-from inventory import cope_path, feat_dir, header_info, same_grid, InputUnavailable
+from inventory import cope_path, feat_dir, mask_paths, header_info, same_grid, InputUnavailable
 from utils import PipelineError, atomic_output, sha256, write_json
+from aging_source import subject_unit
 
 
 def load_development_image(c, path, subject, guard, development_subjects):
@@ -52,11 +53,7 @@ def build_mask(c, guard, development_subjects):
         # Common spatial support across all three clean paradigm pairs, with no labels.
         participant = np.ones(reference.shape, dtype=bool)
         for task in ['sharedreward', 'trust', 'socialdoors', 'doors']:
-            if task in ['socialdoors', 'doors']:
-                paths = [feat_dir(c, subject, task, 'L1', 1) / 'mask.nii.gz']
-            else:
-                paths = [feat_dir(c, subject, task) / f'cope{k}.feat/mask.nii.gz'
-                         for k in c.contrasts[task]['copes']]
+            paths = mask_paths(c, subject, task)
             for path in paths:
                 image = load_development_image(c, path, subject, guard, development_subjects)
                 resampled = not same_grid(image, reference)
@@ -93,7 +90,7 @@ def build_mask(c, guard, development_subjects):
                 'ugr_masks_used': False,
                 'voxel_count': int(mask.sum()), 'dimensions': reference.shape,
                 'voxel_sizes': reference.header.get_zooms(), 'affine': reference.affine,
-                'reference': 'First sorted development Shared Reward L2 grid; exact path in local work/diagnostics/mask_reference.json',
+                'reference': 'First sorted development Shared Reward verified subject-output grid; exact path in local work/diagnostics/mask_reference.json',
                 'template': str(template) if template else None,
                 'template_sha256': sha256(template) if template else None,
                 'sha256': sha256(c.output('results/maps/analysis_mask.nii.gz'))})
@@ -116,6 +113,7 @@ def reconstruct(vector, mask):
 
 def vectorize_source(c, subject, task, k, mask, reference, guard, development_subjects,
                      diagnostics, level='L2', run=None):
+    if task == 'sharedreward' and level == 'L2': level, run = subject_unit(c, subject)
     path = cope_path(c, subject, task, k, level, run)
     image = load_development_image(c, path, subject, guard, development_subjects)
     resampled = not same_grid(image, reference)

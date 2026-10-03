@@ -11,8 +11,7 @@ def test_contrast_arithmetic():
     sr = representations('sharedreward', maps)
     assert sr['reward'][0] == 9  # ((16-9)+(36-25))/2
     assert sr['reward'][1] == 3
-    assert sr['neutral'][0] == 72.5
-    assert sr['decision'][0] == 756.5
+    assert set(sr) == {'reward'}  # Full-trial slots must never be reinterpreted as decisions.
     trust = representations('trust', maps)
     assert trust['reward'][0] == 15
     assert trust['reward'][1] == 9
@@ -36,7 +35,10 @@ def test_doors_separate_l1(cfg):
 
 def test_current_template_vectors_not_just_names(cfg):
     spec = cfg.contrasts['sharedreward']
-    values = parse_fsf(cfg.repos['sharedreward'] / spec['template'])
+    from conftest import make_subject
+    from inventory import feat_dir
+    make_subject(cfg, 'sub-fixture000', secondary=False)
+    values = parse_fsf(feat_dir(cfg, 'sub-fixture000', 'sharedreward', 'L1', 1)/'design.fsf')
     verify_l1(values, spec)
     values['fmri(con_real4.4)'] = '-1'
     with pytest.raises(PipelineError, match='weights'): verify_l1(values, spec)
@@ -57,7 +59,7 @@ def test_ev_order_drift_fails(cfg):
 def test_l2_mean_contract(cfg):
     from preflight import verify_l2
     spec = cfg.contrasts['sharedreward']
-    values = parse_fsf(cfg.repos['sharedreward'] / 'templates/L2_task-sharedreward_model-1_type-act.fsf')
+    values = parse_fsf(cfg.repos['aging'] / 'templates/L2_task-sharedreward_model-fulltrial_type-act.fsf')
     verify_l2(values, spec)
     values['fmri(evg2.1)'] = '-1'
     with pytest.raises(PipelineError, match='intercept-only'): verify_l2(values, spec)

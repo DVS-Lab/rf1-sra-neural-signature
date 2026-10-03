@@ -1,7 +1,7 @@
 import nibabel as nib
 import pandas as pd
 import pytest
-from conftest import make_subject, metadata
+from conftest import make_subject, metadata, register_aging_subject
 from inventory import inventory, flip_angle, feat_dir, inspect_unit, InputUnavailable, summarize_feat_paths
 from utils import PipelineError
 
@@ -53,6 +53,7 @@ def test_sharedreward_missing_paths_report_alternates_without_selecting(cfg, mon
     frame = metadata(1)
     subject = frame.subject.iloc[0]
     (cfg.bids / subject / 'ses-01').mkdir(parents=True)
+    register_aging_subject(cfg, subject)
     frame.rename(columns={'subject': 'participant_id'}).to_csv(cfg.bids/'participants.tsv', sep='\t', index=False)
     old = cfg.repos['linux2'] / 'derivatives/fsl' / subject / 'ses-01'
     (old / 'L2_task-sharedreward_ses-01_model-1_type-act_sm-6.gfeat').mkdir(parents=True)
@@ -67,9 +68,9 @@ def test_sharedreward_missing_paths_report_alternates_without_selecting(cfg, mon
     report = pd.read_csv(cfg.output('results/aggregate/feat_path_summary.tsv'), sep='\t')
     expected = report[(report.task == 'sharedreward') & report.expected_input]
     assert set(expected.layout) == {
-        'sub-<ID>/ses-01/L1_task-sharedreward_ses-01_model-1_type-act_run-1_smTo-6.feat',
-        'sub-<ID>/ses-01/L1_task-sharedreward_ses-01_model-1_type-act_run-2_smTo-6.feat',
-        'sub-<ID>/ses-01/L2_task-sharedreward_ses-01_model-1_type-act_smTo-6.gfeat'}
+        'sub-<ID>/ses-01/L1_task-sharedreward_model-fulltrial_type-act_run-1_sm-6.feat',
+        'sub-<ID>/ses-01/L1_task-sharedreward_model-fulltrial_type-act_run-2_sm-6.feat',
+        'sub-<ID>/ses-01/L2_task-sharedreward_model-fulltrial_type-act_sm-6.gfeat'}
     assert expected.directory_n.sum() == 0
     assert not expected.root_exists.any()
     alternate = report[report.directory_n > 0]
@@ -84,10 +85,10 @@ def test_sharedreward_missing_paths_report_alternates_without_selecting(cfg, mon
 
 
 def test_sharedreward_expected_path_counts_require_directories(cfg, monkeypatch):
-    folder = cfg.repos['sharedreward'] / 'derivatives/fsl/sub-fixture000/ses-01'
+    folder = cfg.repos['aging'] / 'derivatives/fsl/rf1/sub-fixture000/ses-01'
     folder.mkdir(parents=True)
-    (folder / 'L1_task-sharedreward_ses-01_model-1_type-act_run-1_smTo-6.feat').mkdir()
-    (folder / 'L1_task-sharedreward_ses-01_model-1_type-act_run-2_smTo-6.feat').touch()
+    (folder / 'L1_task-sharedreward_model-fulltrial_type-act_run-1_sm-6.feat').mkdir()
+    (folder / 'L1_task-sharedreward_model-fulltrial_type-act_run-2_sm-6.feat').touch()
     monkeypatch.setattr(nib, 'load', lambda *a, **kw: pytest.fail('path diagnosis loaded an image'))
     rows = summarize_feat_paths(cfg, ['sub-fixture000'])
     found = [r for r in rows if r['directory_n']]

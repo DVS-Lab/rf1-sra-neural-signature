@@ -28,3 +28,10 @@ def test_icc31_known_values_and_additive_run_offset():
 
 def test_prediction_schema():
     assert PREDICTION_COLUMNS == ['subject','fold','analysis','train_family','train_tasks','test_family','test_task','model_scope','positive_score','negative_score','paired_margin','correct']
+
+
+def test_reliability_without_two_run_participants_is_unavailable():
+    summary, pairs = reliability(pd.DataFrame(columns=PREDICTION_COLUMNS))
+    assert summary['n'] == 0 and np.isnan(summary['pearson_r'])
+    assert np.isnan(summary['icc_3_1']) and pairs.empty
+    assert list(pairs.columns) == ['run1', 'run2']

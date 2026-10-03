@@ -59,7 +59,7 @@ def make_split(c, eligible, regenerate=False):
         split = pd.read_csv(path, sep='\t', dtype=str)
         validate_split(split, eligible)
         if meta_path.exists() and json.loads(meta_path.read_text()).get('cohort_definition') != COHORT_DEFINITION:
-            raise PipelineError('Legacy single-task split cannot be reused as a multitask validation set; explicit reviewed regeneration is required')
+            raise PipelineError('Legacy split uses a different cohort/model contract; explicit reviewed regeneration is required')
         if not meta_path.exists() or json.loads(meta_path.read_text())['sha256'] != sha256(path):
             raise PipelineError('Locked split hash missing or mismatched; restore matching TSV and provenance')
         print('  Reusing locked N=50 holdout; membership unchanged.', flush=True)

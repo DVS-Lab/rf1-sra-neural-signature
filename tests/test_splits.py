@@ -69,5 +69,5 @@ def test_no_single_task_fallback_or_legacy_reuse(cfg):
     meta = json.loads(path.read_text())
     meta.pop('cohort_definition')
     path.write_text(json.dumps(meta))
-    with pytest.raises(PipelineError, match='Legacy single-task'):
+    with pytest.raises(PipelineError, match='Legacy split'):
         make_split(cfg, data)

@@ -14,13 +14,19 @@ import yaml
 
 CORE_TASKS = ('sharedreward', 'trust', 'socialdoors', 'doors', 'ugr')
 REWARD_TASKS = ('sharedreward', 'trust', 'socialdoors')
-COHORT_DEFINITION = 'multitask_complete_v2'
+DECISION_TASKS = ('trust', 'socialdoors')
+FAMILY_TASKS = {'reward': REWARD_TASKS, 'decision': DECISION_TASKS}
+COHORT_DEFINITION = 'multitask_complete_v3_aging_fulltrial'
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 class PipelineError(RuntimeError):
     """A scientific or mechanical contract could not be established."""
+
+
+class InputUnavailable(PipelineError):
+    pass
 
 
 def sha256(path):
@@ -91,8 +97,12 @@ def load_config(config_dir=None, root=None):
                 'space': 'MNI152NLin6Asym', 'normalization': 'spatial_mean_center', 'coverage': .95}
     if any(analysis.get(k) != v for k, v in required.items()):
         raise PipelineError('Primary analysis settings differ from the frozen pilot contract')
-    if analysis.get('version') != 2 or analysis.get('cohort_definition') != COHORT_DEFINITION:
+    if analysis.get('version') != 3 or analysis.get('cohort_definition') != COHORT_DEFINITION:
         raise PipelineError('Only the revised multitask architecture is supported')
+    if (contrasts['sharedreward']['repository'] != 'aging'
+            or contrasts['sharedreward']['model'] != 'fulltrial'
+            or set(contrasts['sharedreward']['copes']) != set(range(1, 7))):
+        raise PipelineError('Shared Reward requires the verified aging full-trial reward conditions')
     if not isinstance(analysis.get('minimum_multitask_n'), int) or analysis['minimum_multitask_n'] < 55:
         raise PipelineError('Set an explicit minimum multitask cohort of at least 55')
     svm = analysis['classifier']

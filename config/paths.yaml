@@ -1,4 +1,3 @@
-# All relative source paths are relative to their respective repository.
 projects_root: /ZPOOL/data/projects
 repositories:
   linux2: rf1-sra-linux2
@@ -6,11 +5,12 @@ repositories:
   trust: rf1-sra-trust
   socdoors: rf1-sra-socdoors
   ugr: rf1-sra-ugr
+  aging: sharedreward-aging
 bids: bids
 fmriprep: derivatives/fmriprep
 source_exclusions: /ZPOOL/data/sourcedata/sourcedata/rf1-sra-exclusions
-# Read only. No download is attempted; absence triggers the coverage-only fallback.
 templateflow: /ZPOOL/data/tools/templateflow
 age_column: age
 sex_column: sex
 qc_table: qc/run_qc.tsv
+aging_audit: logs/records/full-analysis-20260930-203949-441196

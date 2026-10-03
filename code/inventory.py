@@ -9,15 +9,13 @@ import nibabel as nib
 import numpy as np
 import pandas as pd
 from preflight import parse_fsf, verify_l1, verify_design_con, verify_l2
-from utils import CORE_TASKS, PipelineError, subject_id, write_tsv
-
-
-class InputUnavailable(PipelineError):
-    pass
+from utils import CORE_TASKS, PipelineError, InputUnavailable, subject_id, write_tsv, write_json
+from aging_source import aging_directory, aging_entry, subject_unit, load_aging_index, verify_stamp
 
 
 def feat_dir(c, subject, task, level='L2', run=None):
     subject_id(subject)
+    if task == 'sharedreward': return aging_directory(c, subject, level, run)
     spec = c.contrasts[task]
     if task in ['socialdoors', 'doors'] and level != 'L1':
         raise PipelineError('Social/monetary Doors must use separate L1 maps')
@@ -31,8 +29,17 @@ def feat_dir(c, subject, task, level='L2', run=None):
 
 
 def cope_path(c, subject, task, cope, level='L2', run=None):
+    if task == 'sharedreward' and level == 'L2': level, run = subject_unit(c, subject)
     base = feat_dir(c, subject, task, level, run)
     return base / (f'stats/cope{cope}.nii.gz' if level == 'L1' else f'cope{cope}.feat/stats/cope1.nii.gz')
+
+
+def mask_paths(c, subject, task):
+    level, run = ('L1', 1) if task in ['socialdoors', 'doors'] else ('L2', None)
+    if task == 'sharedreward': level, run = subject_unit(c, subject)
+    base = feat_dir(c, subject, task, level, run)
+    return ([base/'mask.nii.gz'] if level == 'L1' else
+            [base/f'cope{k}.feat/mask.nii.gz' for k in c.contrasts[task]['copes']])
 
 
 def nonempty(path):
@@ -49,6 +56,7 @@ def summarize_feat_paths(c, subjects):
     for task in CORE_TASKS:
         spec = c.contrasts[task]
         expected_root = c.repos[spec['repository']] / 'derivatives/fsl'
+        if task == 'sharedreward': expected_root /= 'rf1'
         roots = [expected_root]
         if task == 'sharedreward':
             legacy_root = c.repos['linux2'] / 'derivatives/fsl'
@@ -57,7 +65,7 @@ def summarize_feat_paths(c, subjects):
         units = [('L1', 1)] if task in ['socialdoors', 'doors'] else [('L1', 1), ('L1', 2), ('L2', None)]
         expected = {feat_dir(c, 'sub-placeholder', task, level, run).name for level, run in units}
         pattern = re.compile(
-            rf'L[12]_task-{task}_ses-01_model-[0-9]+_type-act'
+            rf'L[12]_task-{task}_(?:ses-01_)?model-(?:[0-9]+|fulltrial)_type-act'
             r'(?:_run-[12])?_sm(?:To)?-[0-9]+(?:p[0-9]+)?\.(?:feat|gfeat)')
         for root in roots:
             observed = Counter()
@@ -115,6 +123,13 @@ def l1_evidence(c, subject, task, run):
     verify_l1(values, c.contrasts[task], rendered=True)
     verify_design_con(base / 'design.con', c.contrasts[task])
     data = Path(values.get('feat_files(1)', ''))
+    if task == 'sharedreward':
+        entry = aging_entry(c, subject)
+        if run not in entry['runs']:
+            raise PipelineError('Shared Reward run was not retained by the verified audit')
+        if data.resolve() != Path(entry['l1'][run]['input']).resolve():
+            raise PipelineError('Aging L1 input differs from the frozen retained-run manifest')
+        verify_stamp(c, base, 'L1')
     if not data.is_absolute():
         raise InputUnavailable('ambiguous_input_space')
     # Do not trust generic NIfTI MNI codes to identify an MNI template variant.
@@ -142,7 +157,8 @@ def inspect_unit(c, subject, task, level, run=None):
     if level == 'L1':
         l1_evidence(c, subject, task, run)
         required = [base / x for x in ['design.mat', 'design.con', 'mask.nii.gz', 'cluster_mask_zstat1.nii.gz']]
-        required += [base / f'stats/cope{k}.nii.gz' for k in range(1, spec['n_copes'] + 1)]
+        required += [base / f'stats/cope{k}.nii.gz' for k in
+                     (spec['copes'] if task == 'sharedreward' else range(1, spec['n_copes'] + 1))]
         masks = [base / 'mask.nii.gz']
     else:
         if not (base / 'design.fsf').is_file(): raise InputUnavailable('missing_design_evidence')
@@ -153,13 +169,23 @@ def inspect_unit(c, subject, task, level, run=None):
             if actual != feat_dir(c, subject, task, 'L1', r).resolve():
                 raise PipelineError('Completed L2 input does not match the expected participant/run')
             l1_evidence(c, subject, task, r)
+        if task == 'sharedreward':
+            verify_stamp(c, base, 'L2', [feat_dir(c, subject, task, 'L1', r) for r in [1, 2]])
         required = [base / 'design.mat', base / 'design.con']
-        for k in range(1, spec['n_copes'] + 1):
+        for k in (spec['copes'] if task == 'sharedreward' else range(1, spec['n_copes'] + 1)):
             required.extend(base / f'cope{k}.feat' / x for x in
                             ['design.mat', 'design.con', 'mask.nii.gz', 'stats/cope1.nii.gz',
                              'stats/zstat1.nii.gz', 'cluster_mask_zstat1.nii.gz'])
         masks = [base / f'cope{k}.feat/mask.nii.gz' for k in spec['copes']]
     if any(not nonempty(p) for p in required): raise InputUnavailable('incomplete_feat')
+    if task == 'sharedreward' and level == 'L2':
+        for k in spec['copes']:
+            for filename, expected in [('design.mat', np.ones((2, 1))), ('design.con', np.ones((1, 1)))]:
+                text = (base/f'cope{k}.feat'/filename).read_text()
+                if '/Matrix' not in text: raise PipelineError('Aging L2 completed matrix is missing')
+                matrix = np.loadtxt(text.split('/Matrix', 1)[1].splitlines(), ndmin=2)
+                if matrix.shape != expected.shape or not np.allclose(matrix, expected, atol=1e-8, rtol=0):
+                    raise PipelineError('Aging L2 completed matrix must be the two-run fixed-effects mean')
     images = [cope_path(c, subject, task, k, level, run) for k in spec['copes']] + masks
     rows = []
     reference = nib.load(images[0])
@@ -212,6 +238,7 @@ def flip_angle(c, subject):
 
 
 def inventory(c, write=True):
+    load_aging_index(c, refresh=True)
     people = pd.read_csv(c.bids / 'participants.tsv', sep='\t', dtype={'participant_id': str})
     if 'participant_id' not in people or people.participant_id.duplicated().any():
         raise PipelineError('Invalid canonical participants table')
@@ -236,12 +263,19 @@ def inventory(c, write=True):
         for task in c.contrasts:
             reasons = []
             units = [('L1', 1)] if task in ['socialdoors', 'doors'] else [('L2', None)]
-            if task == 'sharedreward': units = [('L1', 1), ('L1', 2), ('L2', None)]
+            if task == 'sharedreward':
+                entry = c.aging_subjects.get(subject)
+                row['sharedreward_runs'] = ','.join(map(str, entry['runs'])) if entry else ''
+                row['sharedreward_strategy'] = entry['strategy'] if entry else 'unavailable'
+                row['sharedreward_two_runs'] = bool(entry and len(entry['runs']) == 2)
+                units = [('L1', r) for r in entry['runs']] if entry else []
+                if entry and len(entry['runs']) == 2: units.append(('L2', None))
+                if not entry: reasons.append('not_in_verified_aging_manifest')
             for level, run in units:
                 try: geometry.extend(inspect_unit(c, subject, task, level, run))
                 except InputUnavailable as exc: reasons.append(f'{level}_{run or 0}:{exc}')
-                except PipelineError:
-                    raise PipelineError(f'Core {task} completed design contradicts the scientific contract; inspect local FEAT designs')
+                except PipelineError as exc:
+                    raise PipelineError(f'Core {task} completed design contradicts the scientific contract: {exc}') from exc
             if not row['ses01']: reasons.append('missing_ses01')
             row[task] = not reasons
             row[task + '_reason'] = ';'.join(sorted(set(reasons)))
@@ -280,6 +314,7 @@ def inventory(c, write=True):
                     print(f'    {kind}: {item["source_root"]}/{item["layout"]}: '
                           f'N={item["directory_n"]}; root_exists={item["root_exists"]}', flush=True)
     if write:
+        write_json(c, 'provenance/sharedreward_source.json', c.aging_provenance)
         write_tsv(c, 'work/inventory/task_availability.tsv', table)
         write_tsv(c, 'work/inventory/image_headers.tsv', geometry)
         write_tsv(c, 'results/aggregate/inventory_summary.tsv', summary)

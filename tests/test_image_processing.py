@@ -2,7 +2,7 @@ import numpy as np
 import nibabel as nib
 import pytest
 from build_mask import spatial_center, reconstruct, load_development_image, vectorize_source
-from conftest import save_nii, metadata, make_subject
+from conftest import save_nii, metadata, make_subject, register_aging_subject
 from inventory import header_info, InputUnavailable, cope_path
 from make_split import make_split, guard_from_split
 from utils import PipelineError, write_text
@@ -69,6 +69,7 @@ def test_fixed_95_percent_mask_and_template_fallback(cfg):
     subjects = sorted(guard.development)
     assert len(subjects) == 20
     for i, subject in enumerate(subjects):
+        register_aging_subject(cfg, subject)
         data = np.ones((3,3,3))
         if i == 0: data[0,0,0] = 0  # 19/20: retained
         if i < 2: data[0,0,1] = 0  # 18/20: removed
