@@ -1,0 +1,16 @@
+tasks	n
+sharedreward	346
+trust	304
+socialdoors	336
+doors	336
+sharedreward+trust	300
+sharedreward+socialdoors	332
+sharedreward+doors	333
+trust+socialdoors	292
+trust+doors	293
+socialdoors+doors	334
+sharedreward+trust+socialdoors	289
+sharedreward+trust+doors	290
+sharedreward+socialdoors+doors	331
+trust+socialdoors+doors	291
+sharedreward+trust+socialdoors+doors	288

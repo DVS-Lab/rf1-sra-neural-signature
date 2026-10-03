@@ -1,0 +1,54 @@
+{
+  "settings": {
+    "version": "v4_social_reward_context_closeness",
+    "primary_qc_policy": "tsnr_coverage_fd",
+    "sensitivity_qc_policy": "prior_four_metric_policy",
+    "include_new_development": true,
+    "holdout_mode": "top_up_pair",
+    "holdout_target_primary": 50
+  },
+  "config_sha256": "04fc3dbfaa79384ea40a9b967ea0e9ac23cb852ab8afeb2490110feaa85a07ab",
+  "software": {
+    "numpy": "1.26.4",
+    "pandas": "2.3.3",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.8.0",
+    "nibabel": "5.3.2",
+    "PyYAML": "6.0",
+    "matplotlib": "3.7.1"
+  },
+  "contrast_contracts": [
+    {
+      "task": "sharedreward",
+      "contrast_table": "templates/FULLTRIAL_CONTRAST_CANDIDATE.tsv",
+      "sha256": "a02eb07bbba468cd9e2d8bb89574bf033c5de2f454f01db91182fd7f6111ed03",
+      "contract": "fulltrial-retained-contrasts-v3",
+      "epoch": "full_trial_decision_through_outcome",
+      "audit": "logs/records/full-analysis-20260930-203949-441196",
+      "summary_sha256": "6ef1f7ee8caa86a55a991924c6f08874d023c7c3dcbb094d5448b4631bb1941c",
+      "candidates_sha256": "d3571af4af043d0906e9360348c625756b718bfa5c731e0c1a7f2bb682ecf786",
+      "l1_manifest_sha256": "1d46f25516e389f9f902401a46b69b68983e33ea8be32af504c9a140f0cfc425",
+      "l2_manifest_sha256": "b0ac1ec0b2ba8014566f5dddf07e8acc5bdaf987fdaffa57cdb83b71a16a9357",
+      "verified_rf1_subjects": 346,
+      "fixed_effects_n": 309,
+      "l1_passthrough_n": 37,
+      "ratings_filter_applied": false
+    },
+    {
+      "task": "trust",
+      "template": "templates/L1_task-trust_model-1_type-act.fsf",
+      "sha256": "e9d469890e6fd53acef7b788badde09c53ebfac1a5a7a1bda94b34faf94c121f"
+    },
+    {
+      "task": "socialdoors",
+      "template": "templates/L1_task-socialdoors_model-1_type-act.fsf",
+      "sha256": "d5bdba975637e1e70cd1b2157f538522ef9691ddab8a06d64e54a8019e4029df"
+    },
+    {
+      "task": "doors",
+      "template": "templates/L1_task-doors_model-1_type-act.fsf",
+      "sha256": "9eac48e657922635af4fd1941d2259319989f821e154b4294ed67c957e2aa3b7"
+    }
+  ],
+  "holdout_scored": false
+}

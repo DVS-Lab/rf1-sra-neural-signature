@@ -1,0 +1,53 @@
+{
+  "method": "TemplateFlow_MNI152NLin6Asym_intersect_95pct_development_multitask_FEAT",
+  "coverage_threshold": 0.95,
+  "development_n": 148,
+  "coverage_tasks": [
+    "sharedreward",
+    "trust",
+    "socialdoors",
+    "doors"
+  ],
+  "ugr_masks_used": false,
+  "voxel_count": 84163,
+  "dimensions": [
+    57,
+    70,
+    54
+  ],
+  "voxel_sizes": [
+    2.700000047683716,
+    2.700000047683716,
+    2.9700000286102295
+  ],
+  "affine": [
+    [
+      2.700000047683716,
+      0.0,
+      0.0,
+      -74.80000305175781
+    ],
+    [
+      0.0,
+      2.700000047683716,
+      0.0,
+      -109.80000305175781
+    ],
+    [
+      0.0,
+      0.0,
+      2.9700000286102295,
+      -72.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "reference": "First sorted development Shared Reward verified subject-output grid; exact path in local work/diagnostics/mask_reference.json",
+  "template": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_res-02_desc-brain_mask.nii.gz",
+  "template_sha256": "e4e2b284170271afdafe26ac0997b2af5a0f5ddac35e28a7e796b52e8bc5adb1",
+  "sha256": "2582c407fa943d54872138a61b0ca95ef1a986a73466e41c6b11e8655a49904d"
+}

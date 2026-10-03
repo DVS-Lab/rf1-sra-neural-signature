@@ -1,0 +1,7 @@
+repository	absolute_path	branch	head_sha	status
+rf1-sra-neural-signature	/ZPOOL/data/projects/rf1-sra-neural-signature	main	76cf71066780ac00fdfd987bb2a57f57fa17f685	clean
+rf1-sra-linux2	/ZPOOL/data/projects/rf1-sra-linux2	main	302dccf4ed04619bb94a557c3ec39c7a8f09cb1e	clean
+rf1-sra-sharedreward	/ZPOOL/data/projects/rf1-sra-sharedreward	main	d716f84412902671b82adfa2a22c265c09c2de01	dirty
+rf1-sra-trust	/ZPOOL/data/projects/rf1-sra-trust	main	bc731ddd143eea8737f42c22e7e334f5a9dc5532	clean
+rf1-sra-socdoors	/ZPOOL/data/projects/rf1-sra-socdoors	main	e77700ddf09a2fe9ab7e6ce9b32bc298082d419e	clean
+sharedreward-aging	/ZPOOL/data/projects/sharedreward-aging	main	6ffef27d417c46484925fe068e70c3289c1a9d73	clean

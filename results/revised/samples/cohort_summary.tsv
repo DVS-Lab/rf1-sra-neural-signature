@@ -1,0 +1,5 @@
+policy	cohort	development_n	original_development_retained_n	new_development_n	original_holdout_total_n	protected_holdout_total_n	supplemental_holdout_n	qc_qualified_holdout_n	original_holdout_unavailable_n	holdout_scored
+tsnr_coverage_fd	partner_pair	192	176	16	50	62	12	50	12	False
+tsnr_coverage_fd	three_paradigm	178	166	12	50	62	12	41	14	False
+prior_four_metric_policy	partner_pair	165	152	13	50	62	12	44	17	False
+prior_four_metric_policy	three_paradigm	148	139	9	50	62	12	36	19	False

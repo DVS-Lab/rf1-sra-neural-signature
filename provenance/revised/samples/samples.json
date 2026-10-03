@@ -1,0 +1,21 @@
+{
+  "version": "v4_social_reward_context_closeness",
+  "original_split_sha256": "65eb781cd0b10773678c902d157741a91241750f284b8f887c81d2f8e6e56323",
+  "original_folds_sha256": "9cb3a0330b7168687c41e9b41d4ac6183ad47136b399bf723b3b61b1f283d02e",
+  "qc_sha256": "5ff3f9980477b00f76d4e9c85ba8dddd3940e3cac8ae589d60746790fa4b187a",
+  "policies": [
+    "tsnr_coverage_fd",
+    "prior_four_metric_policy"
+  ],
+  "include_new_development": true,
+  "holdout_mode": "top_up_pair",
+  "supplemental_holdout_n": 12,
+  "primary_qualified_original_holdout_n": 38,
+  "protected_holdout_total_n": 62,
+  "manifest_sha256": "40f9586a877bd9c25b0eaaef7fb03c25b9e0dcde3eeaf9a7301316fed7632b0b",
+  "original_holdout_redrawn": false,
+  "holdout_scored": false,
+  "supplement_selection": "Seeded uniform sample without replacement from sorted new QC-qualified partner-pair candidates; no voxel or performance input",
+  "minimum_is_computational_only": "10 development participants and all five folds; not a power guarantee",
+  "new_fold_assignment": "SHA256(seed:subject) modulo 5; original folds preserved"
+}

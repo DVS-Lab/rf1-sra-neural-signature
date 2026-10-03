@@ -1,0 +1,1966 @@
+{
+  "architecture": "v4_social_reward_context_closeness",
+  "cohort": "three_paradigm",
+  "development_n": 178,
+  "holdout_scored": false,
+  "sample_manifest_sha256": "40f9586a877bd9c25b0eaaef7fb03c25b9e0dcde3eeaf9a7301316fed7632b0b",
+  "mask_sha256": "bdd44b7b3f2ff442bc9d70213945fbf8270f92f4ea48ac5b7dea7ffeaa3ac10a",
+  "classifier": {
+    "C": 1.0,
+    "dual": true,
+    "class_weight": null,
+    "max_iter": 100000,
+    "tol": 0.0001
+  },
+  "software_versions": {
+    "numpy": "1.26.4",
+    "pandas": "2.3.3",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.8.0",
+    "nibabel": "5.3.2",
+    "PyYAML": "6.0",
+    "matplotlib": "3.7.1"
+  },
+  "source_repository_shas": {
+    "rf1-sra-neural-signature": "76cf71066780ac00fdfd987bb2a57f57fa17f685",
+    "rf1-sra-linux2": "302dccf4ed04619bb94a557c3ec39c7a8f09cb1e",
+    "rf1-sra-sharedreward": "d716f84412902671b82adfa2a22c265c09c2de01",
+    "rf1-sra-trust": "bc731ddd143eea8737f42c22e7e334f5a9dc5532",
+    "rf1-sra-socdoors": "e77700ddf09a2fe9ab7e6ce9b32bc298082d419e",
+    "sharedreward-aging": "6ffef27d417c46484925fe068e70c3289c1a9d73"
+  },
+  "preprocessing": "Per-map spatial mean centering; no scaling or fitted feature selection",
+  "multiclass_labels": {
+    "0": "computer",
+    "1": "friend",
+    "2": "stranger"
+  },
+  "models": [
+    {
+      "model": "social_reward_task-sharedreward",
+      "family": "social_reward",
+      "fold": 1,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.401226879297477e-06
+      ],
+      "n_iter": 16,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-sharedreward_fold-1_positive_weights.nii.gz",
+          "sha256": "837a6961126740910e5d07b706db96686c7285a058d7b2e67590dc2ddca89268"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-trust",
+      "family": "social_reward",
+      "fold": 1,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.5892900136324635e-07
+      ],
+      "n_iter": 18,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_fold-1_positive_weights.nii.gz",
+          "sha256": "94636ab91a5dcabbd7d6e558ce48cfc7c5745f381a640bd2533e2474a2b9e7a3"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-socialdoors",
+      "family": "social_reward",
+      "fold": 1,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -9.741015833101126e-09
+      ],
+      "n_iter": 19,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-socialdoors_fold-1_positive_weights.nii.gz",
+          "sha256": "811c50b6f259806a3d225225f35fd8f0915486568b4ff2c8a9b66ddd826e0af5"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-sharedreward",
+      "family": "social_reward",
+      "fold": 1,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.8312335253615284e-07
+      ],
+      "n_iter": 22,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-sharedreward_fold-1_positive_weights.nii.gz",
+          "sha256": "5809579f50ed8b2ec95f2d42ecbfc0561edb628b0250f506b886e3fceacfca3e"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-trust",
+      "family": "social_reward",
+      "fold": 1,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.934038817077247e-06
+      ],
+      "n_iter": 23,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-trust_fold-1_positive_weights.nii.gz",
+          "sha256": "866b17acf29edb07e8789a12079c7071edced1ac95fddb9b646074a20e54fd96"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-socialdoors",
+      "family": "social_reward",
+      "fold": 1,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.6596906847112445e-06
+      ],
+      "n_iter": 21,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-socialdoors_fold-1_positive_weights.nii.gz",
+          "sha256": "5c73deb9bb98ecfa5e90d7b46ba41bec57368f8fd355c596092f2a07526f2ad9"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_common",
+      "family": "social_reward",
+      "fold": 1,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.2558241546914817e-06
+      ],
+      "n_iter": 26,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_common_fold-1_positive_weights.nii.gz",
+          "sha256": "59b1b5814a8668492db4819b5c31ea5aa6a12230dfb2e5deca78b8612bb84bf1"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-sharedreward",
+      "family": "social_context",
+      "fold": 1,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -3.6752477316624107e-07
+      ],
+      "n_iter": 78,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-sharedreward_fold-1_positive_weights.nii.gz",
+          "sha256": "5a3ade844a44ee342c550d638593be9b32099c9f0ee6849e6079a2caa736ac6b"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-trust",
+      "family": "social_context",
+      "fold": 1,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.6354662274285324e-08
+      ],
+      "n_iter": 68,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-trust_fold-1_positive_weights.nii.gz",
+          "sha256": "ae923e03343e4a72a5eab5feb79996e937120136ce7e97f70a9157a4547895d1"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-socialdoors",
+      "family": "social_context",
+      "fold": 1,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        1.4969782866582467e-09
+      ],
+      "n_iter": 35,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-socialdoors_fold-1_positive_weights.nii.gz",
+          "sha256": "509258246b4df40519b08d94703421540f216363674f4ca777825a585672ea42"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-sharedreward",
+      "family": "social_context",
+      "fold": 1,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -7.427193841021375e-11
+      ],
+      "n_iter": 77,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-sharedreward_fold-1_positive_weights.nii.gz",
+          "sha256": "d6181ad080311f033698c89739804d01fd58402ee3fddb95f1cad54396e949a0"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-trust",
+      "family": "social_context",
+      "fold": 1,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.0291619924136494e-09
+      ],
+      "n_iter": 91,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-trust_fold-1_positive_weights.nii.gz",
+          "sha256": "25cefc8e209e7e7d46a4a4e4fba8de53962971fcef182a87a3d8df4686e15f56"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-socialdoors",
+      "family": "social_context",
+      "fold": 1,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -1.9560412535739746e-07
+      ],
+      "n_iter": 85,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-socialdoors_fold-1_positive_weights.nii.gz",
+          "sha256": "94e624098adcc69ea5386f2dbec3cc1c164f35d2a4aa5cde41a7cc25f3ab7b43"
+        }
+      ]
+    },
+    {
+      "model": "social_context_common",
+      "family": "social_context",
+      "fold": 1,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        7.153765026677753e-08
+      ],
+      "n_iter": 96,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_common_fold-1_positive_weights.nii.gz",
+          "sha256": "5a06793840c18ab862f8776a0632881d347847950dd1dddc05ce2313c08dd1f4"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-sharedreward",
+      "family": "social_reward",
+      "fold": 2,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.1565081216589833e-06
+      ],
+      "n_iter": 16,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-sharedreward_fold-2_positive_weights.nii.gz",
+          "sha256": "f3e6221c06f66304e50565ebdebd9cbbfdc5aac2f0409d818fa8712400c248ce"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-trust",
+      "family": "social_reward",
+      "fold": 2,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.0604999696545653e-07
+      ],
+      "n_iter": 17,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_fold-2_positive_weights.nii.gz",
+          "sha256": "d64a1c66dd09145674dbd9f2c9419b487de431b3eb049feff741c0f18bf928ff"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-socialdoors",
+      "family": "social_reward",
+      "fold": 2,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.0653881368924647e-09
+      ],
+      "n_iter": 19,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-socialdoors_fold-2_positive_weights.nii.gz",
+          "sha256": "c0cd5758c24a84af4d8d86e945f0e2e041c755c8a358d2dbc476f6571cde72f3"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-sharedreward",
+      "family": "social_reward",
+      "fold": 2,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.386137953637094e-07
+      ],
+      "n_iter": 22,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-sharedreward_fold-2_positive_weights.nii.gz",
+          "sha256": "6e4e0c2edf86d7e6f49e5586efe409d174f3c54cc179f9caad4ff9b67dd66551"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-trust",
+      "family": "social_reward",
+      "fold": 2,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.704264771879143e-06
+      ],
+      "n_iter": 21,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-trust_fold-2_positive_weights.nii.gz",
+          "sha256": "2b91f02b58b30187991f7077bb6ef1cd16ab2bd408ab91ac8278f1fabc977a2b"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-socialdoors",
+      "family": "social_reward",
+      "fold": 2,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.3803208937498924e-06
+      ],
+      "n_iter": 21,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-socialdoors_fold-2_positive_weights.nii.gz",
+          "sha256": "b35764ed173683bdbc3c7eadb2a473673abd0b3d875b2320fa39cc8ee7102ced"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_common",
+      "family": "social_reward",
+      "fold": 2,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.8954965125436733e-06
+      ],
+      "n_iter": 25,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_common_fold-2_positive_weights.nii.gz",
+          "sha256": "1c60aeb7f7fc3fdf9fa5c88cb44166b73000e83f23b6830e381bd715d01ba858"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-sharedreward",
+      "family": "social_context",
+      "fold": 2,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -2.7315908136354786e-07
+      ],
+      "n_iter": 87,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-sharedreward_fold-2_positive_weights.nii.gz",
+          "sha256": "2dec8340fbfdf38639183c567218dcdf4188c98b3cdf512476a7f97e85eddbe3"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-trust",
+      "family": "social_context",
+      "fold": 2,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        9.55158150284937e-09
+      ],
+      "n_iter": 69,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-trust_fold-2_positive_weights.nii.gz",
+          "sha256": "f18626fc34aaf924e3335daa7877541d21731161c745693baa6f7e643ec5c169"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-socialdoors",
+      "family": "social_context",
+      "fold": 2,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        7.549256334315705e-10
+      ],
+      "n_iter": 37,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-socialdoors_fold-2_positive_weights.nii.gz",
+          "sha256": "5260bf196aa590b24ee507740021fddd89acf06657f5b7280e8e11d982ef22fa"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-sharedreward",
+      "family": "social_context",
+      "fold": 2,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -8.61582523236087e-09
+      ],
+      "n_iter": 75,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-sharedreward_fold-2_positive_weights.nii.gz",
+          "sha256": "b06b6b35ed0341bb13a3d1db84418ab5929e5906cf0421cf25170ea2fe7d427a"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-trust",
+      "family": "social_context",
+      "fold": 2,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        9.667191245151433e-08
+      ],
+      "n_iter": 88,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-trust_fold-2_positive_weights.nii.gz",
+          "sha256": "5c6c011fea721d5ba826643d6fa891f494297dc148c4700fdff49505520ec613"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-socialdoors",
+      "family": "social_context",
+      "fold": 2,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -2.01864451382167e-07
+      ],
+      "n_iter": 82,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-socialdoors_fold-2_positive_weights.nii.gz",
+          "sha256": "77fbb7bbae4172e3b9a47fd31c1ed5ff179670cd017edf1990981fe5a028c242"
+        }
+      ]
+    },
+    {
+      "model": "social_context_common",
+      "family": "social_context",
+      "fold": 2,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 139,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        1.0505709913011894e-07
+      ],
+      "n_iter": 123,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_common_fold-2_positive_weights.nii.gz",
+          "sha256": "ad65f022795a700b67fc1da363fe339515cff44678c9255882c616e6690b9939"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-sharedreward",
+      "family": "social_reward",
+      "fold": 3,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.4411529092355156e-06
+      ],
+      "n_iter": 16,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-sharedreward_fold-3_positive_weights.nii.gz",
+          "sha256": "48ec480275f99389922844a581fc548fc4744420d404059045b14a30cb3ac218"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-trust",
+      "family": "social_reward",
+      "fold": 3,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        1.9491741386872796e-07
+      ],
+      "n_iter": 17,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_fold-3_positive_weights.nii.gz",
+          "sha256": "44c73c0501f329f708ee5938b1d07252c231ad852846ff2869c548cc85438864"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-socialdoors",
+      "family": "social_reward",
+      "fold": 3,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -1.5082398259116637e-08
+      ],
+      "n_iter": 17,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-socialdoors_fold-3_positive_weights.nii.gz",
+          "sha256": "f2a18cd57298f3f2331603043afcc8929f24a001100c37dc50f30b77296e8fe1"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-sharedreward",
+      "family": "social_reward",
+      "fold": 3,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.2163511224422482e-07
+      ],
+      "n_iter": 22,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-sharedreward_fold-3_positive_weights.nii.gz",
+          "sha256": "b151a471d273201cc49609f41fbc3e30730cf7e605d3963c8f0c4bde6805888e"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-trust",
+      "family": "social_reward",
+      "fold": 3,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.0375123913395436e-06
+      ],
+      "n_iter": 22,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-trust_fold-3_positive_weights.nii.gz",
+          "sha256": "9357ea736de293b74e3c9f887c24d7894fac040f1eba2a111281ce12bbcd6c9f"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-socialdoors",
+      "family": "social_reward",
+      "fold": 3,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.605751617103249e-06
+      ],
+      "n_iter": 20,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-socialdoors_fold-3_positive_weights.nii.gz",
+          "sha256": "55d09e4d832828cd4dfcb6bb299873f25ebaa1781226c624608e9b5991eb268f"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_common",
+      "family": "social_reward",
+      "fold": 3,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.203552845970498e-06
+      ],
+      "n_iter": 25,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_common_fold-3_positive_weights.nii.gz",
+          "sha256": "6cf2bfe9156af7e114f754ec64809eecdca67197fddb24cb0c0774bb68f43d56"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-sharedreward",
+      "family": "social_context",
+      "fold": 3,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -2.9802076951709043e-07
+      ],
+      "n_iter": 70,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-sharedreward_fold-3_positive_weights.nii.gz",
+          "sha256": "afbd5181c662f6d0ad57231c9085fb2498933580320ea20bd19286cc84e8192c"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-trust",
+      "family": "social_context",
+      "fold": 3,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.6220156090667918e-08
+      ],
+      "n_iter": 71,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-trust_fold-3_positive_weights.nii.gz",
+          "sha256": "3acb1eed4386ca0e9e35a14d20db1ca1fd61e4df20b5a144da4d5d9d2394e493"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-socialdoors",
+      "family": "social_context",
+      "fold": 3,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.334101762439368e-09
+      ],
+      "n_iter": 37,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-socialdoors_fold-3_positive_weights.nii.gz",
+          "sha256": "034b0849eb58997aa2924f478e2ef9cd523601ef09062fc347861b3f6b644928"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-sharedreward",
+      "family": "social_context",
+      "fold": 3,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        1.086574017455705e-08
+      ],
+      "n_iter": 79,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-sharedreward_fold-3_positive_weights.nii.gz",
+          "sha256": "b125039f180531e4346830b000b33110d6ec99ee68734dd09482da73bc10a9fd"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-trust",
+      "family": "social_context",
+      "fold": 3,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        1.4226789181287784e-07
+      ],
+      "n_iter": 97,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-trust_fold-3_positive_weights.nii.gz",
+          "sha256": "7cc09b2eb2a9e3264940b18c0cf15b4c6a08f7da7d563a828e7ee544357aa295"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-socialdoors",
+      "family": "social_context",
+      "fold": 3,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -1.2303568566770155e-07
+      ],
+      "n_iter": 84,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-socialdoors_fold-3_positive_weights.nii.gz",
+          "sha256": "70228c442109d41853a8ba9f88b277663f328fb5f80716282a415faae30dba46"
+        }
+      ]
+    },
+    {
+      "model": "social_context_common",
+      "family": "social_context",
+      "fold": 3,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 147,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.7398745170912704e-07
+      ],
+      "n_iter": 118,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_common_fold-3_positive_weights.nii.gz",
+          "sha256": "e16fbae7e179810d15dfbdc0ab6ae5f18e9017f06cdb78d6f0bfd8ba0ba02eaf"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-sharedreward",
+      "family": "social_reward",
+      "fold": 4,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.197983531134019e-06
+      ],
+      "n_iter": 16,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-sharedreward_fold-4_positive_weights.nii.gz",
+          "sha256": "b2ecce289e46025aa5ed357cc45c4915327c8820276c7a0ee7e513813ac4ffbc"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-trust",
+      "family": "social_reward",
+      "fold": 4,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.2562835789630743e-07
+      ],
+      "n_iter": 17,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_fold-4_positive_weights.nii.gz",
+          "sha256": "f12a489c4cdefa4050f4f4b19abfe1d21e61a105f6215e08781dbc65be25d42f"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-socialdoors",
+      "family": "social_reward",
+      "fold": 4,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -1.3961896735432093e-08
+      ],
+      "n_iter": 18,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-socialdoors_fold-4_positive_weights.nii.gz",
+          "sha256": "10d13ac455272eb8e9a6e0724a79cc6c4ddbefe8d35f98ea310268e738d6e6e6"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-sharedreward",
+      "family": "social_reward",
+      "fold": 4,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.698641896844375e-07
+      ],
+      "n_iter": 22,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-sharedreward_fold-4_positive_weights.nii.gz",
+          "sha256": "ddf2a1a974f341d5f7815204cd530586cf05dec3c7c4b083759af84ce641cf6f"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-trust",
+      "family": "social_reward",
+      "fold": 4,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.8120810924308337e-06
+      ],
+      "n_iter": 21,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-trust_fold-4_positive_weights.nii.gz",
+          "sha256": "01c39d8fcc0469132ac439a63e47a9f4d5aa87611fd3c3cb6682f1f5d23014a6"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-socialdoors",
+      "family": "social_reward",
+      "fold": 4,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.4177646404876267e-06
+      ],
+      "n_iter": 21,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-socialdoors_fold-4_positive_weights.nii.gz",
+          "sha256": "c37fb8ef0dab6ffea0499f8bc6de4613c890db58c47d6c2a101ed8bfc0c11f8a"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_common",
+      "family": "social_reward",
+      "fold": 4,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.0182147732418443e-06
+      ],
+      "n_iter": 24,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_common_fold-4_positive_weights.nii.gz",
+          "sha256": "42141c1d4aed075289432316f545773eb096187d10ecce618a5f0bc50f119b9f"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-sharedreward",
+      "family": "social_context",
+      "fold": 4,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -4.255373551593705e-07
+      ],
+      "n_iter": 90,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-sharedreward_fold-4_positive_weights.nii.gz",
+          "sha256": "ecbff072645c4fe669d6b9e1bef5c94b0ce0ff878a17f7b0621ff978e8bbd7a5"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-trust",
+      "family": "social_context",
+      "fold": 4,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        1.3550740974339001e-08
+      ],
+      "n_iter": 72,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-trust_fold-4_positive_weights.nii.gz",
+          "sha256": "948b8e15a7bb478e53436bb97ea1310bbd0d585d0b8180b31539970e88902673"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-socialdoors",
+      "family": "social_context",
+      "fold": 4,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        1.192313666918353e-09
+      ],
+      "n_iter": 38,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-socialdoors_fold-4_positive_weights.nii.gz",
+          "sha256": "be0773e075b3351d90173911de382f6387c48b0fef284dfaf602e4b6afde38e9"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-sharedreward",
+      "family": "social_context",
+      "fold": 4,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -9.420139683945216e-09
+      ],
+      "n_iter": 78,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-sharedreward_fold-4_positive_weights.nii.gz",
+          "sha256": "bfbedd89e287771c691e17ef15fbf9c18dbc07b6b486f015d0bae41e3f1a7fa9"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-trust",
+      "family": "social_context",
+      "fold": 4,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -2.297394199843809e-09
+      ],
+      "n_iter": 101,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-trust_fold-4_positive_weights.nii.gz",
+          "sha256": "54e5c08266bcd2783f0af04a6a8806c65eae34e82f9c9eae488a6dd20d7cf460"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-socialdoors",
+      "family": "social_context",
+      "fold": 4,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -2.5825283248580985e-07
+      ],
+      "n_iter": 137,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-socialdoors_fold-4_positive_weights.nii.gz",
+          "sha256": "8e26e63593e95c32b5d8b8dc2c076c5108906ba1de8351b3dbf3d096774724c3"
+        }
+      ]
+    },
+    {
+      "model": "social_context_common",
+      "family": "social_context",
+      "fold": 4,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        6.937607106882432e-08
+      ],
+      "n_iter": 120,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_common_fold-4_positive_weights.nii.gz",
+          "sha256": "a035b5ceb6841db9ea4cfcea30ae7efb88902c338724e24a158be4c47241fa1d"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-sharedreward",
+      "family": "social_reward",
+      "fold": 5,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.3654808598253597e-06
+      ],
+      "n_iter": 17,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-sharedreward_fold-5_positive_weights.nii.gz",
+          "sha256": "9682fc8337e33deabcd5f70310b3770d81ce9b24faa287b9ff8854798281fc84"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-trust",
+      "family": "social_reward",
+      "fold": 5,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.2120351871663995e-07
+      ],
+      "n_iter": 17,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_fold-5_positive_weights.nii.gz",
+          "sha256": "8d567f182e6ff6e999798b84c2baa3ed0e85f7b54f531d3fef9d84358affc956"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-socialdoors",
+      "family": "social_reward",
+      "fold": 5,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.198119205418694e-09
+      ],
+      "n_iter": 18,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-socialdoors_fold-5_positive_weights.nii.gz",
+          "sha256": "edb4eb71125ecb8c9a28c44efc72e4277583d800efdf7444c939d84045fd8959"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-sharedreward",
+      "family": "social_reward",
+      "fold": 5,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.636162062341934e-07
+      ],
+      "n_iter": 21,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-sharedreward_fold-5_positive_weights.nii.gz",
+          "sha256": "4e43864adf81681e03dc7966c2360e2a2588ad2c4280075d2a60439071de9677"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-trust",
+      "family": "social_reward",
+      "fold": 5,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.9480295896290372e-06
+      ],
+      "n_iter": 21,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-trust_fold-5_positive_weights.nii.gz",
+          "sha256": "1159ff4dc53b5c80090ea870fb8b36bc79616755e903a97b823198885723e319"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_lopo-socialdoors",
+      "family": "social_reward",
+      "fold": 5,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.7072923320054227e-06
+      ],
+      "n_iter": 20,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_lopo-socialdoors_fold-5_positive_weights.nii.gz",
+          "sha256": "3e80b0fb253586ae459310a5e56fb03729d5f986667fe552a575b673fae088bc"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_common",
+      "family": "social_reward",
+      "fold": 5,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.25823654539531e-06
+      ],
+      "n_iter": 23,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_common_fold-5_positive_weights.nii.gz",
+          "sha256": "40efda5cf06a09d687a0ab0d799b781ad76d750c4927d438d5f40567c1a5d3ed"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-sharedreward",
+      "family": "social_context",
+      "fold": 5,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -5.702511445921176e-07
+      ],
+      "n_iter": 87,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-sharedreward_fold-5_positive_weights.nii.gz",
+          "sha256": "74bb4b4ec699fa5dda94ec983f5d8a921e9faae8b298b1eab27a0eac9ecf6a27"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-trust",
+      "family": "social_context",
+      "fold": 5,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.24787984878805e-09
+      ],
+      "n_iter": 66,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-trust_fold-5_positive_weights.nii.gz",
+          "sha256": "469066da24d4909ceace68af6003b816ff45db1d7053f5c8ab53ded739bf74ff"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-socialdoors",
+      "family": "social_context",
+      "fold": 5,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.3808095167580258e-09
+      ],
+      "n_iter": 34,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-socialdoors_fold-5_positive_weights.nii.gz",
+          "sha256": "efbbf503962a6cbcf8f3217617094f8f8c92f85edfaa98ea8f4fe8d8ee684f92"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-sharedreward",
+      "family": "social_context",
+      "fold": 5,
+      "training_tasks": [
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -2.0626669317888306e-08
+      ],
+      "n_iter": 68,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-sharedreward_fold-5_positive_weights.nii.gz",
+          "sha256": "18c6c40b6ce8777854b848d3a74887c1700b41fb6f8b56ed635b7a9b326362c8"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-trust",
+      "family": "social_context",
+      "fold": 5,
+      "training_tasks": [
+        "sharedreward",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -2.353844352579797e-07
+      ],
+      "n_iter": 93,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-trust_fold-5_positive_weights.nii.gz",
+          "sha256": "0302501f555c4b7eaae581543c0dbb889a232cc811d4e133ddfbf53981100e49"
+        }
+      ]
+    },
+    {
+      "model": "social_context_lopo-socialdoors",
+      "family": "social_context",
+      "fold": 5,
+      "training_tasks": [
+        "sharedreward",
+        "trust"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -4.102401994002923e-07
+      ],
+      "n_iter": 86,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_lopo-socialdoors_fold-5_positive_weights.nii.gz",
+          "sha256": "90b7fe6a7ff6e77e7898932fe8a8a48a44a65a4674d6384d958b616f7a4ff204"
+        }
+      ]
+    },
+    {
+      "model": "social_context_common",
+      "family": "social_context",
+      "fold": 5,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 142,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -1.58239993915704e-07
+      ],
+      "n_iter": 100,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_common_fold-5_positive_weights.nii.gz",
+          "sha256": "df2838f045f52a71e67692b7f47319de6575e1be7b1ab94001b86908fb6957e6"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-sharedreward",
+      "family": "social_reward",
+      "fold": 0,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 178,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.8191209161256166e-06
+      ],
+      "n_iter": 16,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-sharedreward_DEV_positive_weights.nii.gz",
+          "sha256": "d4f3497e93701c3b8c90e7e92b426b2655914bf7ed06238384cd8ce16d96a9d3"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-trust",
+      "family": "social_reward",
+      "fold": 0,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 178,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.529040733307602e-07
+      ],
+      "n_iter": 19,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_DEV_positive_weights.nii.gz",
+          "sha256": "0e5e48f74d32137a1d62f01212c8e32504e8b8169a2fcc3a66920c13559a173c"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_task-socialdoors",
+      "family": "social_reward",
+      "fold": 0,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 178,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -6.691187198160374e-09
+      ],
+      "n_iter": 19,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-socialdoors_DEV_positive_weights.nii.gz",
+          "sha256": "99a6c965ae72265c19935cf91c33ccfab11c6067d5c7d5050d7a0f497fd5f9cd"
+        }
+      ]
+    },
+    {
+      "model": "social_reward_common",
+      "family": "social_reward",
+      "fold": 0,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 178,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        3.922582872553682e-06
+      ],
+      "n_iter": 27,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_common_DEV_positive_weights.nii.gz",
+          "sha256": "7ac7b36b4d33c78b4d235bfb6bcdc93e7687bd9b328fe143de95b2bd99a540b2"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-sharedreward",
+      "family": "social_context",
+      "fold": 0,
+      "training_tasks": [
+        "sharedreward"
+      ],
+      "training_n": 178,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        -4.870895041597859e-07
+      ],
+      "n_iter": 90,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-sharedreward_DEV_positive_weights.nii.gz",
+          "sha256": "4721d5c8fb36bc610cfc44f90e22da3dd8177b255055d848889571d2ed1c3fac"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-trust",
+      "family": "social_context",
+      "fold": 0,
+      "training_tasks": [
+        "trust"
+      ],
+      "training_n": 178,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        2.7613367163286487e-08
+      ],
+      "n_iter": 72,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-trust_DEV_positive_weights.nii.gz",
+          "sha256": "893059276271e33e9de6a4caa794c41fecd711b03bd91eaae8421a12be088fe0"
+        }
+      ]
+    },
+    {
+      "model": "social_context_task-socialdoors",
+      "family": "social_context",
+      "fold": 0,
+      "training_tasks": [
+        "socialdoors"
+      ],
+      "training_n": 178,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        1.4938398188987367e-09
+      ],
+      "n_iter": 37,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_task-socialdoors_DEV_positive_weights.nii.gz",
+          "sha256": "b898eb1bcc24c2e2ca41ec22acb39be62e1229d1a9732278b7345e684c4fe3c8"
+        }
+      ]
+    },
+    {
+      "model": "social_context_common",
+      "family": "social_context",
+      "fold": 0,
+      "training_tasks": [
+        "sharedreward",
+        "trust",
+        "socialdoors"
+      ],
+      "training_n": 178,
+      "classes": [
+        -1,
+        1
+      ],
+      "intercept": [
+        7.224943764771037e-08
+      ],
+      "n_iter": 110,
+      "maps": [
+        {
+          "class": "positive",
+          "path": "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_context_common_DEV_positive_weights.nii.gz",
+          "sha256": "cbb0caf0d7e4ee432fec84930f7c2f4c1762782e27f80503b01158105391670e"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "2026-10-03T14:00:33.837465+00:00",
+  "status": "complete",
+  "policy": "tsnr_coverage_fd",
+  "cohort": "partner_pair",
+  "holdout_scored": false,
+  "sample_manifest_sha256": "40f9586a877bd9c25b0eaaef7fb03c25b9e0dcde3eeaf9a7301316fed7632b0b",
+  "config_sha256": "04fc3dbfaa79384ea40a9b967ea0e9ac23cb852ab8afeb2490110feaa85a07ab"
+}
