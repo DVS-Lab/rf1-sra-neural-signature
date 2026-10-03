@@ -1,5 +1,48 @@
 # Shared Reward zero-input investigation
 
+## Recheck on 2026-10-02
+
+The pooled-model execution gap is now resolved. At `sharedreward-aging` revision
+`323902ca9dd11871d04219a2f89c40ddb3bfa5d3`, the
+[September 30 final audit](https://github.com/DVS-Lab/sharedreward-aging/blob/323902ca9dd11871d04219a2f89c40ddb3bfa5d3/logs/records/full-analysis-20260930-203949-441196/final/summary.json)
+has `computational_gate_passed=true`: all 655 RF1 activation L1s and 346 RF1
+activation subject outputs are verified. Across both datasets and activation/PPI,
+all 1,488 L1s and 786 subject outputs are verified. Subject outputs include one-run
+L1 passthrough; they are not all two-run L2s. The September 15 missing-model counts
+below are historical and must no longer be presented as current pooled status.
+
+This does **not yet establish readiness for the present neural-signature model**:
+
+- The completed launcher fits the pooled full-trial, 28-contrast model under
+  `sharedreward-aging`. This pipeline requires the RF1-only phase-resolved,
+  34-contrast model under `rf1-sra-sharedreward`, including separate decision maps.
+- The [pooled contrast table](https://github.com/DVS-Lab/sharedreward-aging/blob/323902ca9dd11871d04219a2f89c40ddb3bfa5d3/templates/FULLTRIAL_CONTRAST_CANDIDATE.tsv)
+  makes the mismatch concrete: activation COPE27 is `F-S (pun)` and COPE28 is
+  `F-C (pun)`, whereas this pipeline requires `F_dec`, `S_dec`, and `C_dec` at
+  COPE27/28/29. Pooled activation has no COPE29. Even identically named reward
+  conditions use full-trial rather than isolated outcome epochs.
+- `rf1-sra-sharedreward` main remains `d716f84`; no newly tracked phase-resolved
+  completion audit was found. Unchanged source Git history does not establish
+  whether untracked models have since been fitted on Linux2.
+- The neural-signature repository still contains the failed September 29 inventory,
+  not a newer successful inventory. Its N=264 four-task overlap is historical;
+  neither N=346 pooled RF1 outputs nor the aging project's behavioral cohort proves
+  that at least 250 participants meet this pipeline's five-task requirements.
+
+The [updated upstream status](https://github.com/DVS-Lab/sharedreward-aging/blob/323902ca9dd11871d04219a2f89c40ddb3bfa5d3/docs/CURRENT_STATUS.md)
+also records the source resolutions as propagated; those resolved review requests
+should not be repeated. Its behavioral eligibility policy belongs to that analysis
+and is not silently imported into this neural-signature cohort.
+
+The next decisive check is the header-only neural-signature dry run on Linux2,
+using the command below. If the phase-resolved paths are still absent, their
+upstream availability remains the prerequisite. A deliberate full-trial adaptation
+would change the scientific model and cannot provide the currently specified
+Shared Reward decision/context estimates. No path substitution, cohort-threshold
+change, source execution, or holdout operation was made during this recheck.
+
+## Original September 29 investigation
+
 The Linux2 run `20260929T031742.288253Z`, committed in `d238884`, reported
 `missing_feat_directory` for Shared Reward L1 run 1, L1 run 2, and L2 for every
 one of the 352 non-source-excluded BIDS participants. The failure occurred before
@@ -32,7 +75,7 @@ Reward L2 directory path is a useful starting point. If the directory is found,
 its saved L1/L2 designs must still establish the intended phase-resolved model.
 Historical or pooled-aging maps must not be substituted based only on task names.
 
-## Evidence from sharedreward-aging
+## Historical September 15 evidence from sharedreward-aging
 
 At the user's request, `DVS-Lab/sharedreward-aging` was also inspected at
 `79ee586bbef71821af1079cf714ecb98f2ef7d61`. Its
