@@ -1,29 +1,37 @@
-# Independent visual-region proposal — Linux2 inventory pending
+# Visual-region sensitivity proposal — NOT EXECUTED
 
-No visual exclusion analysis has been run. The production launcher will inventory
-standard local atlas definitions and record exact names, versions, paths and
-content fingerprints. Nothing is downloaded.
+This independent definition was fixed in code before new results. It is a proposal only: no source features are excluded and no classifier is fit with this mask. Prospective review and approval are required.
 
-The sole prespecified proposed definition is the union of eight anatomical
-labels in the installed Harvard-Oxford cortical maxprob-thr25-2mm atlas:
+Source: Harvard-Oxford cort maxprob thr25 2mm; installed FSL version: 6.0.7.18.
 
-- Intracalcarine Cortex
-- Supracalcarine Cortex
-- Cuneal Cortex
-- Lingual Gyrus
-- Occipital Fusiform Gyrus
-- Occipital Pole
-- Lateral Occipital Cortex, inferior division
-- Lateral Occipital Cortex, superior division
+Image: `/usr/local/fsl/data/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz`
 
-The proposal will report the XML-derived integer values and the native and
-frozen-mask intersection voxel counts using nearest-neighbor resampling. Exact
-asset identity and counts cannot be certified until Linux2 inventory runs. If
-this atlas is unavailable, the report will say so; it will not substitute a mask
-based on the observed results.
+Image SHA256: `7397ffdbae7559e0f0aa6237f998dc0f6aca3f9db9009f6ffa637c0c62b686ca`
 
-This is a broad anatomical occipital definition, not a complete functional visual
-network. Perceptual information can remain elsewhere. Review and approve the
-exact definition prospectively before any excluded-feature classifier is run.
+Label XML: `/usr/local/fsl/data/atlases/HarvardOxford-Cortical.xml`
 
-**Visual exclusion not executed; holdout_scored=False.**
+XML SHA256: `b8eb5ba5e787a4d3b442f75041f533f31b278a83e467bd2ab22438c1cff36581`
+
+Exact integer values and labels (XML zero-based indices +1 in maxprob image):
+
+- 22: Lateral Occipital Cortex, superior division
+- 23: Lateral Occipital Cortex, inferior division
+- 24: Intracalcarine Cortex
+- 32: Cuneal Cortex
+- 36: Lingual Gyrus
+- 40: Occipital Fusiform Gyrus
+- 47: Supracalcarine Cortex
+- 48: Occipital Pole
+
+Proposed rule: nearest-neighbor resample the union of these labels to each frozen analysis grid, then exclude its intersection with that original analysis mask. Recenter each remaining map independently. Preserve participants, folds, contrasts and classifier settings. Do not optimize the threshold or parcel set.
+
+Native union: 27220 voxels.
+
+- partner_pair: 9760 of 84133 voxels excluded; 74373 retained.
+- three_paradigm: 9760 of 84045 voxels excluded; 74285 retained.
+
+Rationale: a fixed anatomical occipital definition spanning medial and lateral occipital cortex, lingual and occipital fusiform tissue. This is not a complete functional visual-network mask; temporal face-sensitive tissue and perceptual information elsewhere may remain. Conversely, included association cortex need not be exclusively visual. Persistence would not prove abstract social coding.
+
+Inventory and exact asset fingerprints: `provenance/revised/cross_valence/local_anatomy.json`. Peak labels describe individual coordinates, not the identity of a whole distributed component. No atlas significance or regional necessity is inferred.
+
+holdout_scored=False.

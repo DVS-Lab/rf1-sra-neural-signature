@@ -1,0 +1,33 @@
+{
+  "family": "friend_stranger_context",
+  "mode": "collapsed",
+  "model": "common",
+  "training_n": 192,
+  "training_domains": [
+    "sharedreward_collapsed",
+    "trust_collapsed"
+  ],
+  "weight_path": "results/revised/cross_valence/maps/partner_pair_friend_stranger_context_collapsed_common_DEV_weights.nii.gz",
+  "weight_sha256": "9a8a0328504affd41b0bd3a507be853a3f8f17442ef7fdbec8f0ba3d3ec6bb93",
+  "intercept": -1.151673290626014e-06,
+  "classes": [
+    -1,
+    1
+  ],
+  "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+  "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+  "reused_v4": false,
+  "source_v4_weight_sha256": null,
+  "classifier": {
+    "C": 1.0,
+    "dual": true,
+    "class_weight": null,
+    "max_iter": 100000,
+    "tol": 0.0001
+  },
+  "random_state": 20260928,
+  "normalization": "per-map spatial mean centering inside the original partner-pair mask; no feature scaling",
+  "cohort": "tsnr_coverage_fd/partner_pair",
+  "fingerprint": "c58003411a47156bd0ee507af3a8fc69d1537f223eab989a898e2dbc833430df",
+  "holdout_scored": false
+}

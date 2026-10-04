@@ -1,0 +1,10 @@
+{
+  "requested_workers": 96,
+  "cpu_slots": 128,
+  "available_memory_bytes": 129947381760,
+  "estimated_peak_bytes_per_worker": 1969941248,
+  "workers": 52,
+  "blas_threads_per_worker": 1,
+  "scheduling": "one whole five-fold permutation/model job per process; bounded shared pool across all training specifications",
+  "note": "80% of available RAM limits worker count; estimate is conservative, not a measured guarantee"
+}

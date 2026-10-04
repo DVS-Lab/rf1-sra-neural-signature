@@ -1,0 +1,34 @@
+{
+  "fingerprint": "c58003411a47156bd0ee507af3a8fc69d1537f223eab989a898e2dbc833430df",
+  "software": {
+    "numpy": "1.26.4",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.8.0",
+    "pandas": "2.3.3",
+    "nibabel": "5.3.2",
+    "matplotlib": "3.7.1"
+  },
+  "code_sha256": {
+    "cross_valence.py": "e9e9e619ab76e1b12761a83510a36196c5245a81c1e28be8824c9fb790211131",
+    "cross_valence_anatomy.py": "29a203df6bdc9f2423162dff61dd2a85b6614b4daa1a79adade5fd5f18f868c2",
+    "cross_valence_compute.py": "9633b6b370720b68c76385d21f56224b79245c034391abf5fa26e7416a2f8a07",
+    "cross_valence_design.py": "40299a128c86ca62ed43672a7a448d2efb13ba048b47604eec837172fcbae3bd",
+    "cross_valence_parallel.py": "a79c7f732cddf07e01b55496fcdf41021ba3e5d2e556b28711c4a696cb083908",
+    "cross_valence_report.py": "e29c78b8dd98d6e6ae223181ed7552e6a464f74fa0bd206798f3990330c00fb0"
+  },
+  "seed": 20260928,
+  "classifier": {
+    "C": 1.0,
+    "dual": true,
+    "class_weight": null,
+    "max_iter": 100000,
+    "tol": 0.0001
+  },
+  "permutations": 500,
+  "bootstrap_samples": 10000,
+  "source_snapshot_sha256": "129ed9dead78eea68bc937556ec97acf295d3cdee8e511bad0af27536214b9bc",
+  "holdout_scored": false,
+  "visual_exclusion_executed": false,
+  "visual_proposal_status": "prepared_for_review",
+  "alternate_qc_new_models_run": false
+}

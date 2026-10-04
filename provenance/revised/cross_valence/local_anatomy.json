@@ -1,0 +1,315 @@
+{
+  "fsl_roots": [
+    {
+      "path": "/usr/local/fsl",
+      "version": "6.0.7.18"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl",
+      "version": "6.0.7.16"
+    }
+  ],
+  "available_atlas_definitions": [
+    {
+      "path": "/usr/local/fsl/data/atlases/Cerebellum_MNIflirt.xml",
+      "name": "Cerebellum_MNIflirt"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/Cerebellum_MNIfnirt.xml",
+      "name": "Cerebellum_MNIfnirt"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/HarvardOxford-Cortical.xml",
+      "name": "HarvardOxford-Cortical"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/HarvardOxford-Subcortical.xml",
+      "name": "HarvardOxford-Subcortical"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/JHU-labels.xml",
+      "name": "JHU-labels"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/JHU-tracts.xml",
+      "name": "JHU-tracts"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/Juelich.xml",
+      "name": "Juelich"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/MNI.xml",
+      "name": "MNI"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/MarsParietalParcellation.xml",
+      "name": "MarsParietalParcellation"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/MarsTPJParcellation.xml",
+      "name": "MarsTPJParcellation"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/NeubertVentralFrontalParcellation.xml",
+      "name": "NeubertVentralFrontalParcellation"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/SMATT.xml",
+      "name": "SMATT"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/STN.xml",
+      "name": "STN"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/SalletDorsalFrontalParcellation.xml",
+      "name": "SalletDorsalFrontalParcellation"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/Striatum-Connectivity-3sub.xml",
+      "name": "Striatum-Connectivity-3sub"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/Striatum-Connectivity-7sub.xml",
+      "name": "Striatum-Connectivity-7sub"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/Striatum-Structural.xml",
+      "name": "Striatum-Structural"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/Talairach.xml",
+      "name": "Talairach"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/Thalamus.xml",
+      "name": "Thalamus"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/XTRACT.xml",
+      "name": "XTRACT"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/XTRACT_MAC.xml",
+      "name": "XTRACT_MAC"
+    },
+    {
+      "path": "/usr/local/fsl/data/atlases/XTRACT_NEO.xml",
+      "name": "XTRACT_NEO"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/Cerebellum_MNIflirt.xml",
+      "name": "Cerebellum_MNIflirt"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/Cerebellum_MNIfnirt.xml",
+      "name": "Cerebellum_MNIfnirt"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/HarvardOxford-Cortical.xml",
+      "name": "HarvardOxford-Cortical"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/HarvardOxford-Subcortical.xml",
+      "name": "HarvardOxford-Subcortical"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/JHU-labels.xml",
+      "name": "JHU-labels"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/JHU-tracts.xml",
+      "name": "JHU-tracts"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/Juelich.xml",
+      "name": "Juelich"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/MNI.xml",
+      "name": "MNI"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/MarsParietalParcellation.xml",
+      "name": "MarsParietalParcellation"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/MarsTPJParcellation.xml",
+      "name": "MarsTPJParcellation"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/NeubertVentralFrontalParcellation.xml",
+      "name": "NeubertVentralFrontalParcellation"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/SMATT.xml",
+      "name": "SMATT"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/STN.xml",
+      "name": "STN"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/SalletDorsalFrontalParcellation.xml",
+      "name": "SalletDorsalFrontalParcellation"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/Striatum-Connectivity-3sub.xml",
+      "name": "Striatum-Connectivity-3sub"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/Striatum-Connectivity-7sub.xml",
+      "name": "Striatum-Connectivity-7sub"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/Striatum-Structural.xml",
+      "name": "Striatum-Structural"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/Talairach.xml",
+      "name": "Talairach"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/Thalamus.xml",
+      "name": "Thalamus"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/XTRACT.xml",
+      "name": "XTRACT"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/XTRACT_MAC.xml",
+      "name": "XTRACT_MAC"
+    },
+    {
+      "path": "/ZPOOL/data/tools/fsl/data/atlases/XTRACT_NEO.xml",
+      "name": "XTRACT_NEO"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-1024dimensions_probseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-1024dimensions_probseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-128dimensions_probseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-128dimensions_probseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-256dimensions_probseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-256dimensions_probseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-512dimensions_probseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-512dimensions_probseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-64dimensions_probseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-DiFuMo_desc-64dimensions_probseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-HOCPAL_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-HOCPAL_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-HOCPA_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-HOCPA_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-HOSPA_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-HOSPA_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-1000Parcels17Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-1000Parcels17Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-1000Parcels7Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-1000Parcels7Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-100Parcels17Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-100Parcels17Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-100Parcels7Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-100Parcels7Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-200Parcels17Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-200Parcels17Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-200Parcels7Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-200Parcels7Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-300Parcels17Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-300Parcels17Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-300Parcels7Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-300Parcels7Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-400Parcels17Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-400Parcels17Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-400Parcels7Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-400Parcels7Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-500Parcels17Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-500Parcels17Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-500Parcels7Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-500Parcels7Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-600Parcels17Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-600Parcels17Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-600Parcels7Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-600Parcels7Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-800Parcels17Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-800Parcels17Networks_dseg.tsv"
+    },
+    {
+      "path": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-800Parcels7Networks_dseg.tsv",
+      "name": "tpl-MNI152NLin6Asym_atlas-Schaefer2018_desc-800Parcels7Networks_dseg.tsv"
+    }
+  ],
+  "background_candidates": [
+    "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_res-02_T1w.nii.gz",
+    "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_res-02_desc-brain_T1w.nii.gz",
+    "/ZPOOL/data/tools/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz",
+    "/usr/local/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz"
+  ],
+  "selected_atlases": [
+    {
+      "kind": "cort",
+      "name": "Harvard-Oxford cort maxprob thr25 2mm",
+      "image": "/usr/local/fsl/data/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz",
+      "labels": "/usr/local/fsl/data/atlases/HarvardOxford-Cortical.xml",
+      "fsl_version": "6.0.7.18",
+      "image_sha256": "7397ffdbae7559e0f0aa6237f998dc0f6aca3f9db9009f6ffa637c0c62b686ca",
+      "labels_sha256": "b8eb5ba5e787a4d3b442f75041f533f31b278a83e467bd2ab22438c1cff36581"
+    },
+    {
+      "kind": "sub",
+      "name": "Harvard-Oxford sub maxprob thr25 2mm",
+      "image": "/usr/local/fsl/data/atlases/HarvardOxford/HarvardOxford-sub-maxprob-thr25-2mm.nii.gz",
+      "labels": "/usr/local/fsl/data/atlases/HarvardOxford-Subcortical.xml",
+      "fsl_version": "6.0.7.18",
+      "image_sha256": "72140df8117250d915b753ca2937e078c917525d206e6185e2c1b4ab703fbfcc",
+      "labels_sha256": "4aa369944d514843a07b5e6febac0c844e76fc1980ab203a0021b083de699650"
+    }
+  ],
+  "background": "/ZPOOL/data/tools/templateflow/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_res-02_T1w.nii.gz",
+  "background_sha256": "2a814da50173599a857d96246dc057d548072bd6dffa499f75724dbad20792b1",
+  "visual_proposal_selection_rule": "Harvard-Oxford cortical maxprob thr25 2mm, fixed eight anatomical occipital labels; no result-dependent fallback"
+}

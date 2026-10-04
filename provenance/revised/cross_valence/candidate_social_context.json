@@ -1,0 +1,33 @@
+{
+  "family": "social_context",
+  "mode": "collapsed",
+  "model": "common",
+  "training_n": 192,
+  "training_domains": [
+    "sharedreward_collapsed",
+    "trust_collapsed"
+  ],
+  "weight_path": "results/revised/cross_valence/maps/partner_pair_social_context_collapsed_common_DEV_weights.nii.gz",
+  "weight_sha256": "27e20e778fd84355097fc3e020e96f93b850c5807b5b9125da99d719b9058d99",
+  "intercept": -4.167728242588583e-07,
+  "classes": [
+    -1,
+    1
+  ],
+  "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+  "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+  "reused_v4": true,
+  "source_v4_weight_sha256": "27e20e778fd84355097fc3e020e96f93b850c5807b5b9125da99d719b9058d99",
+  "classifier": {
+    "C": 1.0,
+    "dual": true,
+    "class_weight": null,
+    "max_iter": 100000,
+    "tol": 0.0001
+  },
+  "random_state": 20260928,
+  "normalization": "per-map spatial mean centering inside the original partner-pair mask; no feature scaling",
+  "cohort": "tsnr_coverage_fd/partner_pair",
+  "fingerprint": "c58003411a47156bd0ee507af3a8fc69d1537f223eab989a898e2dbc833430df",
+  "holdout_scored": false
+}

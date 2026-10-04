@@ -1,0 +1,179 @@
+{
+  "fingerprint": "c58003411a47156bd0ee507af3a8fc69d1537f223eab989a898e2dbc833430df",
+  "models": [
+    {
+      "family": "social_context",
+      "mode": "positive",
+      "model": "common",
+      "training_n": 192,
+      "training_domains": [
+        "sharedreward_positive",
+        "trust_positive"
+      ],
+      "weight_path": "results/revised/cross_valence/maps/partner_pair_social_context_positive_common_DEV_weights.nii.gz",
+      "weight_sha256": "eb0177f2de385c78d852d3763331b3378fbde1381980218efe18bfaff79f3ec9",
+      "intercept": -2.0709203613095242e-07,
+      "classes": [
+        -1,
+        1
+      ],
+      "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+      "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+      "reused_v4": false,
+      "source_v4_weight_sha256": null
+    },
+    {
+      "family": "social_context",
+      "mode": "negative",
+      "model": "common",
+      "training_n": 192,
+      "training_domains": [
+        "sharedreward_negative",
+        "trust_negative"
+      ],
+      "weight_path": "results/revised/cross_valence/maps/partner_pair_social_context_negative_common_DEV_weights.nii.gz",
+      "weight_sha256": "ad3952062c606cece8f4873f2106fa0f65f6edb17c7f8076bc9d31d61f04a869",
+      "intercept": -3.093524347182831e-07,
+      "classes": [
+        -1,
+        1
+      ],
+      "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+      "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+      "reused_v4": false,
+      "source_v4_weight_sha256": null
+    },
+    {
+      "family": "social_context",
+      "mode": "collapsed",
+      "model": "common",
+      "training_n": 192,
+      "training_domains": [
+        "sharedreward_collapsed",
+        "trust_collapsed"
+      ],
+      "weight_path": "results/revised/cross_valence/maps/partner_pair_social_context_collapsed_common_DEV_weights.nii.gz",
+      "weight_sha256": "27e20e778fd84355097fc3e020e96f93b850c5807b5b9125da99d719b9058d99",
+      "intercept": -4.167728242588583e-07,
+      "classes": [
+        -1,
+        1
+      ],
+      "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+      "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+      "reused_v4": true,
+      "source_v4_weight_sha256": "27e20e778fd84355097fc3e020e96f93b850c5807b5b9125da99d719b9058d99"
+    },
+    {
+      "family": "friend_stranger_context",
+      "mode": "positive",
+      "model": "common",
+      "training_n": 192,
+      "training_domains": [
+        "sharedreward_positive",
+        "trust_positive"
+      ],
+      "weight_path": "results/revised/cross_valence/maps/partner_pair_friend_stranger_context_positive_common_DEV_weights.nii.gz",
+      "weight_sha256": "28e0f931388a0eaa113df7313cf781d23b5be64ea36fa48adeaaeeb6568ddc0e",
+      "intercept": -6.572125882936792e-07,
+      "classes": [
+        -1,
+        1
+      ],
+      "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+      "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+      "reused_v4": false,
+      "source_v4_weight_sha256": null
+    },
+    {
+      "family": "friend_stranger_context",
+      "mode": "negative",
+      "model": "common",
+      "training_n": 192,
+      "training_domains": [
+        "sharedreward_negative",
+        "trust_negative"
+      ],
+      "weight_path": "results/revised/cross_valence/maps/partner_pair_friend_stranger_context_negative_common_DEV_weights.nii.gz",
+      "weight_sha256": "49c5db58b30408b71ca4d707272a0098ae36a334cbe6084b2846f489560402ce",
+      "intercept": -8.190786757370498e-07,
+      "classes": [
+        -1,
+        1
+      ],
+      "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+      "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+      "reused_v4": false,
+      "source_v4_weight_sha256": null
+    },
+    {
+      "family": "friend_stranger_context",
+      "mode": "collapsed",
+      "model": "common",
+      "training_n": 192,
+      "training_domains": [
+        "sharedreward_collapsed",
+        "trust_collapsed"
+      ],
+      "weight_path": "results/revised/cross_valence/maps/partner_pair_friend_stranger_context_collapsed_common_DEV_weights.nii.gz",
+      "weight_sha256": "9a8a0328504affd41b0bd3a507be853a3f8f17442ef7fdbec8f0ba3d3ec6bb93",
+      "intercept": -1.151673290626014e-06,
+      "classes": [
+        -1,
+        1
+      ],
+      "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+      "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+      "reused_v4": false,
+      "source_v4_weight_sha256": null
+    },
+    {
+      "family": "friend_stranger_context",
+      "mode": "collapsed",
+      "model": "sharedreward",
+      "training_n": 192,
+      "training_domains": [
+        "sharedreward_collapsed"
+      ],
+      "weight_path": "results/revised/cross_valence/maps/partner_pair_friend_stranger_context_collapsed_sharedreward_DEV_weights.nii.gz",
+      "weight_sha256": "7c70fb8f6b38a1aac62c667740e2212670a9dd2037df737380ca2c654a73344c",
+      "intercept": -1.1344218804583724e-06,
+      "classes": [
+        -1,
+        1
+      ],
+      "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+      "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+      "reused_v4": false
+    },
+    {
+      "family": "friend_stranger_context",
+      "mode": "collapsed",
+      "model": "trust",
+      "training_n": 192,
+      "training_domains": [
+        "trust_collapsed"
+      ],
+      "weight_path": "results/revised/cross_valence/maps/partner_pair_friend_stranger_context_collapsed_trust_DEV_weights.nii.gz",
+      "weight_sha256": "dd7ea8a06afd52cd9f704d0313c1b49bd3f8845425f6526f5ab97d4b673f46ae",
+      "intercept": -1.3830357001262372e-07,
+      "classes": [
+        -1,
+        1
+      ],
+      "mask_path": "results/revised/cross_valence/maps/partner_pair_analysis_mask.nii.gz",
+      "mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462",
+      "reused_v4": false
+    }
+  ],
+  "holdout_scored": false,
+  "classifier": {
+    "C": 1.0,
+    "dual": true,
+    "class_weight": null,
+    "max_iter": 100000,
+    "tol": 0.0001
+  },
+  "seed": 20260928,
+  "normalization": "independent per-map spatial mean centering; no feature scaling"
+}

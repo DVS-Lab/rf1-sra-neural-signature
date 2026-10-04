@@ -1,0 +1,10 @@
+{
+  "status": "complete",
+  "stage": "finished",
+  "fingerprint": "c58003411a47156bd0ee507af3a8fc69d1537f223eab989a898e2dbc833430df",
+  "holdout_scored": false,
+  "validation_n": 50,
+  "original_outputs_unchanged": true,
+  "permutation_nulls_chance_centered": true,
+  "visual_exclusion_executed": false
+}
