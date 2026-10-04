@@ -1,5 +1,10 @@
 # RF1-SRA social reward, context, and closeness — current v4 launch
 
+Characterization completed in `2343681`. Start with the
+[figure review and scientific interpretation](reports/revised/characterization/SCIENTIFIC_REVIEW.md)
+and the [generated results report](reports/revised/characterization/REPORT.md).
+All 50 primary validation participants remain unscored.
+
 The completed v4 results can now be characterized without changing the analysis:
 see [characterization instructions](docs/CHARACTERIZATION.md). On Linux2, run
 `bash code/run_characterization.sh --dry-run`, then
