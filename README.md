@@ -1,5 +1,12 @@
 # RF1-SRA social reward, context, and closeness — current v4 launch
 
+The final development follow-up is ready for Linux2:
+[cross-valence analysis and 96-process launch](docs/CROSS_VALENCE.md).
+Run `bash code/run_cross_valence.sh --dry-run`, then
+`bash code/run_cross_valence.sh --workers 96`. This uses a new output namespace,
+preserves the completed results, and prepares (but does not run) a visual-region
+sensitivity proposal. Validation remains locked.
+
 Characterization completed in `2343681`. Start with the
 [figure review and scientific interpretation](reports/revised/characterization/SCIENTIFIC_REVIEW.md)
 and the [generated results report](reports/revised/characterization/REPORT.md).

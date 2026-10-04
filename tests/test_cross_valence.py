@@ -70,11 +70,14 @@ def test_fold_grouping_uses_correct_domains_and_rejects_overlap(monkeypatch):
     with pytest.raises(PipelineError,match='HOLDOUT LOCK'): fit_fold(scope,x,p,1)
 
 
-def test_holdout_rejected_before_source_or_standard_image_load(monkeypatch):
+def test_holdout_rejected_before_source_or_standard_image_load(monkeypatch,tmp_path):
     scope=toy_scope(10)
     monkeypatch.setattr(nib,'load',lambda *a,**k:pytest.fail('Holdout reached image loading'))
     with pytest.raises(PipelineError,match='HOLDOUT LOCK'): source_maps(scope,'sub-held000','trust',None,None,[])
     with pytest.raises(PipelineError,match='participant image'): standard_image(scope,'/tmp/sub-held000/T1w.nii.gz','anything')
+    held=tmp_path/'sub-held000'/'T1w.nii.gz'; held.parent.mkdir(); held.write_bytes(b'protected')
+    link=tmp_path/'MNI152_T1_2mm_brain.nii.gz'; link.symlink_to(held)
+    with pytest.raises(PipelineError,match='participant image'): standard_image(scope,link,'anything')
 
 
 def test_combined_accuracy_averages_correctness_within_participants():

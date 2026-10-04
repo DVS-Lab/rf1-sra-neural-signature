@@ -15,6 +15,12 @@ VISUAL_LABELS=('Intracalcarine Cortex','Supracalcarine Cortex','Cuneal Cortex','
                'Lateral Occipital Cortex, superior division')
 
 
+def asset_sha(path):
+    resolved=Path(path).resolve()
+    require(not any(p.startswith('sub-') for p in resolved.parts),'participant image cannot be standard anatomy')
+    return sha256(resolved)
+
+
 def inventory(base):
     roots=[Path(p) for p in [os.environ.get('FSLDIR',''),'/usr/local/fsl','/opt/fsl','/ZPOOL/data/tools/fsl'] if p]
     tools=Path('/ZPOOL/data/tools')
@@ -34,7 +40,7 @@ def inventory(base):
             label=root/'data/atlases'/xml
             if image.is_file() and label.is_file() and not any(a['kind']==name for a in result['selected_atlases']):
                 result['selected_atlases'].append(dict(kind=name,name='Harvard-Oxford '+name+' maxprob thr25 2mm',
-                    image=str(image),labels=str(label),fsl_version=ver,image_sha256=sha256(image),labels_sha256=sha256(label)))
+                    image=str(image),labels=str(label),fsl_version=ver,image_sha256=asset_sha(image),labels_sha256=asset_sha(label)))
     tf=base.templateflow/'tpl-MNI152NLin6Asym'
     if tf.exists():
         for p in sorted(tf.glob('*res-02*desc-brain_T1w.nii.gz')): result['background_candidates'].append(str(p))
@@ -44,7 +50,7 @@ def inventory(base):
     candidates=result['background_candidates']
     candidates.sort(key=lambda p:('tpl-MNI152NLin6Asym' not in p,p))
     result['background']=candidates[0] if candidates else None
-    if result['background']: result['background_sha256']=sha256(result['background'])
+    if result['background']: result['background_sha256']=asset_sha(result['background'])
     result['visual_proposal_selection_rule']='Harvard-Oxford cortical maxprob thr25 2mm, fixed eight anatomical occipital labels; no result-dependent fallback'
     return result
 
@@ -53,7 +59,7 @@ def standard_image(scope,path,expected):
     assert_development(scope)
     path=Path(path)
     require(not any(p.startswith('sub-') for p in path.parts),'participant image cannot be standard anatomy')
-    require(sha256(path)==expected,'standard anatomy asset changed')
+    require(asset_sha(path)==expected,'standard anatomy asset changed')
     return nib.load(path)
 
 
