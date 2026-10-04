@@ -1,0 +1,38 @@
+seed: 20260928
+expected_development_n:
+  partner_pair: 192
+  three_paradigm: 178
+oof_atol: 1.0e-05
+oof_rtol: 2.0e-05
+frozen_code_sha256:
+  code/revised_design.py: 8a516998ca4384c8b077ba2dabe31b479bae0d6d733984d6f8691f0b6d2ded65
+  code/revised_models.py: 7d50440251d9af5cd3de829e2c217abe0358fe1027028ed976e68f55b1d1bbd3
+  code/revised_samples.py: 3c6278734774bdde267994157b3e3bab97662ebd3156131b7a21a6151dff5096
+  code/revised_reporting.py: aa2f99adec1e6c8f330452b8f9f9182f2e5b610412d80b4b90bac527012fd3c9
+  code/revised_pilot.py: d476cc53f589128a56d249fac989b09a683630e7994e863af185849fd6029a5d
+  code/build_mask.py: 7d96f12d3a138988ee778feb778671c98332479a12f3c98bd49f8ad2a25fb6ba
+  code/inventory.py: 97ac232d99afb63ae5c1eb1d10d0447cd0b02bdf1dd285699922ddefabad90c2
+  code/aging_source.py: 895924e8e6ce3d2ce7073b9085451fa08fed0d39ba23ffdcd10826b5185cc0a5
+  code/utils.py: a63770fa89751e624b1758813a3f644bba66fb54019dd1fb215619ee8376b331
+  code/make_split.py: f199f418d7b986ab6b13f599e27ea43bc341dccf6a4f2107ca09379095d521a7
+  config/analysis.yaml: 4b8018607e6f175c5c7a427157ce0fb9528fd66935be68fea2d53b492b163401
+  config/contrast_spec.yaml: a38b779cbb03797638110c07da19501b3d46d771eff86162228bd1fc764d18e4
+  config/revised_analysis.yaml: 04fc3dbfaa79384ea40a9b967ea0e9ac23cb852ab8afeb2490110feaa85a07ab
+  code/characterization_audit.py: 2985f6154887cf5ee0049584ba539c890373f2583f782f29c81ca4227318ce37
+  code/characterization_compute.py: 969bae483a58f5820ab11f45fd4b4c6e734561315c9389c5e286f0245ff883f1
+  code/characterization_figures.py: 6ae0fe8552118895381a9be49dc285c4d3f2cb3367e5c4171e686a93b7c55317
+  code/characterization_report.py: 776c153f544d27c1e1644345298023f9db86103038912d21669cbe1082ac0fe8
+  code/characterize_v4.py: 020c81868690e91a709bfd5ceab79f351c58b615a21a15189f43eaed5b0d04b8
+  code/reporting.py: 15d39f4d5307b4449f6da35277646f29e127307257ddd66158d7f2e2643db340
+  code/pilot.py: 8869546ceaaaec062916c4a0ff28c31c3753077765fc53057b2b0dcaeba751d2
+  config/characterization.yaml: 692cf9446d729e9fa667e3e33566bebb4f31c03286ecfc2e4226a2aeb76c209b
+version: 1
+permutations: 500
+bootstrap_samples: 10000
+classifier:
+  C: 1.0
+  dual: true
+  class_weight: null
+  max_iter: 100000
+  tol: 0.0001
+characterization_fingerprint: 1174901d16553c255d77933cf24b1f1a23424d0cac6df0fa5d91f166d91f7a4f
