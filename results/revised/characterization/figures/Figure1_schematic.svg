@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="684pt" height="363.677812pt" viewBox="0 0 684 363.677812" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-04T13:12:41.235005</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.7.1, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 363.677812 
+L 684 363.677812 
+L 684 -0 
+L 0 -0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 33.984 141.925012 
+L 208.08 141.925012 
+Q 218.124 141.925012 218.124 136.935412 
+L 218.124 57.101812 
+Q 218.124 52.112212 208.08 52.112212 
+L 33.984 52.112212 
+Q 23.94 52.112212 23.94 57.101812 
+L 23.94 136.935412 
+Q 23.94 141.925012 33.984 141.925012 
+z
+" clip-path="url(#pf122113a06)" style="fill: #edf3f6; stroke: #355b70; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 254.952 161.883412 
+L 435.744 161.883412 
+Q 445.788 161.883412 445.788 156.893812 
+L 445.788 40.469812 
+Q 445.788 35.480212 435.744 35.480212 
+L 254.952 35.480212 
+Q 244.908 35.480212 244.908 40.469812 
+L 244.908 156.893812 
+Q 244.908 161.883412 254.952 161.883412 
+z
+" clip-path="url(#pf122113a06)" style="fill: #edf3f6; stroke: #355b70; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 482.616 148.577812 
+L 650.016 148.577812 
+Q 660.06 148.577812 660.06 143.588212 
+L 660.06 50.449012 
+Q 660.06 45.459412 650.016 45.459412 
+L 482.616 45.459412 
+Q 472.572 45.459412 472.572 50.449012 
+L 472.572 143.588212 
+Q 472.572 148.577812 482.616 148.577812 
+z
+" clip-path="url(#pf122113a06)" style="fill: #edf3f6; stroke: #355b70; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 47.376 321.550612 
+L 636.624 321.550612 
+Q 646.668 321.550612 646.668 316.561012 
+L 646.668 233.401012 
+Q 646.668 228.411412 636.624 228.411412 
+L 47.376 228.411412 
+Q 37.332 228.411412 37.332 233.401012 
+L 37.332 316.561012 
+Q 37.332 321.550612 47.376 321.550612 
+z
+" clip-path="url(#pf122113a06)" style="fill: #edf3f6; stroke: #355b70; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(105.317938 82.981269)">TASKS</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(58.576531 94.179081)">Shared Reward (full trial)</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(81.492156 105.376894)">Trust (outcome)</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(33.478094 116.574706)">Social / monetary Doors (outcome)</text>
+   </g>
+   <g id="text_2">
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(272.190969 79.045562)">FROZEN CONTRAST FAMILIES</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(263.32925 90.243375)">Context: average across valence</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(274.60425 101.441187)">Reward: positive − negative</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(273.847219 112.639)">Closeness: friend − stranger</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(273.668313 123.836812)">Valence: positive − negative</text>
+   </g>
+   <g id="text_3">
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(545.096469 82.981269)">MODELS</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(534.826937 94.179081)">Task-specific</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(525.274594 105.376894)">Common pooled</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(505.215219 116.574706)">Leave one paradigm out</text>
+   </g>
+   <g id="text_4">
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(129.622656 266.542575)">Five participant-blocked folds; all tasks from each test person excluded from training</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(172.220312 277.740387)">Primary development: partner pair N=192; three paradigms N=178</text>
+    <text style="font: 10px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif" transform="translate(107.438281 288.9382)">Frozen development-only masks and LinearSVC settings; validation N=50 remains untouched</text>
+   </g>
+   <g id="patch_6">
+    <path d="M 216.773684 100.345012 
+Q 228.166857 100.345012 237.323962 100.345012 
+" style="fill: none; stroke: #000000; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 233.723962 98.545012 
+L 237.323962 100.345012 
+L 233.723962 102.145012 
+" style="fill: none; stroke: #000000; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 444.437684 100.345012 
+Q 455.830857 100.345012 464.987962 100.345012 
+" style="fill: none; stroke: #000000; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 461.387962 98.545012 
+L 464.987962 100.345012 
+L 461.387962 102.145012 
+" style="fill: none; stroke: #000000; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 562.968 162.222265 
+Q 562.968 191.82284 562.968 219.187346 
+" style="fill: none; stroke: #000000; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 564.768 215.587346 
+L 562.968 219.187346 
+L 561.168 215.587346 
+" style="fill: none; stroke: #000000; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="text_5">
+    <text style="font: 14px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="342" y="17.837812" transform="rotate(-0 342 17.837812)">Figure 1. Frozen v4 development analysis and characterization</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pf122113a06">
+   <rect x="7.2" y="23.837812" width="669.6" height="332.64"/>
+  </clipPath>
+ </defs>
+</svg>

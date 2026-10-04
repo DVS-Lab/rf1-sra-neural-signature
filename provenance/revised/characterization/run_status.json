@@ -1,6 +1,11 @@
 {
-  "status": "in_progress",
-  "stage": "OOF verification",
+  "status": "complete",
   "fingerprint": "1174901d16553c255d77933cf24b1f1a23424d0cac6df0fa5d91f166d91f7a4f",
-  "holdout_scored": false
+  "holdout_scored": false,
+  "validation_n": 50,
+  "original_v4_hashes_unchanged": true,
+  "permutation_nulls_chance_centered": true,
+  "bootstrap_samples": 1000,
+  "permutations": 200,
+  "note": "Null centering uses descriptive |mean - .5| <= .05, not an inferential test."
 }
