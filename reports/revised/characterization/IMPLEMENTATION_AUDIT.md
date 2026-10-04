@@ -1,10 +1,6 @@
 # Implementation and leakage audit
 
-**PENDING: private membership files are unavailable in this local checkout. No real-data scientific outputs were generated.**
-
-CHARACTERIZATION AUDIT STOP: private revised sample manifest unavailable
-
-Static review found no evident supervised leakage; the complete runtime/private-file audit has not passed. This is not a clean audit certification.
+**PASSED.** No leakage/preprocessing error found in the audited code and recorded private membership. Saved float32 fold maps reproduce selected binary OOF margins and classifications within the prespecified numerical tolerance. All validation participants remain excluded.
 
 - Frozen implementation/config hashes checked against the completed v4 code.
 - Estimator: sklearn.svm.LinearSVC(C=1.0, dual=True, class_weight=None, max_iter=100000, tol=0.0001, random_state=20260928).
