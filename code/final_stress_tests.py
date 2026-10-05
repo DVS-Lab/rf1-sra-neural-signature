@@ -54,7 +54,7 @@ def prepare_identity(out,key,before,eligible,preview=False):
                 rel=='design_qc.tsv' or bool(re.fullmatch(r'sub-[A-Za-z0-9]+/ses-01/run-[12]/'+artifact,rel)))
             require(allowed,message)
         public={
-            'results':{'aggregate/inventory.tsv','aggregate/phase_directory_inventory.tsv','figures/fairness_design_preview.png','figures/fairness_design_preview.pdf'},
+            'results':{'aggregate/inventory.tsv','aggregate/phase_directory_inventory.tsv','aggregate/phase_retained_runs.tsv','figures/fairness_design_preview.png','figures/fairness_design_preview.pdf'},
             'provenance':{'run_status.json','fairness_status.json'},
         }
         for tree,allowed in public.items():
@@ -87,6 +87,8 @@ def run(base,workers=96,dry_run=False,fairness_preview=False,plots_only=False):
                 print('DRY RUN PASSED: frozen artifacts, source code, private sample/holdout/fold audit. No new images loaded. holdout_scored = False',flush=True); return
             eligible,phase_paths=inventory(out,scope)
             require(usable(scope,eligible['baseline']),'current-QC baseline has fewer than ten people or is missing original folds; see inventory')
+            if not fairness_preview:
+                require(usable(scope,eligible['sr_outcome']),'primary SR outcome analysis requires >=10 eligible development participants and all five frozen folds; stop before feature loading, see inventory')
             code={p.name:sha256(p) for p in (base.root/'code').glob('final_stress*.py')}
             software={p:importlib.metadata.version(p) for p in ('numpy','scipy','scikit-learn','nibabel','pandas')}
             qc=base.repos['linux2']/base.paths['qc_table']

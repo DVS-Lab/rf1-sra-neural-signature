@@ -3,10 +3,14 @@
     "sharedreward": {
       "templates/L1_task-sharedreward_model-1_type-act.fsf": "cf23311dc4d7b33693f2f08bb0d7880f9ae747c2afdfd3cd08adad76999c1025",
       "templates/L2_task-sharedreward_model-1_type-act.fsf": "45a487c3b641d183191160ce24309c85a74b225271222607cb4e6960a538c501",
-      "code/gen3colfiles.sh": "7eede4cf31b02b2e74a556a7dbfe5d7736f14db169e24445f30105a0e2525935",
+      "code/gen3colfiles.sh": "3a2dd543e7732528fed40a70cea9cc46c737937061fb2b2670ed548793c37781",
       "code/BIDSto3col.sh": "01ebe163ceb2ee4e654a180c795f8ed5a0b48ac5d6030659a30ad8b3205d468f",
-      "code/L1stats.sh": "aa654a613650e1e3ba73e5cd5ce2989f1e7f9e71ffc48a86387b42a8198bed7c",
-      "code/L2stats.sh": "6ec5bed593d1886945a02e5a68efeae3db1ae06b7fb692c8ecbd83ca0f9c8747"
+      "code/L1stats.sh": "10fa611e3597ea6c4251579b698d2d5c68ce37256ecb6986e9ab3648769376e1",
+      "code/L2stats.sh": "4605ccf9b788199d81bd6c1f19a213ec410a472ccb1decd40896af636abe2bd8",
+      "code/phase_resolved_activation.py": "885c6693308c987fe8afe0aa8d978899624366f151387675085f9f3cd25cc2a6",
+      "logs/records/phase-resolved-20261005-144746/summary.json": "785896838b1918296c36844e4d6d0f49902aa0f0b152894b888b56246debb5d1",
+      "logs/records/phase-resolved-20261005-144746/verified-subject-outputs.tsv": "06cb39b3d8fe18ecc00471fc6a1e99176500dac12971669dfbdd20e2b51e865a",
+      "logs/records/phase-resolved-20261005-144746/provenance.json": "a01cea25ad86c23fd20ae1860258a9f9e7c3234028946b9795781a8420944467"
     },
     "trust": {
       "templates/L1_task-trust_model-1_type-act.fsf": "e9d469890e6fd53acef7b788badde09c53ebfac1a5a7a1bda94b34faf94c121f",
@@ -31,10 +35,23 @@
     "stimuli/Scan-Social_Doors/social_doors.py": "d71fc14300d560bf7acddadeec5d49c4df68215a5495d25fbcb271203d1570c0"
   },
   "commits": {
-    "rf1-sra-sharedreward": "d716f84412902671b82adfa2a22c265c09c2de01",
+    "rf1-sra-sharedreward": "d5331d38c298023eeaf094e6e83ee0df65434ac2",
     "rf1-sra-trust": "bc731ddd143eea8737f42c22e7e334f5a9dc5532",
     "rf1-sra-ugr": "0a6715565b065e13ff03368700df952b2180fb13",
     "rf1-sra-linux2": "72a5a160a8636cff770ea93116cb13bab64cf609",
     "SRPAL-DataInBrief": "990ae8485aa7329e3bb765152e7fbe299d940f76"
+  },
+  "phase_resolved_audit": {
+    "directory": "logs/records/phase-resolved-20261005-144746",
+    "model_commit": "562f0d15e0ac370a69ea36d40fdcb23f5e20f597",
+    "retained_run_policy": "verified_fixed_effects_or_l1_passthrough",
+    "outcome_copes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
   }
 }

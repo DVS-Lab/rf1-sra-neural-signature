@@ -297,7 +297,9 @@ def test_orchestration_completed_stopped_fairness_and_plots_resume(cfg,monkeypat
     main.run(cfg,workers=1,plots_only=True)
 
 
-def test_phase_sources_require_authoritative_design_and_canonical_outcome_timing(cfg):
+@pytest.mark.parametrize('runs',[(1,2),(1,),(2,)])
+@pytest.mark.parametrize('empty_neutral',[False,True])
+def test_phase_sources_require_authoritative_design_and_canonical_outcome_timing(cfg,runs,empty_neutral):
     from final_stress_sources import phase_dir,phase_unit
     from conftest import fsf_text as fixture_fsf,con_text,l2_text
     sc=toy_scope(10); sc['c']=cfg; s=sc['subjects'][0]; spec=phase_spec()
@@ -315,8 +317,14 @@ def test_phase_sources_require_authoritative_design_and_canonical_outcome_timing
             content+=f'set fmri(custom{i}) "{ev}"\nset fmri(shape{i}) 3\n'
             events.append(dict(onset=10*i,duration=1,trial_type=label))
         (folder/'design.fsf').write_text(content);(folder/'design.con').write_text(con_text(spec));(folder/'cluster_mask_zstat1.nii.gz').write_text('fixture')
-        (folder/'stats').mkdir()
-        for k in range(1,7): (folder/f'stats/cope{k}.nii.gz').write_text('fixture')
+        (folder/'stats').mkdir(); (folder/'mask.nii.gz').write_text('fixture')
+        for k in range(1,7):
+            (folder/f'stats/cope{k}.nii.gz').write_text('fixture')
+            (folder/f'stats/varcope{k}.nii.gz').write_text('fixture')
+        if empty_neutral:
+            events=[r for r in events if r['trial_type']!='event_computer_neutral']
+            (folder/'design.fsf').write_text(content.replace('set fmri(shape7) 3','set fmri(shape7) 10'))
+            (evdir/f'run-{run}_event_computer_neutral.txt').write_text('')
         path=cfg.bids/s/'ses-01/func'/f'{s}_ses-01_task-sharedreward_run-{run}_events.tsv';path.parent.mkdir(parents=True,exist_ok=True);pd.DataFrame(events).to_csv(path,sep='\t',index=False)
     l2=phase_dir(cfg,s,'L2');l2.mkdir(parents=True)
     text=l2_text(spec)+''.join(f'set feat_files({r}) "{phase_dir(cfg,s,"L1",r)}"\n' for r in (1,2));(l2/'design.fsf').write_text(text)
@@ -324,7 +332,90 @@ def test_phase_sources_require_authoritative_design_and_canonical_outcome_timing
         d=l2/f'cope{k}.feat';(d/'stats').mkdir(parents=True)
         for rel in ('stats/cope1.nii.gz','stats/zstat1.nii.gz','mask.nii.gz','cluster_mask_zstat1.nii.gz'): (d/rel).write_text('fixture')
         (d/'design.mat').write_text('/Matrix\n1\n1\n');(d/'design.con').write_text('/Matrix\n1\n')
-    assert len(phase_unit(sc,s))==6
-    ev=cfg.repos['sharedreward']/s/'ses-01/evs/run-1_event_friend_reward.txt';ev.write_text('3 12 1\n')
+    output=l2 if len(runs)==2 else phase_dir(cfg,s,'L1',runs[0])
+    sc['phase_index']={s:dict(runs=runs,output=output,strategy='fixed_effects' if len(runs)==2 else 'l1_passthrough')}
+    paths=phase_unit(sc,s); assert len(paths)==6
+    assert paths[6]==(l2/'cope6.feat/stats/cope1.nii.gz' if len(runs)==2 else output/'stats/cope6.nii.gz')
+    ev=cfg.repos['sharedreward']/s/f'ses-01/evs/run-{runs[0]}_event_friend_reward.txt';ev.write_text('3 12 1\n')
     with pytest.raises(PipelineError,match='timings differ'): phase_unit(sc,s)
     with pytest.raises(PipelineError,match='HOLDOUT LOCK'): phase_unit(sc,'sub-held000')
+
+
+def phase_manifest_fixture(cfg,sc):
+    from final_stress_sources import phase_dir
+    contract=json.loads((cfg.root/'config/final_stress_sources.json').read_text())
+    audit=contract['phase_resolved_audit']; directory=cfg.repos['sharedreward']/audit['directory']; directory.mkdir(parents=True)
+    rows=[]
+    for s,runs in [(sc['subjects'][0],'1,2'),(sc['subjects'][1],'2'),('sub-held000','1,2')]:
+        paired=runs=='1,2'
+        output=phase_dir(cfg,s,'L2') if paired else phase_dir(cfg,s,'L1',2)
+        rows.append(dict(subject=s[4:],session='01',runs=runs,strategy='fixed_effects' if paired else 'l1_passthrough',output=str(output),source_repo_commit=audit['model_commit']))
+    pd.DataFrame(rows).to_csv(directory/'verified-subject-outputs.tsv',sep='\t',index=False)
+    (directory/'summary.json').write_text(json.dumps(dict(verified=True,type='activation',source_repo_commit=audit['model_commit'],subjects=3,runs=5,fixed_effects=2,passthrough=1)))
+    (directory/'provenance.json').write_text('{}')
+    for name in ('summary.json','verified-subject-outputs.tsv','provenance.json'):
+        contract['runtime_sources']['sharedreward'][audit['directory']+'/'+name]=sha256(directory/name)
+    (cfg.root/'config/final_stress_sources.json').write_text(json.dumps(contract))
+    return directory
+
+
+def test_phase_manifest_pins_strategies_and_filters_before_image_access(cfg,monkeypatch):
+    from final_stress_sources import phase_index,phase_unit
+    sc=toy_scope(10);sc['c']=cfg; directory=phase_manifest_fixture(cfg,sc)
+    monkeypatch.setattr(nib,'load',lambda *a,**kw:pytest.fail('manifest inventory cannot load images'))
+    result=phase_index(sc)
+    assert set(result)==set(sc['subjects'][:2]) and result[sc['subjects'][1]]['runs']==(2,)
+    sc['phase_index']=result
+    from utils import InputUnavailable
+    with pytest.raises(InputUnavailable,match='absent_from_verified'): phase_unit(sc,sc['subjects'][2])
+    path=directory/'verified-subject-outputs.tsv';path.write_text(path.read_text()+'\n')
+    with pytest.raises(PipelineError,match='fingerprint changed'): phase_index(sc)
+
+
+@pytest.mark.parametrize('change',['strategy','output','duplicate'])
+def test_phase_manifest_rejects_inconsistent_metadata(cfg,change):
+    from final_stress_sources import phase_index
+    sc=toy_scope(10);sc['c']=cfg; directory=phase_manifest_fixture(cfg,sc)
+    path=directory/'verified-subject-outputs.tsv';frame=pd.read_csv(path,sep='\t',dtype=str)
+    if change=='strategy': frame.loc[1,'strategy']='fixed_effects'
+    elif change=='output': frame.loc[1,'output']=frame.loc[0,'output']
+    else: frame=pd.concat([frame,frame.iloc[:1]],ignore_index=True)
+    frame.to_csv(path,sep='\t',index=False)
+    contract=json.loads((cfg.root/'config/final_stress_sources.json').read_text())
+    contract['runtime_sources']['sharedreward'][contract['phase_resolved_audit']['directory']+'/verified-subject-outputs.tsv']=sha256(path)
+    (cfg.root/'config/final_stress_sources.json').write_text(json.dumps(contract))
+    with pytest.raises(PipelineError,match='phase'): phase_index(sc)
+
+
+def test_primary_phase_absence_stops_full_run_before_features(cfg,monkeypatch):
+    import final_stress_tests as main
+    from characterization_audit import PRIMARY
+    sc=toy_scope(10);sc['c']=cfg
+    monkeypatch.setattr(main,'verify_contract',lambda c:({},{}))
+    monkeypatch.setattr(main,'prior_settings',lambda c:{})
+    monkeypatch.setattr(main,'audit',lambda *a:{(PRIMARY,'partner_pair'):sc})
+    monkeypatch.setattr(main,'inventory',lambda *a:({'baseline':sc['subjects'],'sr_outcome':[],'ugr':sc['subjects']},{}))
+    monkeypatch.setattr(main,'build_features',lambda *a:pytest.fail('must stop before images/features'))
+    with pytest.raises(PipelineError,match='primary SR outcome'): main.run(cfg,workers=96)
+
+
+def test_phase_inventory_applies_qc_to_exact_retained_runs(cfg,monkeypatch):
+    import final_stress_sources as sources
+    sc=toy_scope(10); sc['c']=cfg; directory=phase_manifest_fixture(cfg,sc)
+    cfg.aging_subjects={s:{'runs':(2,) if s==sc['subjects'][1] else (1,2)} for s in sc['subjects']}
+    rows=[]
+    for s in sc['subjects']:
+        for task in ('sharedreward','trust','ugr'):
+            for run in (1,2):
+                if s==sc['subjects'][1] and task=='sharedreward' and run==1: continue
+                rows.append(dict(subject=s,task=task,run=run,tsnr_outlier='False',brain_coverage_outlier='False',fd_mean_outlier='False'))
+    q=pd.DataFrame(rows).set_index(['subject','task','run'])
+    monkeypatch.setattr(sources,'load_aging_index',lambda *a,**kw:None)
+    monkeypatch.setattr(sources,'qc_table',lambda _:q)
+    monkeypatch.setattr(sources,'phase_unit',lambda scope,s:{1:scope['phase_index'][s]['output']})
+    monkeypatch.setattr(sources,'inspect_unit',lambda *a,**kw:None)
+    out=output_config(cfg); eligible,_=sources.inventory(out,sc)
+    assert eligible['sr_outcome']==sc['subjects'][:2]
+    q.loc[(sc['subjects'][1],'sharedreward',2),'fd_mean_outlier']='True'
+    eligible,_=sources.inventory(out,sc)
+    assert eligible['sr_outcome']==sc['subjects'][:1]

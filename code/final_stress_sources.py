@@ -35,11 +35,42 @@ def guard_path(scope,path,s):
     require(any(resolved.is_relative_to(p.resolve()) for p in scope['c'].repos.values()),'source outside configured repositories')
     return path
 
+def phase_index(scope):
+    """Read pinned technical metadata; only index frozen development participants."""
+    assert_development(scope); c=scope['c']
+    contract=json.loads((c.root/'config/final_stress_sources.json').read_text())
+    audit=contract['phase_resolved_audit']; root=c.repos['sharedreward']; directory=audit['directory']
+    for name in ('summary.json','verified-subject-outputs.tsv','provenance.json'):
+        rel=directory+'/'+name
+        require(sha256(root/rel)==contract['runtime_sources']['sharedreward'][rel],'phase audit fingerprint changed: '+name)
+    summary=json.loads((root/directory/'summary.json').read_text())
+    require(summary['verified'] is True and summary['type']=='activation' and summary['source_repo_commit']==audit['model_commit'],'unverified phase source audit')
+    frame=pd.read_csv(root/directory/'verified-subject-outputs.tsv',sep='\t',dtype=str,keep_default_na=False)
+    require(not frame.duplicated(['subject','session']).any() and len(frame)==summary['subjects'],'phase manifest count/duplicate mismatch')
+    require(frame.session.eq('01').all() and frame.source_repo_commit.eq(audit['model_commit']).all(),'phase manifest session/model mismatch')
+    require(frame.runs.isin(['1','2','1,2']).all(),'invalid retained phase runs')
+    paired=frame.runs.eq('1,2')
+    require((frame.strategy==np.where(paired,'fixed_effects','l1_passthrough')).all(),'phase retained-run strategy mismatch')
+    require(int(paired.sum())==summary['fixed_effects'] and int((~paired).sum())==summary['passthrough']
+            and int(frame.runs.str.count(',').add(1).sum())==summary['runs'],'phase audit totals disagree')
+    result={}
+    for row in frame.to_dict('records'):
+        s='sub-'+row['subject']
+        if s not in scope['subjects']: continue
+        assert_development(scope,[s]); runs=tuple(int(x) for x in row['runs'].split(','))
+        expected=phase_dir(c,s,'L2') if len(runs)==2 else phase_dir(c,s,'L1',runs[0])
+        require(Path(row['output'])==expected,'phase manifest output differs from configured source path')
+        result[s]=dict(runs=runs,strategy=row['strategy'],output=expected)
+    return result
+
 def phase_unit(scope,s):
-    """Only authoritative two-run fixed effects. No undocumented single-run substitution."""
-    assert_development(scope,[s]); c=scope['c']; spec=phase_spec(); l2=phase_dir(c,s,'L2')
-    if not l2.is_dir(): raise InputUnavailable('missing_phase_resolved_L2')
-    for run in (1,2):
+    """Validate the exact retained runs and strategy in the completed upstream audit."""
+    assert_development(scope,[s]); c=scope['c']; spec=phase_spec()
+    unit=scope['phase_index'].get(s)
+    if unit is None: raise InputUnavailable('absent_from_verified_phase_manifest')
+    runs=unit['runs']; output=guard_path(scope,unit['output'],s)
+    if not output.is_dir(): raise InputUnavailable('missing_verified_phase_output')
+    for run in runs:
         l1=phase_dir(c,s,'L1',run); fsf=guard_path(scope,l1/'design.fsf',s)
         if not fsf.is_file(): raise InputUnavailable('missing_phase_L1_design')
         values=parse_fsf(fsf); verify_l1(values,spec,rendered=True); verify_design_con(l1/'design.con',spec)
@@ -52,7 +83,7 @@ def phase_unit(scope,s):
         for ev,label in enumerate(labels,1):
             target=canonical[canonical.trial_type==label]
             if target.empty:
-                require(ev in (10,11) and values.get(f'fmri(shape{ev})')=='10','required phase EV missing from canonical events')
+                require(ev in (7,8,9,10,11) and values.get(f'fmri(shape{ev})')=='10','required phase EV missing from canonical events')
                 continue
             path=guard_path(scope,Path(values[f'fmri(custom{ev})']),s)
             require(path.is_file(),'completed phase EV file missing')
@@ -65,6 +96,12 @@ def phase_unit(scope,s):
         for k in range(1,7):
             if not (l1/f'stats/cope{k}.nii.gz').is_file(): raise InputUnavailable('incomplete_phase_L1')
         if not (l1/'cluster_mask_zstat1.nii.gz').is_file(): raise InputUnavailable('incomplete_phase_L1')
+    if len(runs)==1:
+        paths={k:output/f'stats/cope{k}.nii.gz' for k in range(1,7)}
+        for p in [*paths.values(),output/'mask.nii.gz',*(output/f'stats/varcope{k}.nii.gz' for k in range(1,7))]:
+            if not guard_path(scope,p,s).is_file(): raise InputUnavailable('incomplete_phase_L1_passthrough')
+        return paths
+    l2=output
     values=parse_fsf(guard_path(scope,l2/'design.fsf',s)); verify_l2(values,spec)
     for run in (1,2): require(Path(values[f'feat_files({run})']).resolve()==phase_dir(c,s,'L1',run).resolve(),'phase L2 retained-run mismatch')
     paths={k:l2/f'cope{k}.feat/stats/cope1.nii.gz' for k in range(1,7)}
@@ -110,7 +147,7 @@ def phase_directory_inventory(out,scope):
             rows.append(dict(path=str(layout/'sub-<ID>'/'ses-01'/name),n=n,
                              expected=layout==root and name in expected,root_exists=layout.is_dir(),development_n=len(subjects)))
     write_tsv(out,'results/aggregate/phase_directory_inventory.tsv',rows)
-    print('SR outcome: no eligible phase-resolved maps; directory existence only (frozen development pool):',flush=True)
+    print('SR outcome source directories: existence only (frozen development pool):',flush=True)
     for row in rows:
         print(f"    {'expected' if row['expected'] else 'observed alternative'}: {row['path']}: N={row['n']}; root_exists={row['root_exists']}",flush=True)
     print('These diagnostics do not establish completed/valid maps. Aging full-trial maps cannot substitute for outcome-only maps.',flush=True)
@@ -118,25 +155,33 @@ def phase_directory_inventory(out,scope):
 def inventory(out,scope):
     assert_development(scope); c=scope['c']; require(c.exclusions.is_dir(),'source exclusions unavailable')
     load_aging_index(c,refresh=True); q=qc_table(c); rows=[]; paths={}
+    scope['phase_index']=phase_index(scope)
     for s in scope['subjects']:
         assert_development(scope,[s])
         excluded=(c.exclusions/f'Smith-SRA-{s[4:]}').is_dir()
         base_reason='current_source_exclusion' if excluded else (qc_reason(q,s,'sharedreward',c.aging_subjects[s]['runs']) or qc_reason(q,s,'trust',(1,2)))
         for task in ('baseline','sr_outcome','ugr'):
             reason=base_reason
-            if not reason and task!='baseline': reason=qc_reason(q,s,'sharedreward' if task=='sr_outcome' else 'ugr',(1,2))
+            if not reason and task=='ugr': reason=qc_reason(q,s,'ugr',(1,2))
+            if not reason and task=='sr_outcome':
+                unit=scope['phase_index'].get(s)
+                reason='absent_from_verified_phase_manifest' if unit is None else qc_reason(q,s,'sharedreward',unit['runs'])
             if not reason and task=='sr_outcome':
                 try: paths[s]=phase_unit(scope,s)
                 except InputUnavailable as exc: reason=str(exc)
             if not reason and task=='ugr':
                 try: inspect_unit(c,s,'ugr','L2',required_copes_only=True)
                 except InputUnavailable as exc: reason=str(exc)
-            rows.append(dict(subject=s,domain=task,eligible=not reason,reason=reason))
+            phase=scope['phase_index'].get(s,{}) if task=='sr_outcome' else {}
+            rows.append(dict(subject=s,domain=task,eligible=not reason,reason=reason,
+                             retained_runs=','.join(map(str,phase.get('runs',()))),strategy=phase.get('strategy','')))
     frame=pd.DataFrame(rows); write_tsv(out,'work/inventory.tsv',frame)
     summary=frame.groupby(['domain','eligible','reason'],dropna=False).size().reset_index(name='n')
     write_tsv(out,'results/aggregate/inventory.tsv',summary)
+    phase_counts=frame[frame.domain.eq('sr_outcome')].groupby(['eligible','strategy','retained_runs','reason'],dropna=False).size().reset_index(name='n')
+    write_tsv(out,'results/aggregate/phase_retained_runs.tsv',phase_counts)
     print('Development inventory (before fitting):\n'+summary.to_string(index=False),flush=True)
-    if not paths: phase_directory_inventory(out,scope)
+    phase_directory_inventory(out,scope)
     return {k:sorted(g.loc[g.eligible,'subject']) for k,g in frame.groupby('domain')},paths
 
 def visual_mask(out,scope,mask,ref):
