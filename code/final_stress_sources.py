@@ -1,6 +1,6 @@
 """Development-only source inventory. New phase maps never alias aging full-trial maps."""
 from pathlib import Path
-import json
+import json,re
 import numpy as np
 import pandas as pd
 import nibabel as nib
@@ -93,6 +93,28 @@ def qc_reason(q,s,task,runs):
         if any(x is None for x in flags): return 'unknown_qc'
     return ''
 
+def phase_directory_inventory(out,scope):
+    """Directory existence only for frozen development people; never select fallback maps."""
+    assert_development(scope); c=scope['c']; subjects=scope['subjects']
+    root=c.repos['sharedreward']/'derivatives/fsl'; rows=[]
+    expected={phase_dir(c,subjects[0],level,run).name for level,run in [('L1',1),('L1',2),('L2',None)]}
+    for layout in (root,root/'rf1'):
+        counts={name:0 for name in expected} if layout==root else {}
+        for s in subjects:
+            folder=guard_path(scope,layout/s/'ses-01',s)
+            if not folder.is_dir(): continue
+            for p in folder.iterdir():
+                if re.fullmatch(r'L[12]_task-sharedreward_ses-01_model-[0-9]+_type-act(?:_run-[12])?_smTo-[0-9]+(?:\.[0-9]+)?\.(?:gfeat|feat)',p.name):
+                    if guard_path(scope,p,s).is_dir(): counts[p.name]=counts.get(p.name,0)+1
+        for name,n in sorted(counts.items()):
+            rows.append(dict(path=str(layout/'sub-<ID>'/'ses-01'/name),n=n,
+                             expected=layout==root and name in expected,root_exists=layout.is_dir(),development_n=len(subjects)))
+    write_tsv(out,'results/aggregate/phase_directory_inventory.tsv',rows)
+    print('SR outcome: no eligible phase-resolved maps; directory existence only (frozen development pool):',flush=True)
+    for row in rows:
+        print(f"    {'expected' if row['expected'] else 'observed alternative'}: {row['path']}: N={row['n']}; root_exists={row['root_exists']}",flush=True)
+    print('These diagnostics do not establish completed/valid maps. Aging full-trial maps cannot substitute for outcome-only maps.',flush=True)
+
 def inventory(out,scope):
     assert_development(scope); c=scope['c']; require(c.exclusions.is_dir(),'source exclusions unavailable')
     load_aging_index(c,refresh=True); q=qc_table(c); rows=[]; paths={}
@@ -114,6 +136,7 @@ def inventory(out,scope):
     summary=frame.groupby(['domain','eligible','reason'],dropna=False).size().reset_index(name='n')
     write_tsv(out,'results/aggregate/inventory.tsv',summary)
     print('Development inventory (before fitting):\n'+summary.to_string(index=False),flush=True)
+    if not paths: phase_directory_inventory(out,scope)
     return {k:sorted(g.loc[g.eligible,'subject']) for k,g in frame.groupby('domain')},paths
 
 def visual_mask(out,scope,mask,ref):

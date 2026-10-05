@@ -1,5 +1,5 @@
 """Last development stress tests; no validation-loading/scoring option exists."""
-import argparse,json,importlib.metadata
+import argparse,json,importlib.metadata,re,uuid
 from copy import deepcopy
 from pathlib import Path
 import numpy as np
@@ -35,6 +35,43 @@ def verify_contract(base):
     require(cross['status']=='complete' and cross['holdout_scored'] is False and cross['original_outputs_unchanged'],'completed unscored cross-valence run required')
     return frozen,source
 
+def prepare_identity(out,key,before,eligible,preview=False):
+    """Archive only known design-preview artifacts on an explicit preview rerun."""
+    marker=out.output('work/identity.json')
+    if marker.exists() and json.loads(marker.read_text())['fingerprint']!=key:
+        message='stress-test checkpoint inputs changed; only a design-only --fairness-preview restart can archive automatically; fitted checkpoints require review'
+        require(preview,message)
+        work=out.output('work')
+        require(all(p.name in {'identity.json','inventory.tsv','fairness','archived_previews'} for p in work.iterdir()),message)
+        fairness=out.output('work/fairness')
+        # An allowlist rejects FEAT outputs, completion markers, unknown products and symlinks.
+        ev=r'(?:(?:non)?social_(?:high|low)_(?:unfair|fair|preoffer)|rt_constant|rt_pmod|missed_trial|missed_feedback)\.txt'
+        artifact=r'(?:identity\.json|render\.log|trial_counts_detail\.tsv|design(?:_cov)?\.(?:fsf|mat|con|min|trg|frf|png|ppm)|'+ev+r')'
+        for p in [fairness,*fairness.rglob('*')] if fairness.exists() else []:
+            require(not p.is_symlink(),message)
+            rel=p.relative_to(fairness).as_posix()
+            allowed=(rel=='.' or bool(re.fullmatch(r'sub-[A-Za-z0-9]+(?:/ses-01(?:/run-[12])?)?',rel))) if p.is_dir() else (
+                rel=='design_qc.tsv' or bool(re.fullmatch(r'sub-[A-Za-z0-9]+/ses-01/run-[12]/'+artifact,rel)))
+            require(allowed,message)
+        public={
+            'results':{'aggregate/inventory.tsv','aggregate/phase_directory_inventory.tsv','figures/fairness_design_preview.png','figures/fairness_design_preview.pdf'},
+            'provenance':{'run_status.json','fairness_status.json'},
+        }
+        for tree,allowed in public.items():
+            root=out.output(tree)
+            for p in root.rglob('*'):
+                require(not p.is_symlink() and (p.is_dir() or p.relative_to(root).as_posix() in allowed),message)
+        archive='work/archived_previews/'+uuid.uuid4().hex
+        # Preserve prior previews privately. Move the root identity last so interruptions remain guarded.
+        for rel in ('work/fairness','results/figures/fairness_design_preview.png','results/figures/fairness_design_preview.pdf',
+                    'provenance/fairness_status.json','provenance/run_status.json','reports/FAIRNESS_DESIGN_QC.md','work/identity.json'):
+            source=out.output(rel)
+            if source.exists():
+                destination=out.output(archive+'/'+rel); destination.parent.mkdir(parents=True,exist_ok=True)
+                source.rename(destination)
+        print('Archived prior design-only preview in '+str(out.output(archive))+'; rendering again with current inputs.',flush=True)
+    write_json(out,'work/identity.json',dict(fingerprint=key,original=before,eligible=eligible))
+
 def run(base,workers=96,dry_run=False,fairness_preview=False,plots_only=False):
     require(isinstance(workers,int) and workers>0,'workers must be a positive integer')
     out=output_config(base); before=None; stage='audit'
@@ -54,9 +91,7 @@ def run(base,workers=96,dry_run=False,fairness_preview=False,plots_only=False):
             software={p:importlib.metadata.version(p) for p in ('numpy','scipy','scikit-learn','nibabel','pandas')}
             qc=base.repos['linux2']/base.paths['qc_table']
             key=digest(dict(original=before,code=code,software=software,sources=sources,qc=sha256(qc),eligible=eligible))
-            marker=out.output('work/identity.json')
-            if marker.exists(): require(json.loads(marker.read_text())['fingerprint']==key,'stress-test checkpoint inputs changed; review, never silently mix')
-            write_json(out,'work/identity.json',dict(fingerprint=key,original=before,eligible=eligible))
+            prepare_identity(out,key,before,eligible,preview=fairness_preview)
             for name in ('aggregate','figures','maps'): out.output('results/'+name).mkdir(parents=True,exist_ok=True)
             def status(stage,state='in_progress',**extra):
                 write_json(out,'provenance/run_status.json',dict(status=state,stage=stage,fingerprint=key,holdout_scored=False,validation_n=50,**extra))
@@ -64,8 +99,10 @@ def run(base,workers=96,dry_run=False,fairness_preview=False,plots_only=False):
             from final_stress_fairness import prepare_and_fit,categorical_features
             if fairness_preview:
                 require(eligible['ugr'],'no QC-qualified development UGR sample for preview')
+                stage='fairness design preview'; status(stage)
                 result=prepare_and_fit(out,scope,eligible['ugr'],key,workers,preview=True)
                 require(snapshot(base)==before,'frozen outputs changed')
+                status(stage,result['status'],original_outputs_unchanged=True)
                 print(out.output('reports/FAIRNESS_DESIGN_QC.md'),flush=True); print('Preview only. holdout_scored = False',flush=True); return
             stage='source features'; status(stage)
             arrays,available,mask,ref=build_features(out,scope,eligible,phase_paths,key)

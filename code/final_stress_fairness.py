@@ -238,7 +238,9 @@ def prepare_and_fit(out,scope,ids,key,workers=96,preview=False):
             if unit['failures']: stopped='; '.join(unit['failures']); break
             if preview: break
         if stopped or preview: break
-    private=[dict(subject=u['subject'],run=u['run'],**u['counts'],**u.get('metrics',{}),failures='; '.join(u['failures'])) for u in units]
+    # Matrix metrics include a failures list too; the TSV stores one joined field.
+    private=[{**u['counts'],**u.get('metrics',{}),'subject':u['subject'],'run':u['run'],
+              'failures':'; '.join(u['failures'])} for u in units]
     write_tsv(out,'work/fairness/design_qc.tsv',private)
     status=dict(status='stopped_design_qc' if stopped else 'preview_passed' if preview else 'designs_passed',reason=stopped,
                 rendered_runs=len(units),development_n=len(ids),min_trials_per_cell=MIN_TRIALS,max_imbalance=MAX_IMBALANCE,

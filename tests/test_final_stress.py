@@ -115,6 +115,87 @@ def test_actual_design_metrics_stop_on_collinearity():
     with pytest.raises(PipelineError,match='zero variance'): design_qc(x,c)
 
 
+@pytest.mark.parametrize('case',['passing_preview','matrix_failure','trial_failure'])
+def test_fairness_qc_report_real_writer(cfg,monkeypatch,case):
+    import final_stress_fairness as fairness
+    sc=toy_scope(10); sc['c']=cfg; out=output_config(cfg)
+    x=np.random.default_rng(5).normal(size=(150,16))
+    if case=='matrix_failure': x[:,1]=x[:,0]
+    metrics,_=design_qc(x,contrast_matrix(16))
+    unit=dict(subject=sc['subjects'][0],run=1,counts={k:4 for k in CONDITIONS},metrics=metrics,failures=metrics['failures'])
+    if case=='trial_failure':
+        unit.pop('metrics'); unit['failures']=['social_high_unfair: fewer than 3 valid trials']
+    monkeypatch.setenv('FSLDIR','synthetic')
+    monkeypatch.setattr(fairness.shutil,'which',lambda _: '/synthetic/FSL')
+    monkeypatch.setattr(fairness,'upstream_module',lambda _: None)
+    monkeypatch.setattr(fairness,'render_unit',lambda *a:unit)
+    monkeypatch.setattr(fairness,'pilot_figure',lambda *a:None)
+    monkeypatch.setattr(fairness,'execute_unit',lambda *a:pytest.fail('QC/preview must not fit'))
+    monkeypatch.setattr(fairness,'execute_l2',lambda *a:pytest.fail('QC/preview must not fit'))
+    result=fairness.prepare_and_fit(out,sc,sc['subjects'],'test',preview=case=='passing_preview')
+    expected='preview_passed' if case=='passing_preview' else 'stopped_design_qc'
+    assert result['status']==expected and result['rendered_runs']==1 and result['holdout_scored'] is False
+    table=pd.read_csv(out.output('work/fairness/design_qc.tsv'),sep='\t',keep_default_na=False)
+    assert table.failures.tolist()==['; '.join(unit['failures'])]
+    saved=json.loads(out.output('provenance/fairness_status.json').read_text())
+    assert saved['status']==expected and expected in out.output('reports/FAIRNESS_DESIGN_QC.md').read_text()
+    if case!='trial_failure':
+        assert saved['pilot_design']['failures']==metrics['failures']
+        assert isinstance(unit['metrics']['failures'],list)
+
+
+def test_preview_restart_preserves_prior_design_and_identity(cfg):
+    from final_stress_tests import prepare_identity
+    out=output_config(cfg); prepare_identity(out,'old',{}, {})
+    design=out.output('work/fairness/sub-dev000/ses-01/run-1/design.mat')
+    design.parent.mkdir(parents=True); design.write_text('original design')
+    prepare_identity(out,'old',{}, {},preview=True)
+    assert not out.output('work/archived_previews').exists()
+    prepare_identity(out,'new',{}, {},preview=True)
+    assert not design.exists()
+    archived=list(out.output('work/archived_previews').glob('*/work/fairness/sub-dev000/ses-01/run-1/design.mat'))
+    assert len(archived)==1 and archived[0].read_text()=='original design'
+    assert json.loads(out.output('work/identity.json').read_text())['fingerprint']=='new'
+    assert json.loads(next(out.output('work/archived_previews').glob('*/work/identity.json')).read_text())['fingerprint']=='old'
+
+
+@pytest.mark.parametrize('artifact',[
+    'work/features/complete.json','work/models/model.npz','work/permutations/checkpoint.json',
+    'work/computation_complete.json','work/fairness/sub-dev000/ses-01/run-1/model-signature-fairness.feat',
+    'work/fairness/sub-dev000/ses-01/l2_complete.json','results/aggregate/performance.tsv','results/maps/model.nii.gz'])
+def test_preview_restart_rejects_any_fitted_or_unknown_checkpoint(cfg,artifact):
+    from final_stress_tests import prepare_identity
+    out=output_config(cfg); prepare_identity(out,'old',{}, {})
+    path=out.output(artifact); path.parent.mkdir(parents=True,exist_ok=True)
+    if artifact.endswith('.feat'): path.mkdir()
+    else: path.write_text('retain')
+    with pytest.raises(PipelineError,match='checkpoint inputs changed'): prepare_identity(out,'new',{}, {},preview=True)
+    assert path.exists() and json.loads(out.output('work/identity.json').read_text())['fingerprint']=='old'
+    assert not out.output('work/archived_previews').exists()
+
+
+def test_preview_restart_requires_explicit_preview(cfg):
+    from final_stress_tests import prepare_identity
+    out=output_config(cfg); prepare_identity(out,'old',{}, {})
+    with pytest.raises(PipelineError,match='checkpoint inputs changed'): prepare_identity(out,'new',{}, {})
+
+
+def test_phase_directory_diagnostics_only_development_and_no_map_reads(cfg,monkeypatch):
+    from final_stress_sources import phase_dir,phase_directory_inventory
+    sc=toy_scope(10); sc['c']=cfg; out=output_config(cfg)
+    phase_dir(cfg,sc['subjects'][0],'L1',1).mkdir(parents=True)
+    alternative=phase_dir(cfg,sc['subjects'][1],'L2').with_name('L2_task-sharedreward_ses-01_model-1_type-act_smTo-5.gfeat')
+    alternative.mkdir(parents=True)
+    phase_dir(cfg,'sub-held000','L2').mkdir(parents=True)
+    monkeypatch.setattr(nib,'load',lambda *a,**kw:pytest.fail('directory diagnostics must not read voxels'))
+    phase_directory_inventory(out,sc)
+    table=pd.read_csv(out.output('results/aggregate/phase_directory_inventory.tsv'),sep='\t')
+    assert len(table)==4 and table.n.sum()==2
+    assert table.loc[table.path.str.contains('L2_') & table.expected,'n'].iloc[0]==0
+    assert table.loc[~table.expected,'n'].tolist()==[1]
+    assert all(s not in table.to_csv() for s in [*sc['subjects'],'sub-held000'])
+
+
 def test_serial_parallel_identical_and_checkpoint_resume(cfg,monkeypatch):
     import final_stress_parallel as parallel
     sc=toy_scope(20); out=output_config(cfg); rng=np.random.default_rng(2); arrays={}
