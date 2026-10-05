@@ -1,0 +1,4 @@
+eligible	strategy	retained_runs	reason	n
+True	fixed_effects	1,2		186
+True	l1_passthrough	1		4
+True	l1_passthrough	2		2

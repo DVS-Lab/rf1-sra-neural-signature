@@ -1,7 +1,6 @@
 domain	eligible	reason	n
 baseline	True		192
-sr_outcome	False	missing_phase_resolved_L2	189
-sr_outcome	False	unknown_qc	3
+sr_outcome	True		192
 ugr	False	qc_outlier	8
 ugr	False	unknown_qc	8
 ugr	True		176

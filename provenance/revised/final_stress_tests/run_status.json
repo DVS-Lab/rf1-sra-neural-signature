@@ -1,7 +1,7 @@
 {
   "status": "preview_passed",
   "stage": "fairness design preview",
-  "fingerprint": "dc091b1f5296806b3986421871f71fb1a4782af030803b04efd6c5e2a364be6c",
+  "fingerprint": "74d52e87cd9af918c43c31257da0ee9d45202b1daf01cea64fb4d24e11c20153",
   "holdout_scored": false,
   "validation_n": 50,
   "original_outputs_unchanged": true

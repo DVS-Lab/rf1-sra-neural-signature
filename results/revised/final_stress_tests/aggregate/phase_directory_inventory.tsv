@@ -1,4 +1,4 @@
 path	n	expected	root_exists	development_n
-/ZPOOL/data/projects/rf1-sra-sharedreward/derivatives/fsl/sub-<ID>/ses-01/L1_task-sharedreward_ses-01_model-1_type-act_run-1_smTo-6.feat	0	True	True	192
-/ZPOOL/data/projects/rf1-sra-sharedreward/derivatives/fsl/sub-<ID>/ses-01/L1_task-sharedreward_ses-01_model-1_type-act_run-2_smTo-6.feat	0	True	True	192
-/ZPOOL/data/projects/rf1-sra-sharedreward/derivatives/fsl/sub-<ID>/ses-01/L2_task-sharedreward_ses-01_model-1_type-act_smTo-6.gfeat	0	True	True	192
+/ZPOOL/data/projects/rf1-sra-sharedreward/derivatives/fsl/sub-<ID>/ses-01/L1_task-sharedreward_ses-01_model-1_type-act_run-1_smTo-6.feat	190	True	True	192
+/ZPOOL/data/projects/rf1-sra-sharedreward/derivatives/fsl/sub-<ID>/ses-01/L1_task-sharedreward_ses-01_model-1_type-act_run-2_smTo-6.feat	188	True	True	192
+/ZPOOL/data/projects/rf1-sra-sharedreward/derivatives/fsl/sub-<ID>/ses-01/L2_task-sharedreward_ses-01_model-1_type-act_smTo-6.gfeat	186	True	True	192
