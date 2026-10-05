@@ -11,7 +11,7 @@ from characterization_compute import assert_development
 from cross_valence import settings as prior_settings
 from final_stress_design import output_config,make_plans,usable
 from final_stress_sources import inventory,build_features,visual_mask
-from final_stress_compute import run_plan,summarize,fixed_probes,specificity,spatial_comparison,valence_controls
+from final_stress_compute import run_plan,summarize,fixed_probes,specificity,spatial_comparison,valence_controls,verify_baseline
 
 
 def snapshot(base):
@@ -36,6 +36,7 @@ def verify_contract(base):
     return frozen,source
 
 def run(base,workers=96,dry_run=False,fairness_preview=False,plots_only=False):
+    require(isinstance(workers,int) and workers>0,'workers must be a positive integer')
     out=output_config(base); before=None; stage='audit'
     with run_lock(base):
         try:
@@ -48,6 +49,7 @@ def run(base,workers=96,dry_run=False,fairness_preview=False,plots_only=False):
             if dry_run:
                 print('DRY RUN PASSED: frozen artifacts, source code, private sample/holdout/fold audit. No new images loaded. holdout_scored = False',flush=True); return
             eligible,phase_paths=inventory(out,scope)
+            require(usable(scope,eligible['baseline']),'current-QC baseline has fewer than ten people or is missing original folds; see inventory')
             code={p.name:sha256(p) for p in (base.root/'code').glob('final_stress*.py')}
             software={p:importlib.metadata.version(p) for p in ('numpy','scipy','scikit-learn','nibabel','pandas')}
             qc=base.repos['linux2']/base.paths['qc_table']
@@ -67,6 +69,7 @@ def run(base,workers=96,dry_run=False,fairness_preview=False,plots_only=False):
                 print(out.output('reports/FAIRNESS_DESIGN_QC.md'),flush=True); print('Preview only. holdout_scored = False',flush=True); return
             stage='source features'; status(stage)
             arrays,available,mask,ref=build_features(out,scope,eligible,phase_paths,key)
+            verify_baseline(out,scope,arrays,available,mask,ref)
             keep=visual_mask(out,scope,mask,ref)
             complete=out.output('work/computation_complete.json')
             require(not plots_only or complete.exists(),'--plots-only requires completed computations')

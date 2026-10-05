@@ -1,0 +1,249 @@
+from pathlib import Path
+from types import SimpleNamespace
+import json
+import numpy as np
+import pandas as pd
+import nibabel as nib
+import pytest
+from utils import PipelineError,sha256
+from test_characterization import toy_scope
+from final_stress_design import output_config,partners,context,trust_norm,ugr_context,make_plans,permutation_targets,reduced
+from final_stress_compute import partition,fit_score,run_plan,summarize,specificity,identifier
+from final_stress_fairness import nominal_fairness,build_events,contrast_matrix,fsf_text,design_qc,quote,CONDITIONS
+from final_stress_sources import guard_path,qc_reason,phase_spec
+from revised_design import center
+
+
+def test_equal_partner_valence_weighting_and_norm_orientation():
+    m={i:np.random.default_rng(i).normal(size=12).astype('float32')+i for i in range(1,10)}
+    for task,indices in [('sharedreward',((1,2),(3,4),(5,6))),('trust',((4,5),(6,7),(8,9)))]:
+        p=partners(task,m); actual=context(p,'social_context')
+        c,f,s=[(m[a]+m[b])/2 for a,b in indices]
+        np.testing.assert_allclose(actual,center([(f+s)/2,c]),atol=2e-6)
+        np.testing.assert_allclose(context(p,'friend_stranger_context'),center([f,s]),atol=2e-6)
+        keep=np.arange(12)%3!=0
+        np.testing.assert_allclose(reduced(actual,keep),center(np.array([(f+s)/2,c])[:,keep]),atol=2e-6)
+    np.testing.assert_allclose(trust_norm(m)['trust_norm'],center([(m[6]+m[8])/2,(m[7]+m[9])/2]))
+    np.testing.assert_allclose(ugr_context(m)['ugr_context'],center([(m[5]+m[7])/2,(m[1]+m[3])/2]))
+
+
+def test_plans_seven_primary_permutations_and_matched_samples():
+    sc=toy_scope(20); ids=sc['subjects']; names=[]
+    for d in ('sr_full','sr_outcome','trust'):
+        for f in ('social_context','friend_stranger_context'): names.append(d+'_'+f)
+    names+=['ugr_context','ugr_norm','trust_norm']; av={k:ids for k in names}; av['sr_outcome_social_context']=ids[:15]
+    plans=make_plans(av); perm=[p for p in plans if p['permutation']]
+    assert len(perm)==7
+    for p in plans:
+        if p['group']=='phase' and p['family']=='social_context': assert p['subjects']==ids[:15]
+    assert all(len(permutation_targets(p))==1 for p in perm)
+    assert all(not p['visual'] for p in perm)
+
+
+def test_participant_blocks_and_heldout_before_access(monkeypatch):
+    sc=toy_scope(20); p=dict(subjects=sc['subjects'],train=['a','b'],test=['b'],visual=False)
+    arrays={k:np.random.default_rng(i).normal(size=(20,2,8)).astype('float32') for i,k in enumerate(('a','b'))}
+    for fold in range(1,6):
+        train,test=partition(sc,p,fold); assert not set(train)&set(test)
+        w,b,tr,te,m=fit_score(sc,arrays,p,fold,np.ones(8,bool)); assert m.shape==(4,1)
+    p['subjects']=[*sc['subjects'][:-1],'sub-held000']
+    with pytest.raises(PipelineError,match='HOLDOUT LOCK'): fit_score(sc,{},p,1,None)
+
+
+def test_guard_blocks_cross_person_symlink_and_confounds_allowance(cfg):
+    sc=toy_scope(10); sc['c']=cfg; s=sc['subjects'][0]
+    p=cfg.repos['ugr']/s/f'{s}_ses-01_task-ugr_confounds.tsv'; p.parent.mkdir(parents=True); p.write_text('0')
+    assert guard_path(sc,p,s)==p
+    other=cfg.repos['ugr']/'sub-held000'/'ses-01'/'map.nii.gz'; other.parent.mkdir(parents=True); other.write_text('never read')
+    link=cfg.repos['ugr']/s/'ses-01'/'map.nii.gz'; link.parent.mkdir(); link.symlink_to(other)
+    with pytest.raises(PipelineError): guard_path(sc,link,s)
+    with pytest.raises(PipelineError,match='HOLDOUT LOCK'): guard_path(sc,other,'sub-held000')
+
+
+def test_qc_unknown_and_any_bad_run_rejected():
+    q=pd.DataFrame([dict(subject='s',task='ugr',run=r,tsnr_outlier='False',brain_coverage_outlier='False',fd_mean_outlier='False') for r in (1,2)]).set_index(['subject','task','run'])
+    assert qc_reason(q,'s','ugr',(1,2))==''
+    q.loc[('s','ugr',2),'fd_mean_outlier']='True'; assert qc_reason(q,'s','ugr',(1,2))=='qc_outlier'
+    q.loc[('s','ugr',2),'fd_mean_outlier']='n/a'; assert qc_reason(q,'s','ugr',(1,2))=='unknown_qc'
+    assert qc_reason(q,'unknown','ugr',(1,2))=='unknown_qc'
+
+
+def synthetic_events():
+    trials=[]; rows=[]
+    for j,name in enumerate(CONDITIONS):
+        social,end,fair=name.split('_'); endowment=32 if end=='high' else 16
+        for rep in range(4):
+            i=len(trials); onset=i*12.; offer=(2 if endowment==32 else 1) if fair=='unfair' else endowment//2
+            trials.append(SimpleNamespace(trial_id=str(i),sociality=social,endowment=endowment,offer=offer,missed=False,broad_onset=onset,broad_duration=7.,response_onset=onset+5.,response_time=1.+rep*.1))
+            rows.append(dict(trial_id=str(i),trial_type='decision',onset=onset+3.))
+    return rows,SimpleNamespace(collapse_trials=lambda _:trials)
+
+
+def test_fairness_nominal_rounding_timing_and_trial_gate():
+    for end,offers in [(16,[1,2,4,8]),(32,[2,3,8,16])]:
+        assert [nominal_fairness(v,end)[0] for v in offers]==['unfair','unfair','fair','fair']
+    with pytest.raises(PipelineError): nominal_fairness(7,32)
+    rows,canonical=synthetic_events(); ev,counts,detail,failed=build_events(rows,canonical)
+    assert not failed and set(counts.values())=={4}
+    assert ev['social_high_unfair'][0]==(3.,4.,1.)
+    assert ev['social_high_preoffer'][0]==(0.,3.,1.)
+    canonical.collapse_trials=lambda _:[SimpleNamespace(trial_id='0',sociality='social',endowment=32,offer=2,missed=False,broad_onset=0.,broad_duration=7.,response_onset=5.,response_time=1.)]
+    assert build_events(rows[:1],canonical)[-1]
+
+
+def test_fsf_preserves_preprocessing_and_exact_contrasts(tmp_path):
+    from preflight import parse_fsf
+    rows,canonical=synthetic_events(); ev,*_=build_events(rows,canonical)
+    original={'fmri(smooth)':'5','fmri(tr)':'1.615','fmri(temphp_yn)':'0','confoundev_files(1)':'/safe/confounds.tsv','feat_files(1)':'/safe/input.nii.gz',
+              'fmri(evtitle1)':'old','fmri(con_real10.1)':'1','fmri(ortho3.2)':'1','fmri(conmask9_4)':'1','fmri(evs_orig)':'11'}
+    fsf=tmp_path/'test.fsf'; fsf.write_text(fsf_text(original,ev,{k:tmp_path/(k+'.txt') for k in ev},tmp_path/'new.feat')); settings=parse_fsf(fsf)
+    assert 'set fmri(con_real1.1) 0.5' in fsf.read_text()
+    assert settings['fmri(tr)']=='1.615' and settings['fmri(smooth)']=='5' and settings['fmri(temphp_yn)']=='0'
+    assert settings['confoundev_files(1)']=='/safe/confounds.tsv' and 'fmri(con_real10.1)' not in settings
+    assert int(settings['fmri(evs_orig)'])==len(ev) and settings['fmri(shape15)']=='10'
+    c=contrast_matrix(len(ev)); np.testing.assert_equal(c[6],c[0]-c[1]-c[2]+c[3])
+    assert np.all(c[:,8:]==0) and np.allclose(c[:4].sum(1),1)
+    assert '\\$' in quote('$abc') and '\\[' in quote('[exec nope]')
+
+
+def test_actual_design_metrics_stop_on_collinearity():
+    x=np.random.default_rng(5).normal(size=(150,16)); c=contrast_matrix(16)
+    metrics,_=design_qc(x,c); assert not metrics['failures'] and len(metrics['relative_contrast_efficiency'])==7
+    x[:,1]=x[:,0]; metrics,_=design_qc(x,c)
+    assert 'rank-deficient active design' in metrics['failures'] and metrics['max_task_ev_correlation']>.99
+    x[:,0]=0
+    with pytest.raises(PipelineError,match='zero variance'): design_qc(x,c)
+
+
+def test_serial_parallel_identical_and_checkpoint_resume(cfg,monkeypatch):
+    import final_stress_parallel as parallel
+    sc=toy_scope(20); out=output_config(cfg); rng=np.random.default_rng(2); arrays={}
+    for name in ('a','b'):
+        path=out.output('work/'+name+'.npy'); path.parent.mkdir(parents=True,exist_ok=True)
+        a=np.lib.format.open_memmap(path,mode='w+',dtype='float32',shape=(20,2,8)); a[:]=rng.normal(size=a.shape); a.flush(); arrays[name]=np.load(path,mmap_mode='r')
+    p=dict(name='toy',family='social_context',subjects=sc['subjects'],train=['a'],test=['b'],visual=False,permutation=True,group='ugr')
+    serial=parallel.run(out,sc,arrays,[p],np.ones(8,bool),'test',1,count=4)
+    path=out.output('work/permutations/toy_whole_brain.json'); state=json.loads(path.read_text()); state['results'].pop('2'); path.write_text(json.dumps(state))
+    resumed=parallel.run(out,sc,arrays,[p],np.ones(8,bool),'test',2,count=4)
+    np.testing.assert_array_equal(serial[0][2],resumed[0][2])
+    monkeypatch.setattr(parallel,'one',lambda *a:pytest.fail('completed job repeated'))
+    parallel.run(out,sc,arrays,[p],np.ones(8,bool),'test',1,count=4)
+
+
+def test_cv_models_specificity_and_reporting(cfg,tmp_path,monkeypatch):
+    import final_stress_report as report
+    from final_stress_design import FAMILIES
+    sc=toy_scope(10); sc['c']=cfg; out=output_config(cfg); rng=np.random.default_rng(22); arrays={}; v=12
+    for task in ('sr_full','trust'):
+        p=center(rng.normal(size=(10,3,v))); arrays[task+'_partners']=p
+        for f in FAMILIES: arrays[task+'_'+f]=np.stack([context(x,f) for x in p])
+    available={k:sc['subjects'] for k in arrays}; plans=[p for p in make_plans(available) if p['group']=='architecture']
+    mask=np.ones((3,2,2),bool); ref=nib.Nifti1Image(mask.astype('float32'),np.eye(4)); keep=np.arange(v)%3!=0
+    records=[]
+    for p in plans:
+        rr,members=run_plan(out,sc,arrays,p,keep,'test',mask,ref); records+=rr
+        for fold in range(1,6):
+            a={r['subject'] for r in members if r['fold']==fold and r['role']=='train'}; b={r['subject'] for r in members if r['fold']==fold and r['role']=='test'}; assert not a&b
+    records+=specificity(out,sc,arrays,plans,keep); perf=summarize(records,bootstrap=100)
+    assert len(perf)==16
+    out.output('results/aggregate').mkdir(parents=True,exist_ok=True)
+    pd.DataFrame([dict(comparison='test',kind='weight',spatial_r=.2,n_voxels=v)]).to_csv(out.output('results/aggregate/spatial_comparison.tsv'),sep='\t',index=False)
+    # Low-resolution PNG render is enough for synthetic layout QA; no synthetic scientific outputs committed.
+    def quick_save(o,fig,name): fig.savefig(tmp_path/(name+'.png'),dpi=90); report.plt.close(fig)
+    monkeypatch.setattr(report,'save',quick_save)
+    report.render(out,perf,pd.DataFrame(),dict(status='stopped_design_qc',reason='synthetic gate'),keep,[])
+    text=out.output('reports/REPORT.md').read_text(); assert 'holdout_scored = False' in text and 'no persistence success criterion' in text
+    email=out.output('reports/COLLABORATOR_EMAIL_DRAFT.md').read_text(); assert 500<=len(email.split())<=700
+    assert len(list(tmp_path.glob('Figure*.png')))==6
+
+
+def test_final_models_and_folds_resume_without_refit(cfg,monkeypatch):
+    import final_stress_compute as compute
+    sc=toy_scope(10); out=output_config(cfg); mask=np.ones((2,2,2),bool); ref=nib.Nifti1Image(mask.astype('float32'),np.eye(4))
+    arrays={'a':np.random.default_rng(42).normal(size=(10,2,8))}
+    p=dict(name='resume',family='context',group='phase',subjects=sc['subjects'],train=['a'],test=['a'],visual=False)
+    original=run_plan(out,sc,arrays,p,np.ones(8,bool),'test',mask,ref)
+    monkeypatch.setattr(compute,'fit_binary',lambda *a,**kw:pytest.fail('completed fold/final model refit'))
+    assert run_plan(out,sc,arrays,p,np.ones(8,bool),'test',mask,ref)==original
+    path=out.output('work/models/resume_whole_brain_fold-1.json'); data=json.loads(path.read_text()); data['train'].append('sub-held000');path.write_text(json.dumps(data))
+    with pytest.raises(PipelineError,match='drift'): run_plan(out,sc,arrays,p,np.ones(8,bool),'test',mask,ref)
+
+
+def test_new_namespace_and_snapshot_preserve_old_artifacts(cfg):
+    from final_stress_tests import snapshot
+    out=output_config(cfg); path=cfg.output('results/original.txt');path.parent.mkdir(parents=True);path.write_text('frozen')
+    before=snapshot(cfg); new=out.output('results/aggregate/toy.tsv');new.parent.mkdir(parents=True);new.write_text('new')
+    assert snapshot(cfg)==before
+    for rel in ('../old','/tmp/escape','results/../../old','code/old.py'):
+        with pytest.raises(PipelineError): out.output(rel)
+
+
+def test_orchestration_completed_stopped_fairness_and_plots_resume(cfg,monkeypatch):
+    import final_stress_tests as main
+    import final_stress_parallel as parallel
+    import final_stress_fairness as fairness
+    import final_stress_report as report
+    from characterization_audit import PRIMARY
+    from final_stress_design import FAMILIES
+    sc=toy_scope(10); sc['c']=cfg; mask=np.ones((2,2,2),bool); ref=nib.Nifti1Image(mask.astype('float32'),np.eye(4)); keep=np.array([True]*6+[False]*2)
+    out=output_config(cfg); arrays={}; rng=np.random.default_rng(100)
+    for task in ('sr_full','sr_outcome','trust'):
+        x=center(rng.normal(size=(10,3,8))); arrays[task+'_partners']=x
+        for family in FAMILIES: arrays[task+'_'+family]=np.stack([context(v,family) for v in x])
+    for name in ('ugr_context','ugr_high','ugr_low','trust_norm','trust_computer_norm'): arrays[name]=center(rng.normal(size=(10,2,8)))
+    available={k:sc['subjects'] for k in arrays}
+    for k,x in list(arrays.items()):
+        path=out.output('work/features/'+k+'.npy');path.parent.mkdir(parents=True,exist_ok=True);np.save(path,x);arrays[k]=np.load(path,mmap_mode='r')
+    qc=cfg.repos['linux2']/cfg.paths['qc_table'];qc.parent.mkdir(parents=True,exist_ok=True);qc.write_text('fixed')
+    monkeypatch.setattr(main,'verify_contract',lambda c:({},{}));monkeypatch.setattr(main,'prior_settings',lambda c:{})
+    monkeypatch.setattr(main,'audit',lambda *a:{(PRIMARY,'partner_pair'):sc})
+    monkeypatch.setattr(main,'inventory',lambda *a:({'baseline':sc['subjects'],'sr_outcome':sc['subjects'],'ugr':sc['subjects']},{}))
+    monkeypatch.setattr(main,'build_features',lambda *a:(arrays,available,mask,ref));monkeypatch.setattr(main,'visual_mask',lambda *a:keep)
+    monkeypatch.setattr(main,'fixed_probes',lambda *a:[])
+    monkeypatch.setattr(main,'verify_baseline',lambda *a:None)
+    def spatial(*args):
+        p=out.output('results/aggregate/spatial_comparison.tsv');pd.DataFrame([dict(comparison='toy',kind='weight',spatial_r=.5,n_voxels=8)]).to_csv(p,sep='\t',index=False)
+    monkeypatch.setattr(main,'spatial_comparison',spatial)
+    monkeypatch.setattr(fairness,'prepare_and_fit',lambda *a,**kw:dict(status='stopped_design_qc',reason='synthetic collinearity'))
+    actual=parallel.run
+    monkeypatch.setattr(parallel,'run',lambda *a,**kw:actual(*a,**kw,count=2))
+    # Rendering is tested separately; keep this orchestration check focused on stage/checkpoint contracts.
+    monkeypatch.setattr(report,'render',lambda *a:None)
+    main.run(cfg,workers=1)
+    state=json.loads(out.output('provenance/run_status.json').read_text()); assert state['holdout_scored'] is False and state['original_outputs_unchanged']
+    monkeypatch.setattr(main,'run_plan',lambda *a,**kw:pytest.fail('plots-only refit'))
+    monkeypatch.setattr(fairness,'prepare_and_fit',lambda *a,**kw:pytest.fail('plots-only FEAT'))
+    main.run(cfg,workers=1,plots_only=True)
+
+
+def test_phase_sources_require_authoritative_design_and_canonical_outcome_timing(cfg):
+    from final_stress_sources import phase_dir,phase_unit
+    from conftest import fsf_text as fixture_fsf,con_text,l2_text
+    sc=toy_scope(10); sc['c']=cfg; s=sc['subjects'][0]; spec=phase_spec()
+    labels=['event_computer_punish','event_computer_reward','event_friend_punish','event_friend_reward',
+            'event_stranger_punish','event_stranger_reward','event_computer_neutral','event_friend_neutral','event_stranger_neutral',
+            'missed_decision','missed_outcome','friend_face','stranger_face','computer_non-face']
+    for run in (1,2):
+        folder=phase_dir(cfg,s,'L1',run);folder.mkdir(parents=True)
+        data=cfg.repos['sharedreward']/s/'ses-01'/f'{s}_ses-01_task-sharedreward_run-{run}_space-MNI152NLin6Asym_bold.nii.gz'
+        content=fixture_fsf(spec,data,rendered=True)+'set fmri(evs_orig) 14\n'
+        evdir=cfg.repos['sharedreward']/s/'ses-01'/'evs';evdir.mkdir(parents=True,exist_ok=True)
+        events=[]
+        for i,label in enumerate(labels,1):
+            ev=evdir/f'run-{run}_{label}.txt';ev.write_text(f'{10*i} 1 1\n')
+            content+=f'set fmri(custom{i}) "{ev}"\nset fmri(shape{i}) 3\n'
+            events.append(dict(onset=10*i,duration=1,trial_type=label))
+        (folder/'design.fsf').write_text(content);(folder/'design.con').write_text(con_text(spec));(folder/'cluster_mask_zstat1.nii.gz').write_text('fixture')
+        (folder/'stats').mkdir()
+        for k in range(1,7): (folder/f'stats/cope{k}.nii.gz').write_text('fixture')
+        path=cfg.bids/s/'ses-01/func'/f'{s}_ses-01_task-sharedreward_run-{run}_events.tsv';path.parent.mkdir(parents=True,exist_ok=True);pd.DataFrame(events).to_csv(path,sep='\t',index=False)
+    l2=phase_dir(cfg,s,'L2');l2.mkdir(parents=True)
+    text=l2_text(spec)+''.join(f'set feat_files({r}) "{phase_dir(cfg,s,"L1",r)}"\n' for r in (1,2));(l2/'design.fsf').write_text(text)
+    for k in range(1,7):
+        d=l2/f'cope{k}.feat';(d/'stats').mkdir(parents=True)
+        for rel in ('stats/cope1.nii.gz','stats/zstat1.nii.gz','mask.nii.gz','cluster_mask_zstat1.nii.gz'): (d/rel).write_text('fixture')
+        (d/'design.mat').write_text('/Matrix\n1\n1\n');(d/'design.con').write_text('/Matrix\n1\n')
+    assert len(phase_unit(sc,s))==6
+    ev=cfg.repos['sharedreward']/s/'ses-01/evs/run-1_event_friend_reward.txt';ev.write_text('3 12 1\n')
+    with pytest.raises(PipelineError,match='timings differ'): phase_unit(sc,s)
+    with pytest.raises(PipelineError,match='HOLDOUT LOCK'): phase_unit(sc,'sub-held000')

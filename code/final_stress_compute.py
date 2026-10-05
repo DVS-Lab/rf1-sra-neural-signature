@@ -57,13 +57,20 @@ def run_plan(out,scope,arrays,p,keep,key,mask,ref):
         members.extend(dict(model=stem,fold=fold,subject=scope['subjects'][i],role=role) for role,ids in [('train',train),('test',test)] for i in ids)
     # Separate characterization model; never overwrites either frozen candidate.
     idx=[scope['subjects'].index(s) for s in p['subjects']]
-    x=selected(arrays,p['train'],idx,keep if p['visual'] else None)
-    w,b=fit_binary(x,scope,p['subjects']); active=mask.copy()
-    if p['visual']: active[mask]=keep
-    for kind,values in [('weights',w),('haufe',haufe(x,w,b)),('mean_difference',(x[:,:,0]-x[:,:,1]).mean((0,1)))]:
-        save_vector(out,stem+'_DEV_'+kind,values,active,ref)
-    write_json(out,'provenance/models/'+stem+'.json',dict(plan={k:v for k,v in p.items() if k!='subjects'},training_n=len(idx),
-        weight_sha256=sha256(out.output('results/maps/'+stem+'_DEV_weights.nii.gz')),intercept=b,holdout_scored=False))
+    final_rel='provenance/models/'+stem+'.json'; final_path=out.output(final_rel)
+    if final_path.exists():
+        final=json.loads(final_path.read_text()); require(final['fingerprint']==key and final['training_n']==len(idx),'final checkpoint drift')
+        for rel,h in final['products'].items(): require(sha256(out.output(rel))==h,'final characterization model damaged')
+    else:
+        x=selected(arrays,p['train'],idx,keep if p['visual'] else None)
+        w,b=fit_binary(x,scope,p['subjects']); active=mask.copy()
+        if p['visual']: active[mask]=keep
+        products={}
+        for kind,values in [('weights',w),('haufe',haufe(x,w,b)),('mean_difference',(x[:,:,0]-x[:,:,1]).mean((0,1)))]:
+            save_vector(out,stem+'_DEV_'+kind,values,active,ref)
+            rel='results/maps/'+stem+'_DEV_'+kind+'.nii.gz'; products[rel]=sha256(out.output(rel))
+        write_json(out,final_rel,dict(fingerprint=key,plan={k:v for k,v in p.items() if k!='subjects'},training_n=len(idx),
+            weight_sha256=sha256(out.output('results/maps/'+stem+'_DEV_weights.nii.gz')),products=products,intercept=b,holdout_scored=False))
     return records,members
 
 def summarize(records,bootstrap=10000):
@@ -112,6 +119,10 @@ def specificity(out,scope,arrays,plans,keep):
                         records.append(dict(model=p['family'],family=p['family'],group='specificity',visual=False,test=task+'_'+name,
                             subject=s,fold=fold,margin=float(value),evaluation='participant_blocked_cv'))
     write_tsv(out,'work/partner_expression.tsv',expressions)
+    if expressions:
+        frame=pd.DataFrame(expressions)
+        aggregate=frame.groupby(['model','task','partner']).expression.agg(['count','mean','std']).reset_index()
+        write_tsv(out,'results/aggregate/partner_expression.tsv',aggregate)
     return records
 
 def spatial_comparison(out,scope,mask,ref,plans,keep):
@@ -143,3 +154,32 @@ def valence_controls(scope,arrays,available,mask,ref):
             records.append(dict(model='existing_valence_OOF_reversed',family='generic_valence_control',group='norm',visual=False,
                 test=target,subject=s,fold=fold,margin=float(z[1]-z[0]),evaluation='participant_blocked_existing_OOF'))
     return records
+
+
+def verify_baseline(out,scope,arrays,available,mask,ref):
+    """Reconstruct both existing native OOF results before interpreting new tests."""
+    root=scope['c'].root; cross=root/'work/revised/cross_valence'
+    old_friend=pd.read_csv(cross/'oof_predictions.tsv',sep='\t')
+    checks=[]
+    for family in FAMILIES:
+        for task,tag in [('sharedreward','sr_full'),('trust','trust')]:
+            key=tag+'_'+family; accepted=set(available.get(key,[]))
+            for fold in range(1,6):
+                if family=='social_context':
+                    original=scope['predictions']; original=original[(original.family==family)&(original.scope=='common')&(original.test_task==task)&(original.fold==fold)]
+                    w,b=coefficients(scope,scope['models'][('social_context_common',fold)],mask,ref)
+                else:
+                    original=old_friend[(old_friend.family==family)&(old_friend.train_domain=='collapsed_common')&(old_friend.test_domain==task)&(old_friend.fold==fold)&(old_friend.cohort=='partner_pair')]
+                    stem=cross/f'fold_models/partner_pair_friend_stranger_context_collapsed_common_fold-{fold}'
+                    meta=json.loads(stem.with_suffix('.json').read_text()); p=stem.with_suffix('.npz')
+                    require(sha256(p)==meta['sha256'],'original friend-stranger fold weights changed')
+                    expected_train={s for s in scope['subjects'] if scope['folds'][s]!=fold}
+                    require(set(meta['train_subjects'])==expected_train and set(meta['test_subjects'])==set(scope['subjects'])-expected_train,'original friend-stranger membership mismatch')
+                    with np.load(p) as saved: w,b=saved['w'],float(saved['b'])
+                g=original[original.subject.isin(accepted)]; assert_development(scope,g.subject)
+                if g.empty: continue
+                require(not g.subject.duplicated().any(),'duplicate original OOF endpoint')
+                idx=[scope['subjects'].index(s) for s in g.subject]; scores=arrays[key][idx].astype(float)@w+b; margins=scores[:,0]-scores[:,1]
+                require(np.allclose(margins,g.margin,atol=1e-5,rtol=2e-5) and np.array_equal(margins>0,g.margin.to_numpy()>0),'original native OOF predictions not reproduced')
+                checks.append(dict(family=family,task=task,fold=fold,n=len(g),max_absolute_error=float(np.max(np.abs(margins-g.margin)))))
+    write_tsv(out,'results/aggregate/original_oof_reconstruction.tsv',checks)

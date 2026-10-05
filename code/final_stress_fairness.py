@@ -22,11 +22,17 @@ MAX_CORRELATION=.95
 MAX_VIF=100.
 MAX_CONDITION=1e8
 
+class FairnessDesignError(PipelineError):
+    pass
+
+def design_require(condition,message):
+    if not condition: raise FairnessDesignError(message)
+
 def nominal_fairness(offer,endowment):
-    require(endowment in (16,32),'unexpected endowment')
+    design_require(endowment in (16,32),'unexpected endowment')
     # User approved nominal 5/10/25/50% with rounded dollars; never infer from response.
     candidates=[p for p in (.05,.10,.25,.50) if np.isclose(offer,np.floor(endowment*p+.5),atol=1e-8,rtol=0)]
-    require(len(candidates)==1,'unexpected or ambiguous dollar offer; stop categorical model')
+    design_require(len(candidates)==1,'unexpected or ambiguous dollar offer; stop categorical model')
     return ('unfair' if candidates[0]<.25 else 'fair'),candidates[0]
 
 def upstream_module(base):
@@ -40,7 +46,7 @@ def build_events(rows,canonical):
     grouped={t.trial_id:[r for r in rows if str(r['trial_id'])==t.trial_id] for t in trials}
     names=(*CONDITIONS,*(f'{s}_{e}_preoffer' for s in ('social','nonsocial') for e in ('high','low')),'rt_constant','rt_pmod','missed_trial','missed_feedback')
     ev={k:[] for k in names}; counts={k:0 for k in CONDITIONS}; detail=[]
-    valid=[t for t in trials if not t.missed]; require(valid,'no valid UGR trials')
+    valid=[t for t in trials if not t.missed]; design_require(valid,'no valid UGR trials')
     mean_rt=np.mean([t.response_time for t in valid])
     for t in trials:
         rr=grouped[t.trial_id]
@@ -52,7 +58,7 @@ def build_events(rows,canonical):
         fair,nominal=nominal_fairness(t.offer,t.endowment); end='high' if t.endowment==32 else 'low'
         decision=next(r for r in rr if r['trial_type']=='decision'); onset=float(decision['onset'])
         endpoint=t.broad_onset+t.broad_duration
-        require(endpoint>onset>=t.broad_onset,'invalid offer-to-decision endpoint')
+        design_require(endpoint>onset>=t.broad_onset,'invalid offer-to-decision endpoint')
         name=f'{t.sociality}_{end}_{fair}'; ev[name].append((onset,endpoint-onset,1.)); counts[name]+=1
         ev[f'{t.sociality}_{end}_preoffer'].append((t.broad_onset,onset-t.broad_onset,1.))
         ev['rt_constant'].append((t.response_onset,0.,1.)); ev['rt_pmod'].append((t.response_onset,0.,t.response_time-mean_rt))
@@ -77,6 +83,11 @@ def quote(value):
     require('\n' not in value and '\r' not in value,'newline in FSF value')
     return '"'+value.replace('\\','\\\\').replace('"','\\"').replace('$','\\$').replace('[','\\[').replace(']','\\]')+'"'
 
+def fsf_value(value):
+    # feat_model reads numeric fields directly, rather than evaluating Tcl.
+    text=str(value)
+    return text if re.fullmatch(r'[-+]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][-+]?[0-9]+)?',text) else quote(text)
+
 def fsf_text(original,ev,paths,output):
     # Keep authoritative preprocessing, confounds, TR and nuisance conventions.
     settings={k:v for k,v in original.items() if not re.match(r'fmri\((evtitle|shape\d|convolve\d|convolve_phase|tempfilt_yn\d|deriv_yn|custom\d|ortho\d|conpic_|conname_|con_real\d|con_orig\d|conmask|ftest_|con_mode)',k)}
@@ -94,16 +105,16 @@ def fsf_text(original,ev,paths,output):
             for i,value in enumerate(c[j-1],1): settings[f'fmri(con_{mode}{j}.{i})']=float(value)
     for i in range(1,8):
         for j in range(1,8): settings[f'fmri(conmask{i}_{j})']=0
-    return '\n'.join('set '+k+' '+quote(v) for k,v in settings.items())+'\n'
+    return '\n'.join('set '+k+' '+fsf_value(v) for k,v in settings.items())+'\n'
 
 def fsl_matrix(path):
     text=Path(path).read_text(); require('/Matrix' in text,'missing FSL matrix')
     return np.loadtxt(text.split('/Matrix',1)[1].splitlines(),ndmin=2)
 
 def design_qc(x,contrasts):
-    require(x.ndim==2 and np.isfinite(x).all(),'invalid rendered design')
+    design_require(x.ndim==2 and np.isfinite(x).all(),'invalid rendered design')
     centered=x-x.mean(0); norms=np.linalg.norm(centered,axis=0); active=norms>1e-10
-    require(active[:8].all(),'categorical task EV has zero variance')
+    design_require(active[:8].all(),'categorical task EV has zero variance')
     z=centered[:,active]/norms[active]; singular=np.linalg.svd(z,compute_uv=False)
     rank=int(np.linalg.matrix_rank(z)); cond=float(singular[0]/singular[-1]) if singular[-1]>0 else float('inf')
     corr=np.corrcoef(centered[:,:8],rowvar=False); maxcorr=float(np.max(np.abs(corr-np.eye(8))))
@@ -172,8 +183,8 @@ def pilot_figure(out,unit):
     plt.close(fig)
 
 def wait_complete(folder,level):
-    required=([folder/f'stats/cope{k}.nii.gz' for k in range(1,8)]+[folder/f'stats/varcope{k}.nii.gz' for k in range(1,8)]+[folder/'mean_func.nii.gz',folder/'mask.nii.gz'] if level=='L1' else
-              [folder/f'cope{k}.feat/stats/cope1.nii.gz' for k in range(1,8)]+[folder/f'cope{k}.feat/stats/varcope1.nii.gz' for k in range(1,8)])
+    required=([folder/f'stats/cope{k}.nii.gz' for k in range(1,8)]+[folder/f'stats/varcope{k}.nii.gz' for k in range(1,8)]+[folder/'mean_func.nii.gz',folder/'mask.nii.gz',folder/'design.mat',folder/'design.con',folder/'cluster_mask_zstat1.nii.gz'] if level=='L1' else
+              [folder/f'cope{k}.feat/stats/cope1.nii.gz' for k in range(1,8)]+[folder/f'cope{k}.feat/stats/varcope1.nii.gz' for k in range(1,8)]+[folder/f'cope{k}.feat/cluster_mask_zstat1.nii.gz' for k in range(1,8)])
     for _ in range(720):
         if all(p.is_file() and p.stat().st_size for p in required): return required
         time.sleep(10)
@@ -208,7 +219,7 @@ def execute_l2(out,scope,s):
     for run in (1,2): template[f'feat_files({run})']=str(folder/f'run-{run}/model-signature-fairness.feat')
     template={k:v for k,v in template.items() if not re.match(r'fmri\(copeinput\.',k)}
     for k in range(1,8): template[f'fmri(copeinput.{k})']='1'
-    fsf=folder/'L2.fsf'; fsf.write_text('\n'.join('set '+k+' '+quote(v) for k,v in template.items())+'\n'); fsf.chmod(0o600)
+    fsf=folder/'L2.fsf'; fsf.write_text('\n'.join('set '+k+' '+fsf_value(v) for k,v in template.items())+'\n'); fsf.chmod(0o600)
     run_command(['feat',fsf],folder/'l2.log'); products=wait_complete(dest,'L2')
     marker.write_text(json.dumps(dict(products={str(p):sha256(p) for p in products}),indent=2)); marker.chmod(0o600)
 
@@ -219,7 +230,7 @@ def prepare_and_fit(out,scope,ids,key,workers=96,preview=False):
     for s in ids:
         for run in (1,2):
             try: unit=render_unit(out,scope,s,run,canonical,key)
-            except (ValueError,PipelineError) as exc:
+            except (ValueError,FairnessDesignError) as exc:
                 # Scientific design failure stops the family; never silently drops difficult runs.
                 stopped=str(exc); break
             units.append(unit)

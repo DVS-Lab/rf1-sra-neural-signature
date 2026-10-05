@@ -1,11 +1,16 @@
 # RF1-SRA social reward, context, and closeness — current v4 launch
 
-The final development follow-up is ready for Linux2:
-[cross-valence analysis and 96-process launch](docs/CROSS_VALENCE.md).
-Run `bash code/run_cross_valence.sh --dry-run`, then
-`bash code/run_cross_valence.sh --workers 96`. This uses a new output namespace,
-preserves the completed results, and prepares (but does not run) a visual-region
-sensitivity proposal. Validation remains locked.
+The final development stress-test package is ready for Linux2:
+[phase specificity, construct specificity, UGR and norm violation](docs/FINAL_STRESS_TESTS.md).
+Run `bash code/run_final_stress_tests.sh --dry-run`, then
+`bash code/run_final_stress_tests.sh --fairness-preview` and inspect its design report/figure.
+Launch with `bash code/run_final_stress_tests.sh --workers 96`.
+Phase-resolved SR outcome ↔ Trust outcome transfer is primary. Occipital exclusion is
+descriptive only, with no model-selection or persistence requirement. Frozen candidates
+and the N=50 validation sample remain untouched.
+
+Cross-valence results completed in `6b1a2fd`:
+[results](reports/revised/cross_valence/REPORT.md) · [candidate definitions](reports/revised/cross_valence/FREEZE_CANDIDATES.md).
 
 Characterization completed in `2343681`. Start with the
 [figure review and scientific interpretation](reports/revised/characterization/SCIENTIFIC_REVIEW.md)

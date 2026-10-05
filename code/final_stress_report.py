@@ -1,5 +1,6 @@
 """Result-driven reports; unavailable branches stay explicit, never fabricated."""
 import json
+import textwrap
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -33,6 +34,7 @@ def phase_figure(out):
           ['Trust outcome','Partner text: shared/kept money + symbol/color; no face','Outcome targets; names/text remain'],
           ['UGR cue → offer/choice','Human face or computer image remains during offer','Model-3 constants include cue through choice endpoint'],
           ['UGR new categorical offer','Offer text/choice and face/computer cue','Offer onset → choice endpoint; pre-offer modeled separately']]
+    rows=[[textwrap.fill(cell,width) for cell,width in zip(row,(25,53,39))] for row in rows]
     t=ax.table(cellText=rows,colLabels=['Phase','Concurrent display (source-code audit)','Analysis role'],loc='center',cellLoc='left',colWidths=[.19,.47,.34]); t.auto_set_font_size(False); t.set_fontsize(9); t.scale(1,3)
     ax.set_title('Figure 1. Task-phase audit: target timing and concurrent stimuli',pad=28)
     fig.text(.02,.01,'Source-code schematic, not screenshots. UGR remains visually confounded; no participant logs opened.',fontsize=9)
@@ -49,7 +51,7 @@ def matrix_figure(out,perf,family,number):
     fig,ax=plt.subplots(figsize=(8,6)); im=ax.imshow(np.ma.masked_invalid(a),cmap='RdBu_r',vmin=0,vmax=1)
     for i in range(3):
         for j in range(3): ax.text(j,i,f'{a[i,j]:.1%}\n○ {b[i,j]:.1%}' if np.isfinite(a[i,j]) else 'Unavailable',ha='center',va='center',fontsize=12)
-    labels=['SR full-trial','SR outcome','Trust outcome']; ax.set(xticks=range(3),xticklabels=labels,yticks=range(3),yticklabels=labels,xlabel='Test: unseen development participants',ylabel='Training domain',title=f'Figure {number}. {family.replace("_"," ")}')
+    labels=['SR full-trial','SR outcome','Trust outcome']; ax.set(xticks=range(3),xticklabels=labels,yticks=range(3),yticklabels=labels,xlabel='Test: unseen development participants',ylabel='Training domain',title=f'Figure {number}. {family.replace("_"," ")}; matched N={int(sub.n.iloc[0]) if len(sub) else 0}')
     fig.colorbar(im,ax=ax,label='Paired accuracy; chance=.50'); fig.text(.02,.01,'Cell: whole brain; ○ predefined occipital exclusion (descriptive only). Matched sample; fixed folds.',fontsize=9)
     save(out,fig,f'Figure{number}_'+family)
 
@@ -98,12 +100,16 @@ def render(out,perf,perms,branch,keep,skipped):
     cols=['model','test','n','accuracy','ci_low','ci_high','mean_margin','margin_ci_low','margin_ci_high','evaluation']
     phase=perf[(perf.group=='phase')&~perf.visual]; specific=perf[perf.group=='specificity']; fixed=perf[perf.group=='fixed_probe']; ugr=perf[perf.group=='ugr']; norm=perf[perf.group=='norm']
     questions=[('1. What was on screen?', 'See [TASK_PHASE_AUDIT.md](TASK_PHASE_AUDIT.md) and Figure 1. SR outcome: generic card/outcome display without partner name/face; Trust outcome: partner text and valence symbols without a face; UGR: face/computer cues remain during offers. Presentation code verifies the checked version, not every historical deployment.'),
-      ('2–4. Outcome-only decoding and bidirectional context / friend–stranger transfer',table(phase,cols)+'\nThese matched-sample participant-blocked tests lead the scientific interpretation. Positive evidence would argue against simple concurrently displayed face/nonface differences across both target epochs; it would not eliminate carryover or semantic/identity alternatives.'),
+      ('2. Can phase-resolved SR outcomes decode social context?',table(phase[phase.model.eq('phase_social_context_1_whole_brain')&phase.test.eq('sr_outcome_social_context')],cols)+'\nThis is within-domain participant-blocked decoding; the partner decision events are separately modeled.'),
+      ('3. Does outcome-only social context transfer between SR and Trust?',table(phase[phase.family.eq('social_context')&((phase.model.eq('phase_social_context_1_whole_brain')&phase.test.eq('trust_social_context'))|(phase.model.eq('phase_social_context_2_whole_brain')&phase.test.eq('sr_outcome_social_context')))],cols)+'\nThese matched-sample participant-blocked tests lead the interpretation. Positive evidence would argue against a simple concurrent face/nonface explanation across both target epochs; it would not eliminate carryover, semantic or identity alternatives.'),
+      ('4. Does friend–stranger context show outcome-only transfer?',table(phase[phase.family.eq('friend_stranger_context')],cols)+'\nThe full three-domain matrix includes the matched full-trial reference, outcome-only bidirectional transfer and separate pooled sensitivity models. None replaces the frozen candidate.'),
       ('5. Predefined occipital exclusion',table(visual)+'\nDescriptive sensitivity only. Neither persistence nor failure determines candidate selection or success.'),
       ('6. Distinguishable context dimensions?',table(specific,cols)+'\nFigure 4 shows paired C/S/F expression. Above-chance cross-application is overlap, not independence. A nonsignificant F–S result does not establish F≈S; no equivalence threshold was specified. Compare profiles and both native/cross-application contrasts; margins across separately trained models are not on a common scale.'),
       ('7. Frozen social context → UGR',table(fixed,cols)+'\nThese are fixed-weight development probes with training-participant overlap, including phase-resolved SR probes. UGR is visually confounded; success alone cannot adjudicate perception.'),
       ('8. Outcome-trained context → UGR',table(ugr,cols)+'\nParticipant blocking is enforced. Training excludes concurrently displayed faces, but the UGR target remains visually confounded.'),
-      ('9–11. Exploratory Trust ↔ UGR norm violation and generic valence',table(norm,cols)+'\nCategorical UGR status: '+branch['status']+'. '+str(branch.get('reason') or '')+'\n\nThe primary social model averages friend and stranger defection versus reciprocation. Computer conditions are separate. Generic valence uses the existing OOF model with score sign reversed so positive predicts violation; this is not a newly optimized valence model. Fairness amount/valence/choice can explain overlap; regional overlap or lack of regional correlations does not settle the distributed question.'),
+      ('9. Trust social defection/reciprocation → UGR unfair/fair?',table(norm[norm.model.eq('trust_to_ugr_norm_whole_brain')],cols)+'\nCategorical UGR status: '+branch['status']+'. '+str(branch.get('reason') or '')+'\nThe social model averages friend and stranger outcomes. Its UGR nonsocial application is a separate specificity probe; fair/unfair is defined by nominal offer categories, never the response.'),
+      ('10. Does reverse UGR → Trust transfer work?',table(norm[norm.model.eq('ugr_to_trust_norm_whole_brain')],cols)+'\nPositive orientation remains unfair/defection; all test participants are absent from training.'),
+      ('11. Generic valence and nonsocial comparisons',table(norm[norm.family.isin(['generic_valence_control','computer_norm_violation'])],cols)+'\nGeneric valence uses existing OOF models with score sign reversed so positive predicts violation. It need not fail. Margins across models lack a common scale; compare forced-choice accuracy descriptively on matched participants. Fairness amount, valence and choice can contribute; regional overlap or lack of regional correlations does not settle the distributed question.'),
       ('12. Collaborator summary and eventual preregistration','The two frozen candidates remain unchanged. These are final development diagnostics; none is an automatic validation gate. Review directional phase-transfer estimates and intervals, construct cross-application, UGR boundaries and the separately labeled exploratory norm family. Preserve the untouched N=50 and preregister endpoints, uncertainty/success rules and multiplicity before validation.')]
     body='# Final development stress tests\n\n'+LIMITS+'\n\n'
     body+='Current-source/QC subsets of the frozen N=192 development pool; no roster reassignment. Unknown QC never passes. Computational minimum is ten people and all five original folds, not a power guarantee. Original 95% coverage mask includes development CV test participants without labels and is retained; it is not fold-specific.\n\n'
