@@ -34,7 +34,7 @@ def phase_figure(out):
           ['Trust outcome','Partner text: shared/kept money + symbol/color; no face','Outcome targets; names/text remain'],
           ['UGR cue → offer/choice','Human face or computer image remains during offer','Model-3 constants include cue through choice endpoint'],
           ['UGR new categorical offer','Offer text/choice and face/computer cue','Offer onset → choice endpoint; pre-offer modeled separately']]
-    rows=[[textwrap.fill(cell,width) for cell,width in zip(row,(25,53,39))] for row in rows]
+    rows=[[textwrap.fill(cell,width) for cell,width in zip(row,(20,53,39))] for row in rows]
     t=ax.table(cellText=rows,colLabels=['Phase','Concurrent display (source-code audit)','Analysis role'],loc='center',cellLoc='left',colWidths=[.19,.47,.34]); t.auto_set_font_size(False); t.set_fontsize(9); t.scale(1,3)
     ax.set_title('Figure 1. Task-phase audit: target timing and concurrent stimuli',pad=28)
     fig.text(.02,.01,'Source-code schematic, not screenshots. UGR remains visually confounded; no participant logs opened.',fontsize=9)
