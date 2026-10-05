@@ -1,0 +1,40 @@
+{
+  "runtime_sources": {
+    "sharedreward": {
+      "templates/L1_task-sharedreward_model-1_type-act.fsf": "cf23311dc4d7b33693f2f08bb0d7880f9ae747c2afdfd3cd08adad76999c1025",
+      "templates/L2_task-sharedreward_model-1_type-act.fsf": "45a487c3b641d183191160ce24309c85a74b225271222607cb4e6960a538c501",
+      "code/gen3colfiles.sh": "7eede4cf31b02b2e74a556a7dbfe5d7736f14db169e24445f30105a0e2525935",
+      "code/BIDSto3col.sh": "01ebe163ceb2ee4e654a180c795f8ed5a0b48ac5d6030659a30ad8b3205d468f",
+      "code/L1stats.sh": "aa654a613650e1e3ba73e5cd5ce2989f1e7f9e71ffc48a86387b42a8198bed7c",
+      "code/L2stats.sh": "6ec5bed593d1886945a02e5a68efeae3db1ae06b7fb692c8ecbd83ca0f9c8747"
+    },
+    "trust": {
+      "templates/L1_task-trust_model-1_type-act.fsf": "e9d469890e6fd53acef7b788badde09c53ebfac1a5a7a1bda94b34faf94c121f",
+      "code/gen3colfiles.sh": "99ba4e3c6679a2963893f9e9937ffab954d98779b7820b0f0ae51e70f48b8720",
+      "code/BIDSto3col.sh": "219b7b7c5bb2224126dc88e062d9c5c51a34a23622aa1b088ae02db196de1ad4"
+    },
+    "ugr": {
+      "templates/L1_task-ugr_model-3_type-act.fsf": "8e4684bd316d57d68741114ab58ad5936ec08342568ffd1fbe40688f4364c1bc",
+      "templates/L2_task-ugr_model-3_type-act.fsf": "cadc4405f7d2d7cd48377ce5c5e2a030b57dcb9d6afdd6ba49f6aa0b940b9f26",
+      "code/gen_model3_evs.py": "cf63e6994057873763950aeb7ab1ee5ebe89585fe6ee4e448e713b41a2eeeede",
+      "code/L1stats.sh": "4114e5b9e05fb9b216ff6b640d02da58fa19f3d1c3047c701bcdcf68628f1ca0",
+      "code/L2stats.sh": "d9c53a33590cde8e23a188611217f782ba910e25d63cdbb5641c98f8243b48df"
+    },
+    "linux2": {
+      "code/convert_behavior.py": "3cd52e980a37e5d42ec6a5c2197345891f371161f7ddfc1cd14f1546a9095121"
+    }
+  },
+  "presentation": {
+    "stimuli/Scan-Card_Guessing_Game/card_guessing_game.py": "4121976deb78d367a01fcb320d9da49c7cc8bcfaeadfabff667ba6c9d462730d",
+    "stimuli/Scan-Investment_Game/investment_game.py": "111ea88bfcf20a539093e155d48f3a995c9299f12a25b995d82244659eef65be",
+    "stimuli/Scan-Lets_Make_A_Deal/lets_make_a_deal-scan.py": "701570f668dddc51eb76f062bd346fafd5a2a7524da151aa6ac6d635247df0ea",
+    "stimuli/Scan-Social_Doors/social_doors.py": "d71fc14300d560bf7acddadeec5d49c4df68215a5495d25fbcb271203d1570c0"
+  },
+  "commits": {
+    "rf1-sra-sharedreward": "d716f84412902671b82adfa2a22c265c09c2de01",
+    "rf1-sra-trust": "bc731ddd143eea8737f42c22e7e334f5a9dc5532",
+    "rf1-sra-ugr": "0a6715565b065e13ff03368700df952b2180fb13",
+    "rf1-sra-linux2": "72a5a160a8636cff770ea93116cb13bab64cf609",
+    "SRPAL-DataInBrief": "990ae8485aa7329e3bb765152e7fbe299d940f76"
+  }
+}
