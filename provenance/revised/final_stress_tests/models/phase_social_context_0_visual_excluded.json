@@ -1,0 +1,27 @@
+{
+  "fingerprint": "74d52e87cd9af918c43c31257da0ee9d45202b1daf01cea64fb4d24e11c20153",
+  "plan": {
+    "name": "phase_social_context_0",
+    "family": "social_context",
+    "train": [
+      "sr_full_social_context"
+    ],
+    "test": [
+      "sr_full_social_context",
+      "sr_outcome_social_context",
+      "trust_social_context"
+    ],
+    "visual": true,
+    "permutation": false,
+    "group": "phase"
+  },
+  "training_n": 192,
+  "weight_sha256": "32235503541d5bb34c2247cab15fedf9b39825acb72fe4b02411143085f654e2",
+  "products": {
+    "results/maps/phase_social_context_0_visual_excluded_DEV_weights.nii.gz": "32235503541d5bb34c2247cab15fedf9b39825acb72fe4b02411143085f654e2",
+    "results/maps/phase_social_context_0_visual_excluded_DEV_haufe.nii.gz": "fca74b6acefe9497c1e43f5763bac5ce74f0543ec3bba4a1d8b96442692f7f48",
+    "results/maps/phase_social_context_0_visual_excluded_DEV_mean_difference.nii.gz": "32ba1a7635d4bea64d437a9e13f713307445c685a647231eda51b5bf87d77a17"
+  },
+  "intercept": -7.372295377649243e-07,
+  "holdout_scored": false
+}

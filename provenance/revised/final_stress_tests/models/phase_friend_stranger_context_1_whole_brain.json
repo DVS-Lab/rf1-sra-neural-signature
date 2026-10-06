@@ -1,0 +1,27 @@
+{
+  "fingerprint": "74d52e87cd9af918c43c31257da0ee9d45202b1daf01cea64fb4d24e11c20153",
+  "plan": {
+    "name": "phase_friend_stranger_context_1",
+    "family": "friend_stranger_context",
+    "train": [
+      "sr_outcome_friend_stranger_context"
+    ],
+    "test": [
+      "sr_full_friend_stranger_context",
+      "sr_outcome_friend_stranger_context",
+      "trust_friend_stranger_context"
+    ],
+    "visual": false,
+    "permutation": true,
+    "group": "phase"
+  },
+  "training_n": 192,
+  "weight_sha256": "f507d2718d8fd5c08c3a698a8ebb4f0c93e52aab7737f8fb398b4172f7cfad58",
+  "products": {
+    "results/maps/phase_friend_stranger_context_1_whole_brain_DEV_weights.nii.gz": "f507d2718d8fd5c08c3a698a8ebb4f0c93e52aab7737f8fb398b4172f7cfad58",
+    "results/maps/phase_friend_stranger_context_1_whole_brain_DEV_haufe.nii.gz": "15e475a654dcc857a0cc9d1009db4dbcc36c2480188f3f618ac47f8f12b0da21",
+    "results/maps/phase_friend_stranger_context_1_whole_brain_DEV_mean_difference.nii.gz": "73c9ad9ad176e7b0edf2303803f90081660375c0ce7bdd1f7fa23052fb1c4de1"
+  },
+  "intercept": -1.999021684340255e-08,
+  "holdout_scored": false
+}

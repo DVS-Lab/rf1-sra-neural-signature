@@ -1,9 +1,9 @@
 # Categorical UGR design gate
 
 {
-  "status": "preview_passed",
-  "reason": null,
-  "rendered_runs": 1,
+  "status": "stopped_design_qc",
+  "reason": "nonsocial_high_fair: fewer than 3 valid trials",
+  "rendered_runs": 15,
   "development_n": 176,
   "min_trials_per_cell": 3,
   "max_imbalance": 4.0,

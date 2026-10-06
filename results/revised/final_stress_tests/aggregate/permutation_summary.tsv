@@ -1,0 +1,6 @@
+model	test	n	permutations	observed_accuracy	null_mean	null_sd	empirical_p	chance_centering_flag
+phase_social_context_1_whole_brain	trust_social_context	192	500	0.890625	0.4981458333333334	0.03346159228727966	0.001996007984031936	False
+phase_social_context_2_whole_brain	sr_outcome_social_context	192	500	0.7864583333333334	0.5007708333333334	0.03333170895131921	0.001996007984031936	False
+phase_friend_stranger_context_1_whole_brain	trust_friend_stranger_context	192	500	0.8541666666666666	0.5017291666666667	0.037210931477540114	0.001996007984031936	False
+phase_friend_stranger_context_2_whole_brain	sr_outcome_friend_stranger_context	192	500	0.734375	0.5017395833333333	0.03914762768283524	0.001996007984031936	False
+trust_to_ugr_whole_brain	ugr_context	176	500	0.8863636363636364	0.5002386363636363	0.038827082449804984	0.001996007984031936	False

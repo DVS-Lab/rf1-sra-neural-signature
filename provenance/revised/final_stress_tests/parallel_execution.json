@@ -1,0 +1,8 @@
+{
+  "requested_workers": 96,
+  "workers": 62,
+  "cpu_slots": 128,
+  "available_memory_bytes": 121833918464,
+  "estimated_peak_bytes_per_worker": 1560718336,
+  "blas_threads_per_worker": 1
+}

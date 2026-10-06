@@ -1,0 +1,47 @@
+{
+  "status": "prepared_for_review",
+  "executed": true,
+  "labels": [
+    "Intracalcarine Cortex",
+    "Supracalcarine Cortex",
+    "Cuneal Cortex",
+    "Lingual Gyrus",
+    "Occipital Fusiform Gyrus",
+    "Occipital Pole",
+    "Lateral Occipital Cortex, inferior division",
+    "Lateral Occipital Cortex, superior division"
+  ],
+  "atlas": {
+    "kind": "cort",
+    "name": "Harvard-Oxford cort maxprob thr25 2mm",
+    "image": "/usr/local/fsl/data/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz",
+    "labels": "/usr/local/fsl/data/atlases/HarvardOxford-Cortical.xml",
+    "fsl_version": "6.0.7.18",
+    "image_sha256": "7397ffdbae7559e0f0aa6237f998dc0f6aca3f9db9009f6ffa637c0c62b686ca",
+    "labels_sha256": "b8eb5ba5e787a4d3b442f75041f533f31b278a83e467bd2ab22438c1cff36581"
+  },
+  "label_values": [
+    22,
+    23,
+    24,
+    32,
+    36,
+    40,
+    47,
+    48
+  ],
+  "native_voxels": 27220,
+  "counts": {
+    "partner_pair": {
+      "existing_mask_voxels": 84133,
+      "proposed_excluded_voxels": 9760,
+      "proposed_remaining_voxels": 74373
+    },
+    "three_paradigm": {
+      "existing_mask_voxels": 84045,
+      "proposed_excluded_voxels": 9760,
+      "proposed_remaining_voxels": 74285
+    }
+  },
+  "original_mask_sha256": "744d21ac3dfa4f7b6fbd0003789b4b6c6ae2a8a6d7e240dbe420fef3d45f9462"
+}

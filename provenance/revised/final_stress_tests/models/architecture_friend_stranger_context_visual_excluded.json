@@ -1,0 +1,27 @@
+{
+  "fingerprint": "74d52e87cd9af918c43c31257da0ee9d45202b1daf01cea64fb4d24e11c20153",
+  "plan": {
+    "name": "architecture_friend_stranger_context",
+    "family": "friend_stranger_context",
+    "train": [
+      "sr_full_friend_stranger_context",
+      "trust_friend_stranger_context"
+    ],
+    "test": [
+      "sr_full_friend_stranger_context",
+      "trust_friend_stranger_context"
+    ],
+    "visual": true,
+    "permutation": false,
+    "group": "architecture"
+  },
+  "training_n": 192,
+  "weight_sha256": "55d46c080cf29a62768aac30e217b8753dda87baf7e3396a0b40f6254b1472ec",
+  "products": {
+    "results/maps/architecture_friend_stranger_context_visual_excluded_DEV_weights.nii.gz": "55d46c080cf29a62768aac30e217b8753dda87baf7e3396a0b40f6254b1472ec",
+    "results/maps/architecture_friend_stranger_context_visual_excluded_DEV_haufe.nii.gz": "414a45c0f4980f3cc90febbf46a1a808ecf73d55942dd6e82df64cc6e0a3934d",
+    "results/maps/architecture_friend_stranger_context_visual_excluded_DEV_mean_difference.nii.gz": "f9b1fb7fd5dba990ebd01dc562cd5607b420e8124f278623fbd31ea16e996d9f"
+  },
+  "intercept": -1.434344661103003e-06,
+  "holdout_scored": false
+}

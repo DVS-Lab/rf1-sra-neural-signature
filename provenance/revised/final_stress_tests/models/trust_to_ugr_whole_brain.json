@@ -1,0 +1,27 @@
+{
+  "fingerprint": "74d52e87cd9af918c43c31257da0ee9d45202b1daf01cea64fb4d24e11c20153",
+  "plan": {
+    "name": "trust_to_ugr",
+    "family": "social_context",
+    "train": [
+      "trust_social_context"
+    ],
+    "test": [
+      "ugr_context",
+      "ugr_high",
+      "ugr_low"
+    ],
+    "visual": false,
+    "permutation": true,
+    "group": "ugr"
+  },
+  "training_n": 176,
+  "weight_sha256": "eec112dff73f8593ac91e649e5e43a9a83a3605d4dfea98d9a6c86995fac7aca",
+  "products": {
+    "results/maps/trust_to_ugr_whole_brain_DEV_weights.nii.gz": "eec112dff73f8593ac91e649e5e43a9a83a3605d4dfea98d9a6c86995fac7aca",
+    "results/maps/trust_to_ugr_whole_brain_DEV_haufe.nii.gz": "d3d0803578fa0946d615e8f15812aca774357e46227a8747fdfaf054c08f80b8",
+    "results/maps/trust_to_ugr_whole_brain_DEV_mean_difference.nii.gz": "11209e9e04ddb1612fbe7735f3cf41ed7bf3fce8ae743af839a3658c056d5133"
+  },
+  "intercept": 3.017769636243006e-08,
+  "holdout_scored": false
+}
