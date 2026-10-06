@@ -45,7 +45,7 @@ def prepare_identity(out,key,before,eligible,preview=False):
         require(all(p.name in {'identity.json','inventory.tsv','fairness','archived_previews'} for p in work.iterdir()),message)
         fairness=out.output('work/fairness')
         # An allowlist rejects FEAT outputs, completion markers, unknown products and symlinks.
-        ev=r'(?:(?:non)?social_(?:unfair|fair|preoffer)|endowment_(?:high|low)|rt_constant|rt_pmod|missed_trial|missed_feedback)\.txt'
+        ev=r'(?:(?:non)?social_(?:(?:high|low)_)?(?:unfair|fair|preoffer)|endowment_(?:high|low)|rt_constant|rt_pmod|missed_trial|missed_feedback)\.txt'
         artifact=r'(?:identity\.json|render\.log|trial_counts_detail\.tsv|design(?:_cov)?\.(?:fsf|mat|con|min|trg|frf|png|ppm)|'+ev+r')'
         for p in [fairness,*fairness.rglob('*')] if fairness.exists() else []:
             require(not p.is_symlink(),message)
