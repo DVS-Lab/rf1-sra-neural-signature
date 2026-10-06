@@ -1,6 +1,8 @@
 {
-  "status": "failed",
-  "stage": "audit",
+  "status": "stopped_design_qc",
+  "stage": "fairness design preview",
+  "fingerprint": "94361e8186ea4e3c8c744fd0fd30d20927fc82b453859b8cc88d8a90a5cd45d2",
   "holdout_scored": false,
+  "validation_n": 50,
   "original_outputs_unchanged": true
 }
