@@ -1,8 +1,16 @@
 # Categorical UGR design gate
 
 {
-  "status": "stopped_design_qc",
-  "reason": "categorical EV VIF exceeds 100",
+  "status": "preview_passed",
+  "reason": null,
+  "model": "collapsed_fairness_signed_endowment",
+  "task_evs": [
+    "social_unfair",
+    "social_fair",
+    "nonsocial_unfair",
+    "nonsocial_fair",
+    "endowment_difference"
+  ],
   "rendered_runs": 1,
   "development_n": 176,
   "min_trials_per_cell": 3,
@@ -21,31 +29,28 @@
   },
   "pilot_design": {
     "n_volumes": 240,
-    "active_columns": 37,
-    "rank": 37,
-    "condition_number": 26452797.77772735,
-    "max_task_ev_correlation": 0.7859117712008151,
+    "active_columns": 36,
+    "rank": 36,
+    "condition_number": 81.9046671950051,
+    "max_task_ev_correlation": 0.3163356861730094,
     "task_ev_vif": [
-      12927964934730.42,
-      13088579964666.553,
-      12994260764696.406,
-      13922467546267.258,
-      19180487512094.336,
-      19156651349626.04
+      16.307535713028535,
+      16.765082080549988,
+      16.3019647920981,
+      17.208566956428754,
+      1.383051464241164
     ],
     "relative_contrast_efficiency": [
-      7.735169495343719e-14,
-      7.640248237009386e-14,
-      7.695705189454566e-14,
-      7.182634807204914e-14,
-      4.033974090935341e-09,
-      1.2492910180824766e-10,
-      3.6797552797363874e-10,
-      2.6990248482264524e-07
+      0.061321343555364574,
+      0.059647784317152265,
+      0.061342299088065794,
+      0.0581105912265647,
+      0.6470600536521535,
+      0.8609366249678708,
+      0.7249964276756803,
+      0.7230388932408006
     ],
-    "failures": [
-      "categorical EV VIF exceeds 100"
-    ]
+    "failures": []
   }
 }
 
