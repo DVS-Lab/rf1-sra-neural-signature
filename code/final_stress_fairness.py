@@ -16,6 +16,9 @@ from cross_valence_parallel import available_memory
 
 CONDITIONS=('social_unfair','social_fair','nonsocial_unfair','nonsocial_fair')
 ENDOWMENT_CONDITIONS=('endowment_high','endowment_low')
+# Counts retain both levels; only one signed EV enters the design. Two dummy
+# endowment EVs would sum to the same all-trial signal as the four cell EVs.
+TASK_EVS=(*CONDITIONS,'endowment_difference')
 CONTRASTS=('social_unfair','social_fair','nonsocial_unfair','nonsocial_fair',
            'social_unfair_minus_fair','nonsocial_unfair_minus_fair',
            'social_minus_nonsocial_fairness','endowment_high_minus_low')
@@ -47,7 +50,7 @@ def upstream_module(base):
 def build_events(rows,canonical):
     trials=canonical.collapse_trials(rows)  # Enforces consistent per-trial metadata and phase bounds.
     grouped={t.trial_id:[r for r in rows if str(r['trial_id'])==t.trial_id] for t in trials}
-    names=(*CONDITIONS,*ENDOWMENT_CONDITIONS,*(f'{s}_preoffer' for s in ('social','nonsocial')),'rt_constant','rt_pmod','missed_trial','missed_feedback')
+    names=(*TASK_EVS,*(f'{s}_preoffer' for s in ('social','nonsocial')),'rt_constant','rt_pmod','missed_trial','missed_feedback')
     ev={k:[] for k in names}; counts={k:0 for k in (*CONDITIONS,*ENDOWMENT_CONDITIONS)}; detail=[]
     valid=[t for t in trials if not t.missed]; design_require(valid,'no valid UGR trials')
     mean_rt=np.mean([t.response_time for t in valid])
@@ -63,7 +66,8 @@ def build_events(rows,canonical):
         endpoint=t.broad_onset+t.broad_duration
         design_require(endpoint>onset>=t.broad_onset,'invalid offer-to-decision endpoint')
         name=f'{t.sociality}_{fair}'; ev[name].append((onset,endpoint-onset,1.)); counts[name]+=1
-        end_name=f'endowment_{end}'; ev[end_name].append((onset,endpoint-onset,1.)); counts[end_name]+=1
+        counts[f'endowment_{end}']+=1
+        ev['endowment_difference'].append((onset,endpoint-onset,.5 if end=='high' else -.5))
         ev[f'{t.sociality}_preoffer'].append((t.broad_onset,onset-t.broad_onset,1.))
         ev['rt_constant'].append((t.response_onset,0.,1.)); ev['rt_pmod'].append((t.response_onset,0.,t.response_time-mean_rt))
         detail.append(dict(trial_id=t.trial_id,condition=name,nominal_percentage=100*nominal,offer=t.offer,endowment=t.endowment,onset=onset,endpoint=endpoint))
@@ -78,11 +82,11 @@ def build_events(rows,canonical):
     return ev,counts,detail,failures
 
 def contrast_matrix(n):
-    design_require(n>=6,'fairness design has fewer than six task EVs')
+    design_require(n>=len(TASK_EVS),'fairness design has fewer than five task EVs')
     c=np.zeros((8,n))
     c[0,0]=1.; c[1,1]=1.; c[2,2]=1.; c[3,3]=1.
     c[4]=c[0]-c[1]; c[5]=c[2]-c[3]; c[6]=c[4]-c[5]
-    c[7,4]=1.; c[7,5]=-1.
+    c[7,4]=1.
     return c
 
 def quote(value):
@@ -121,11 +125,12 @@ def fsl_matrix(path):
 def design_qc(x,contrasts):
     design_require(x.ndim==2 and np.isfinite(x).all(),'invalid rendered design')
     centered=x-x.mean(0); norms=np.linalg.norm(centered,axis=0); active=norms>1e-10
-    design_require(active[:6].all(),'categorical task EV has zero variance')
+    ntask=len(TASK_EVS)
+    design_require(active[:ntask].all(),'categorical task EV has zero variance')
     z=centered[:,active]/norms[active]; singular=np.linalg.svd(z,compute_uv=False)
     rank=int(np.linalg.matrix_rank(z)); cond=float(singular[0]/singular[-1]) if singular[-1]>0 else float('inf')
-    corr=np.corrcoef(centered[:,:6],rowvar=False); maxcorr=float(np.max(np.abs(corr-np.eye(6))))
-    inv=np.linalg.pinv(z.T@z); vifs=np.diag(inv)[:6]
+    corr=np.corrcoef(centered[:,:ntask],rowvar=False); maxcorr=float(np.max(np.abs(corr-np.eye(ntask))))
+    inv=np.linalg.pinv(z.T@z); vifs=np.diag(inv)[:ntask]
     # Relative efficiency (to mutually orthogonal unit-norm EVs), scale-free.
     cs=np.pad(contrasts,((0,0),(0,x.shape[1]-contrasts.shape[1])))[:,active]
     efficiency=[]
@@ -184,8 +189,11 @@ def pilot_figure(out,unit):
     x=fsl_matrix(path); fig,ax=plt.subplots(1,2,figsize=(13,6))
     z=x-x.mean(0); scale=np.max(np.abs(z),axis=0); scale[scale==0]=1
     ax[0].imshow(z/scale,aspect='auto',cmap='RdBu_r',vmin=-1,vmax=1); ax[0].set(xlabel='EV / confound column',ylabel='Volume',title='First eligible development run: rendered FEAT design')
-    corr=np.corrcoef(x[:,:6],rowvar=False); im=ax[1].imshow(corr,vmin=-1,vmax=1,cmap='RdBu_r')
-    ax[1].set(xticks=range(6),yticks=range(6),title='Fairness/endowment EV correlation'); fig.colorbar(im,ax=ax[1]); fig.tight_layout()
+    ntask=len(TASK_EVS)
+    corr=np.corrcoef(x[:,:ntask],rowvar=False); im=ax[1].imshow(corr,vmin=-1,vmax=1,cmap='RdBu_r')
+    ax[1].set(xticks=range(ntask),yticks=range(ntask),xticklabels=TASK_EVS,yticklabels=TASK_EVS,title='Fairness/endowment EV correlation')
+    ax[1].tick_params(axis='x',labelrotation=90)
+    fig.colorbar(im,ax=ax[1]); fig.tight_layout()
     for ext in ('png','pdf'): fig.savefig(out.output('results/figures/fairness_design_preview.'+ext),dpi=200)
     plt.close(fig)
 
@@ -250,6 +258,7 @@ def prepare_and_fit(out,scope,ids,key,workers=96,preview=False):
               'failures':'; '.join(u['failures'])} for u in units]
     write_tsv(out,'work/fairness/design_qc.tsv',private)
     status=dict(status='stopped_design_qc' if stopped else 'preview_passed' if preview else 'designs_passed',reason=stopped,
+                model='collapsed_fairness_signed_endowment',task_evs=list(TASK_EVS),
                 rendered_runs=len(units),development_n=len(ids),min_trials_per_cell=MIN_TRIALS,max_imbalance=MAX_IMBALANCE,
                 max_task_ev_correlation=MAX_CORRELATION,max_vif=MAX_VIF,max_condition_number=MAX_CONDITION,holdout_scored=False)
     if units:
@@ -257,6 +266,7 @@ def prepare_and_fit(out,scope,ids,key,workers=96,preview=False):
     write_json(out,'provenance/fairness_status.json',status)
     write_text(out,'reports/FAIRNESS_DESIGN_QC.md','# Categorical UGR design gate\n\n'+json.dumps(status,indent=2)+'\n\nFirst eligible run rendered and its actual convolved FEAT matrix checked before fitting. All runs must pass the same fixed thresholds; no performance-guided redefinition. The primary categorical regressors begin at offer onset and end at canonical choice-feedback end. Separate pre-offer, response/RT and missed-trial regressors retained. Relative efficiencies are design diagnostics, not power estimates.\n')
     print('Categorical UGR design gate: '+status['status'],flush=True)
+    if stopped: print('Design gate reason: '+stopped,flush=True)
     if stopped or preview: return status
     memory=available_memory(); cap=max(1,int(.7*memory//(8*1024**3))) if memory else 1
     count=min(workers,cap,os.cpu_count() or 1); status['feat_workers']=count

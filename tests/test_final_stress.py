@@ -102,10 +102,10 @@ def test_fsf_preserves_preprocessing_and_exact_contrasts(tmp_path):
     assert 'set fmri(con_real1.1) 1.0' in fsf.read_text()
     assert settings['fmri(tr)']=='1.615' and settings['fmri(smooth)']=='5' and settings['fmri(temphp_yn)']=='0'
     assert settings['confoundev_files(1)']=='/safe/confounds.tsv' and 'fmri(con_real10.1)' not in settings
-    assert int(settings['fmri(evs_orig)'])==len(ev) and settings['fmri(shape11)']=='10'
+    assert int(settings['fmri(evs_orig)'])==len(ev) and settings['fmri(shape10)']=='10'
     c=contrast_matrix(len(ev)); np.testing.assert_equal(c[6],c[0]-c[1]-c[2]+c[3])
-    assert c.shape[0]==8 and c[7,4]==1 and c[7,5]==-1
-    assert np.all(c[:,12:]==0) and np.allclose(c[:4].sum(1),1)
+    assert c.shape[0]==8 and c[7,4]==1 and np.count_nonzero(c[7])==1
+    assert np.all(c[:,5:]==0) and np.allclose(c[:4].sum(1),1)
     assert '\\$' in quote('$abc') and '\\[' in quote('[exec nope]')
 
 
@@ -154,6 +154,8 @@ def test_preview_restart_preserves_prior_design_and_identity(cfg):
     design.parent.mkdir(parents=True); design.write_text('original design')
     event=design.parent/'social_unfair.txt'; event.write_text('0\t1\t1\n')
     old_event=design.parent/'social_high_unfair.txt'; old_event.write_text('0\t1\t1\n')
+    for name in ('endowment_high','endowment_low','endowment_difference'):
+        (design.parent/(name+'.txt')).write_text('0\t1\t1\n')
     prepare_identity(out,'old',{}, {},preview=True)
     assert not out.output('work/archived_previews').exists()
     prepare_identity(out,'new',{}, {},preview=True)
@@ -164,6 +166,7 @@ def test_preview_restart_preserves_prior_design_and_identity(cfg):
     assert len(archived_events)==1
     archived_old_events=list(out.output('work/archived_previews').glob('*/work/fairness/sub-dev000/ses-01/run-1/social_high_unfair.txt'))
     assert len(archived_old_events)==1
+    assert len(list(archived[0].parent.glob('endowment_*.txt')))==3
     assert json.loads(out.output('work/identity.json').read_text())['fingerprint']=='new'
     assert json.loads(next(out.output('work/archived_previews').glob('*/work/identity.json')).read_text())['fingerprint']=='old'
 
