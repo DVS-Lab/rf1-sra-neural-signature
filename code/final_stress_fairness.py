@@ -14,8 +14,11 @@ from final_stress_sources import guard_path,vector
 from revised_design import center
 from cross_valence_parallel import available_memory
 
-CONDITIONS=tuple(f'{social}_{end}_{fair}' for social in ('social','nonsocial') for end in ('high','low') for fair in ('unfair','fair'))
-CONTRASTS=('social_unfair','social_fair','nonsocial_unfair','nonsocial_fair','social_unfair_minus_fair','nonsocial_unfair_minus_fair','social_minus_nonsocial_fairness')
+CONDITIONS=('social_unfair','social_fair','nonsocial_unfair','nonsocial_fair')
+ENDOWMENT_CONDITIONS=('endowment_high','endowment_low')
+CONTRASTS=('social_unfair','social_fair','nonsocial_unfair','nonsocial_fair',
+           'social_unfair_minus_fair','nonsocial_unfair_minus_fair',
+           'social_minus_nonsocial_fairness','endowment_high_minus_low')
 MIN_TRIALS=3
 MAX_IMBALANCE=4.
 MAX_CORRELATION=.95
@@ -44,8 +47,8 @@ def upstream_module(base):
 def build_events(rows,canonical):
     trials=canonical.collapse_trials(rows)  # Enforces consistent per-trial metadata and phase bounds.
     grouped={t.trial_id:[r for r in rows if str(r['trial_id'])==t.trial_id] for t in trials}
-    names=(*CONDITIONS,*(f'{s}_{e}_preoffer' for s in ('social','nonsocial') for e in ('high','low')),'rt_constant','rt_pmod','missed_trial','missed_feedback')
-    ev={k:[] for k in names}; counts={k:0 for k in CONDITIONS}; detail=[]
+    names=(*CONDITIONS,*ENDOWMENT_CONDITIONS,*(f'{s}_preoffer' for s in ('social','nonsocial')),'rt_constant','rt_pmod','missed_trial','missed_feedback')
+    ev={k:[] for k in names}; counts={k:0 for k in (*CONDITIONS,*ENDOWMENT_CONDITIONS)}; detail=[]
     valid=[t for t in trials if not t.missed]; design_require(valid,'no valid UGR trials')
     mean_rt=np.mean([t.response_time for t in valid])
     for t in trials:
@@ -59,23 +62,27 @@ def build_events(rows,canonical):
         decision=next(r for r in rr if r['trial_type']=='decision'); onset=float(decision['onset'])
         endpoint=t.broad_onset+t.broad_duration
         design_require(endpoint>onset>=t.broad_onset,'invalid offer-to-decision endpoint')
-        name=f'{t.sociality}_{end}_{fair}'; ev[name].append((onset,endpoint-onset,1.)); counts[name]+=1
-        ev[f'{t.sociality}_{end}_preoffer'].append((t.broad_onset,onset-t.broad_onset,1.))
+        name=f'{t.sociality}_{fair}'; ev[name].append((onset,endpoint-onset,1.)); counts[name]+=1
+        end_name=f'endowment_{end}'; ev[end_name].append((onset,endpoint-onset,1.)); counts[end_name]+=1
+        ev[f'{t.sociality}_preoffer'].append((t.broad_onset,onset-t.broad_onset,1.))
         ev['rt_constant'].append((t.response_onset,0.,1.)); ev['rt_pmod'].append((t.response_onset,0.,t.response_time-mean_rt))
         detail.append(dict(trial_id=t.trial_id,condition=name,nominal_percentage=100*nominal,offer=t.offer,endowment=t.endowment,onset=onset,endpoint=endpoint))
     failures=[]
-    for name,n in counts.items():
-        if n<MIN_TRIALS: failures.append(f'{name}: fewer than {MIN_TRIALS} valid trials')
+    for name in CONDITIONS:
+        if counts[name]<MIN_TRIALS: failures.append(f'{name}: fewer than {MIN_TRIALS} valid trials')
+    for name in ENDOWMENT_CONDITIONS:
+        if counts[name]<MIN_TRIALS: failures.append(f'{name}: fewer than {MIN_TRIALS} valid trials')
     for s in ('social','nonsocial'):
-        for e in ('high','low'):
-            a,b=(counts[f'{s}_{e}_{f}'] for f in ('unfair','fair'))
-            if min(a,b)==0 or max(a,b)/min(a,b)>MAX_IMBALANCE: failures.append(f'{s}_{e}: fair/unfair imbalance exceeds {MAX_IMBALANCE}:1')
+        a,b=(counts[f'{s}_{f}'] for f in ('unfair','fair'))
+        if min(a,b)==0 or max(a,b)/min(a,b)>MAX_IMBALANCE: failures.append(f'{s}: fair/unfair imbalance exceeds {MAX_IMBALANCE}:1')
     return ev,counts,detail,failures
 
 def contrast_matrix(n):
-    c=np.zeros((7,n))
-    c[0,[0,2]]=.5; c[1,[1,3]]=.5; c[2,[4,6]]=.5; c[3,[5,7]]=.5
+    design_require(n>=6,'fairness design has fewer than six task EVs')
+    c=np.zeros((8,n))
+    c[0,0]=1.; c[1,1]=1.; c[2,2]=1.; c[3,3]=1.
     c[4]=c[0]-c[1]; c[5]=c[2]-c[3]; c[6]=c[4]-c[5]
+    c[7,4]=1.; c[7,5]=-1.
     return c
 
 def quote(value):
@@ -91,7 +98,7 @@ def fsf_value(value):
 def fsf_text(original,ev,paths,output):
     # Keep authoritative preprocessing, confounds, TR and nuisance conventions.
     settings={k:v for k,v in original.items() if not re.match(r'fmri\((evtitle|shape\d|convolve\d|convolve_phase|tempfilt_yn\d|deriv_yn|custom\d|ortho\d|conpic_|conname_|con_real\d|con_orig\d|conmask|ftest_|con_mode)',k)}
-    n=len(ev); settings.update({'fmri(outputdir)':str(output),'fmri(evs_orig)':n,'fmri(evs_real)':n,'fmri(ncon_orig)':7,'fmri(ncon_real)':7,'fmri(nftests_orig)':0,'fmri(nftests_real)':0,'fmri(overwrite_yn)':0})
+    n=len(ev); settings.update({'fmri(outputdir)':str(output),'fmri(evs_orig)':n,'fmri(evs_real)':n,'fmri(ncon_orig)':8,'fmri(ncon_real)':8,'fmri(nftests_orig)':0,'fmri(nftests_real)':0,'fmri(overwrite_yn)':0})
     for i,(name,rows) in enumerate(ev.items(),1):
         active=bool(rows) and any(abs(v[2])>1e-12 for v in rows)
         settings.update({f'fmri(evtitle{i})':name,f'fmri(shape{i})':3 if active else 10,f'fmri(convolve{i})':3,
@@ -103,8 +110,8 @@ def fsf_text(original,ev,paths,output):
         for j,name in enumerate(CONTRASTS,1):
             settings[f'fmri(conname_{mode}.{j})']=name; settings[f'fmri(conpic_{mode}.{j})']=1
             for i,value in enumerate(c[j-1],1): settings[f'fmri(con_{mode}{j}.{i})']=float(value)
-    for i in range(1,8):
-        for j in range(1,8): settings[f'fmri(conmask{i}_{j})']=0
+    for i in range(1,9):
+        for j in range(1,9): settings[f'fmri(conmask{i}_{j})']=0
     return '\n'.join('set '+k+' '+fsf_value(v) for k,v in settings.items())+'\n'
 
 def fsl_matrix(path):
@@ -114,11 +121,11 @@ def fsl_matrix(path):
 def design_qc(x,contrasts):
     design_require(x.ndim==2 and np.isfinite(x).all(),'invalid rendered design')
     centered=x-x.mean(0); norms=np.linalg.norm(centered,axis=0); active=norms>1e-10
-    design_require(active[:8].all(),'categorical task EV has zero variance')
+    design_require(active[:6].all(),'categorical task EV has zero variance')
     z=centered[:,active]/norms[active]; singular=np.linalg.svd(z,compute_uv=False)
     rank=int(np.linalg.matrix_rank(z)); cond=float(singular[0]/singular[-1]) if singular[-1]>0 else float('inf')
-    corr=np.corrcoef(centered[:,:8],rowvar=False); maxcorr=float(np.max(np.abs(corr-np.eye(8))))
-    inv=np.linalg.pinv(z.T@z); vifs=np.diag(inv)[:8]
+    corr=np.corrcoef(centered[:,:6],rowvar=False); maxcorr=float(np.max(np.abs(corr-np.eye(6))))
+    inv=np.linalg.pinv(z.T@z); vifs=np.diag(inv)[:6]
     # Relative efficiency (to mutually orthogonal unit-norm EVs), scale-free.
     cs=np.pad(contrasts,((0,0),(0,x.shape[1]-contrasts.shape[1])))[:,active]
     efficiency=[]
@@ -177,14 +184,14 @@ def pilot_figure(out,unit):
     x=fsl_matrix(path); fig,ax=plt.subplots(1,2,figsize=(13,6))
     z=x-x.mean(0); scale=np.max(np.abs(z),axis=0); scale[scale==0]=1
     ax[0].imshow(z/scale,aspect='auto',cmap='RdBu_r',vmin=-1,vmax=1); ax[0].set(xlabel='EV / confound column',ylabel='Volume',title='First eligible development run: rendered FEAT design')
-    corr=np.corrcoef(x[:,:8],rowvar=False); im=ax[1].imshow(corr,vmin=-1,vmax=1,cmap='RdBu_r')
-    ax[1].set(xticks=range(8),yticks=range(8),title='Categorical EV correlation'); fig.colorbar(im,ax=ax[1]); fig.tight_layout()
+    corr=np.corrcoef(x[:,:6],rowvar=False); im=ax[1].imshow(corr,vmin=-1,vmax=1,cmap='RdBu_r')
+    ax[1].set(xticks=range(6),yticks=range(6),title='Fairness/endowment EV correlation'); fig.colorbar(im,ax=ax[1]); fig.tight_layout()
     for ext in ('png','pdf'): fig.savefig(out.output('results/figures/fairness_design_preview.'+ext),dpi=200)
     plt.close(fig)
 
 def wait_complete(folder,level):
-    required=([folder/f'stats/cope{k}.nii.gz' for k in range(1,8)]+[folder/f'stats/varcope{k}.nii.gz' for k in range(1,8)]+[folder/'mean_func.nii.gz',folder/'mask.nii.gz',folder/'design.mat',folder/'design.con',folder/'cluster_mask_zstat1.nii.gz'] if level=='L1' else
-              [folder/f'cope{k}.feat/stats/cope1.nii.gz' for k in range(1,8)]+[folder/f'cope{k}.feat/stats/varcope1.nii.gz' for k in range(1,8)]+[folder/f'cope{k}.feat/cluster_mask_zstat1.nii.gz' for k in range(1,8)])
+    required=([folder/f'stats/cope{k}.nii.gz' for k in range(1,9)]+[folder/f'stats/varcope{k}.nii.gz' for k in range(1,9)]+[folder/'mean_func.nii.gz',folder/'mask.nii.gz',folder/'design.mat',folder/'design.con',folder/'cluster_mask_zstat1.nii.gz'] if level=='L1' else
+              [folder/f'cope{k}.feat/stats/cope1.nii.gz' for k in range(1,9)]+[folder/f'cope{k}.feat/stats/varcope1.nii.gz' for k in range(1,9)]+[folder/f'cope{k}.feat/cluster_mask_zstat1.nii.gz' for k in range(1,9)])
     for _ in range(720):
         if all(p.is_file() and p.stat().st_size for p in required): return required
         time.sleep(10)
@@ -215,10 +222,10 @@ def execute_l2(out,scope,s):
         return
     require(not dest.exists(),'incomplete categorical L2 exists; no automatic overwrite')
     template=parse_fsf(scope['c'].repos['ugr']/'templates/L2_task-ugr_model-3_type-act.fsf')
-    template['fmri(outputdir)']=str(dest); template['fmri(ncopeinputs)']='7'
+    template['fmri(outputdir)']=str(dest); template['fmri(ncopeinputs)']='8'
     for run in (1,2): template[f'feat_files({run})']=str(folder/f'run-{run}/model-signature-fairness.feat')
     template={k:v for k,v in template.items() if not re.match(r'fmri\(copeinput\.',k)}
-    for k in range(1,8): template[f'fmri(copeinput.{k})']='1'
+    for k in range(1,9): template[f'fmri(copeinput.{k})']='1'
     fsf=folder/'L2.fsf'; fsf.write_text('\n'.join('set '+k+' '+fsf_value(v) for k,v in template.items())+'\n'); fsf.chmod(0o600)
     run_command(['feat',fsf],folder/'l2.log'); products=wait_complete(dest,'L2')
     marker.write_text(json.dumps(dict(products={str(p):sha256(p) for p in products}),indent=2)); marker.chmod(0o600)

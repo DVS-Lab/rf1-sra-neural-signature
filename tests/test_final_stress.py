@@ -9,7 +9,7 @@ from utils import PipelineError,sha256
 from test_characterization import toy_scope
 from final_stress_design import output_config,partners,context,trust_norm,ugr_context,make_plans,permutation_targets,reduced
 from final_stress_compute import partition,fit_score,run_plan,summarize,specificity,identifier
-from final_stress_fairness import nominal_fairness,build_events,contrast_matrix,fsf_text,design_qc,quote,CONDITIONS
+from final_stress_fairness import nominal_fairness,build_events,contrast_matrix,fsf_text,design_qc,quote,CONDITIONS,ENDOWMENT_CONDITIONS
 from final_stress_sources import guard_path,qc_reason,phase_spec
 from revised_design import center
 
@@ -71,11 +71,12 @@ def test_qc_unknown_and_any_bad_run_rejected():
 def synthetic_events():
     trials=[]; rows=[]
     for j,name in enumerate(CONDITIONS):
-        social,end,fair=name.split('_'); endowment=32 if end=='high' else 16
-        for rep in range(4):
-            i=len(trials); onset=i*12.; offer=(2 if endowment==32 else 1) if fair=='unfair' else endowment//2
-            trials.append(SimpleNamespace(trial_id=str(i),sociality=social,endowment=endowment,offer=offer,missed=False,broad_onset=onset,broad_duration=7.,response_onset=onset+5.,response_time=1.+rep*.1))
-            rows.append(dict(trial_id=str(i),trial_type='decision',onset=onset+3.))
+        social,fair=name.split('_')
+        for end,endowment in (('high',32),('low',16)):
+            for rep in range(2 if (name=='nonsocial_fair' and end=='high') else 4):
+                i=len(trials); onset=i*12.; offer=(2 if endowment==32 else 1) if fair=='unfair' else endowment//2
+                trials.append(SimpleNamespace(trial_id=str(i),sociality=social,endowment=endowment,offer=offer,missed=False,broad_onset=onset,broad_duration=7.,response_onset=onset+5.,response_time=1.+rep*.1))
+                rows.append(dict(trial_id=str(i),trial_type='decision',onset=onset+3.))
     return rows,SimpleNamespace(collapse_trials=lambda _:trials)
 
 
@@ -84,9 +85,10 @@ def test_fairness_nominal_rounding_timing_and_trial_gate():
         assert [nominal_fairness(v,end)[0] for v in offers]==['unfair','unfair','fair','fair']
     with pytest.raises(PipelineError): nominal_fairness(7,32)
     rows,canonical=synthetic_events(); ev,counts,detail,failed=build_events(rows,canonical)
-    assert not failed and set(counts.values())=={4}
-    assert ev['social_high_unfair'][0]==(3.,4.,1.)
-    assert ev['social_high_preoffer'][0]==(0.,3.,1.)
+    assert not failed and counts['social_unfair']==8 and counts['nonsocial_fair']==6
+    assert counts['endowment_high']==14 and counts['endowment_low']==16
+    assert ev['social_unfair'][0]==(3.,4.,1.)
+    assert ev['social_preoffer'][0]==(0.,3.,1.)
     canonical.collapse_trials=lambda _:[SimpleNamespace(trial_id='0',sociality='social',endowment=32,offer=2,missed=False,broad_onset=0.,broad_duration=7.,response_onset=5.,response_time=1.)]
     assert build_events(rows[:1],canonical)[-1]
 
@@ -97,18 +99,19 @@ def test_fsf_preserves_preprocessing_and_exact_contrasts(tmp_path):
     original={'fmri(smooth)':'5','fmri(tr)':'1.615','fmri(temphp_yn)':'0','confoundev_files(1)':'/safe/confounds.tsv','feat_files(1)':'/safe/input.nii.gz',
               'fmri(evtitle1)':'old','fmri(con_real10.1)':'1','fmri(ortho3.2)':'1','fmri(conmask9_4)':'1','fmri(evs_orig)':'11'}
     fsf=tmp_path/'test.fsf'; fsf.write_text(fsf_text(original,ev,{k:tmp_path/(k+'.txt') for k in ev},tmp_path/'new.feat')); settings=parse_fsf(fsf)
-    assert 'set fmri(con_real1.1) 0.5' in fsf.read_text()
+    assert 'set fmri(con_real1.1) 1.0' in fsf.read_text()
     assert settings['fmri(tr)']=='1.615' and settings['fmri(smooth)']=='5' and settings['fmri(temphp_yn)']=='0'
     assert settings['confoundev_files(1)']=='/safe/confounds.tsv' and 'fmri(con_real10.1)' not in settings
-    assert int(settings['fmri(evs_orig)'])==len(ev) and settings['fmri(shape15)']=='10'
+    assert int(settings['fmri(evs_orig)'])==len(ev) and settings['fmri(shape11)']=='10'
     c=contrast_matrix(len(ev)); np.testing.assert_equal(c[6],c[0]-c[1]-c[2]+c[3])
-    assert np.all(c[:,8:]==0) and np.allclose(c[:4].sum(1),1)
+    assert c.shape[0]==8 and c[7,4]==1 and c[7,5]==-1
+    assert np.all(c[:,12:]==0) and np.allclose(c[:4].sum(1),1)
     assert '\\$' in quote('$abc') and '\\[' in quote('[exec nope]')
 
 
 def test_actual_design_metrics_stop_on_collinearity():
     x=np.random.default_rng(5).normal(size=(150,16)); c=contrast_matrix(16)
-    metrics,_=design_qc(x,c); assert not metrics['failures'] and len(metrics['relative_contrast_efficiency'])==7
+    metrics,_=design_qc(x,c); assert not metrics['failures'] and len(metrics['relative_contrast_efficiency'])==8
     x[:,1]=x[:,0]; metrics,_=design_qc(x,c)
     assert 'rank-deficient active design' in metrics['failures'] and metrics['max_task_ev_correlation']>.99
     x[:,0]=0
@@ -122,9 +125,9 @@ def test_fairness_qc_report_real_writer(cfg,monkeypatch,case):
     x=np.random.default_rng(5).normal(size=(150,16))
     if case=='matrix_failure': x[:,1]=x[:,0]
     metrics,_=design_qc(x,contrast_matrix(16))
-    unit=dict(subject=sc['subjects'][0],run=1,counts={k:4 for k in CONDITIONS},metrics=metrics,failures=metrics['failures'])
+    unit=dict(subject=sc['subjects'][0],run=1,counts={**{k:4 for k in CONDITIONS},**{k:8 for k in ENDOWMENT_CONDITIONS}},metrics=metrics,failures=metrics['failures'])
     if case=='trial_failure':
-        unit.pop('metrics'); unit['failures']=['social_high_unfair: fewer than 3 valid trials']
+        unit.pop('metrics'); unit['failures']=['social_unfair: fewer than 3 valid trials']
     monkeypatch.setenv('FSLDIR','synthetic')
     monkeypatch.setattr(fairness.shutil,'which',lambda _: '/synthetic/FSL')
     monkeypatch.setattr(fairness,'upstream_module',lambda _: None)
