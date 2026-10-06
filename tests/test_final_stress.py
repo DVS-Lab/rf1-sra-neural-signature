@@ -152,12 +152,15 @@ def test_preview_restart_preserves_prior_design_and_identity(cfg):
     out=output_config(cfg); prepare_identity(out,'old',{}, {})
     design=out.output('work/fairness/sub-dev000/ses-01/run-1/design.mat')
     design.parent.mkdir(parents=True); design.write_text('original design')
+    event=design.parent/'social_unfair.txt'; event.write_text('0\t1\t1\n')
     prepare_identity(out,'old',{}, {},preview=True)
     assert not out.output('work/archived_previews').exists()
     prepare_identity(out,'new',{}, {},preview=True)
     assert not design.exists()
     archived=list(out.output('work/archived_previews').glob('*/work/fairness/sub-dev000/ses-01/run-1/design.mat'))
     assert len(archived)==1 and archived[0].read_text()=='original design'
+    archived_events=list(out.output('work/archived_previews').glob('*/work/fairness/sub-dev000/ses-01/run-1/social_unfair.txt'))
+    assert len(archived_events)==1
     assert json.loads(out.output('work/identity.json').read_text())['fingerprint']=='new'
     assert json.loads(next(out.output('work/archived_previews').glob('*/work/identity.json')).read_text())['fingerprint']=='old'
 
