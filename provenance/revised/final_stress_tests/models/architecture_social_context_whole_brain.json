@@ -1,0 +1,27 @@
+{
+  "fingerprint": "5e2976d0a368416c8cc76a84a37f024b5bb4c10e2ac20996c352cf5bf7d26328",
+  "plan": {
+    "name": "architecture_social_context",
+    "family": "social_context",
+    "train": [
+      "sr_full_social_context",
+      "trust_social_context"
+    ],
+    "test": [
+      "sr_full_social_context",
+      "trust_social_context"
+    ],
+    "visual": false,
+    "permutation": false,
+    "group": "architecture"
+  },
+  "training_n": 192,
+  "weight_sha256": "1537d02525abaa7e7f657dae84470a11c7bb585779b869dd92433dc81b636b9b",
+  "products": {
+    "results/maps/architecture_social_context_whole_brain_DEV_weights.nii.gz": "1537d02525abaa7e7f657dae84470a11c7bb585779b869dd92433dc81b636b9b",
+    "results/maps/architecture_social_context_whole_brain_DEV_haufe.nii.gz": "bde233526e6af734c181b07e5a300390b2250351bd0b8adffb67901f173010ad",
+    "results/maps/architecture_social_context_whole_brain_DEV_mean_difference.nii.gz": "758bee515c27555672523ec2adb036ebe7f1196048984f235d75c68794c7f02f"
+  },
+  "intercept": -4.1677281387852656e-07,
+  "holdout_scored": false
+}

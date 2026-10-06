@@ -1,7 +1,7 @@
 # Categorical UGR design gate
 
 {
-  "status": "preview_passed",
+  "status": "designs_passed",
   "reason": null,
   "model": "collapsed_fairness_signed_endowment",
   "task_evs": [
@@ -11,7 +11,7 @@
     "nonsocial_fair",
     "endowment_difference"
   ],
-  "rendered_runs": 1,
+  "rendered_runs": 352,
   "development_n": 176,
   "min_trials_per_cell": 3,
   "max_imbalance": 4.0,

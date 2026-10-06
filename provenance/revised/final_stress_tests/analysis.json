@@ -1,0 +1,23 @@
+{
+  "code_sha256": {
+    "final_stress_report.py": "911353ec21c65864dff45ae1df297715ac41f38db9db7085e17370014a351d0b",
+    "final_stress_parallel.py": "ecf38a6a1d736d4fab7ca225705afd238f563de31c3bd95e1f15ca218d7e321a",
+    "final_stress_tests.py": "fb27902fc99dfa5012e1e22ee11867af524a59cb8427855da7c6fcda5338fa40",
+    "final_stress_compute.py": "1eb2903c4eb686925fc3bce7761f33187ebf136583351aa5761cb7974f709fb2",
+    "final_stress_fairness.py": "6e78b9b06b34f0eeadfcca2007ef11d1597f3270f10fa1f9f5d3693eee7c1b02",
+    "final_stress_design.py": "e519437bb5acd904c414d73c6e393e90fb2be0726a3034692f4b82b23eca9366",
+    "final_stress_sources.py": "b3fa9b86da34a3e027d5e3baebf3142edce7faed157d875e6dd758a342493566"
+  },
+  "software": {
+    "numpy": "1.26.4",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.8.0",
+    "nibabel": "5.3.2",
+    "pandas": "2.3.3"
+  },
+  "fingerprint": "5e2976d0a368416c8cc76a84a37f024b5bb4c10e2ac20996c352cf5bf7d26328",
+  "original_outputs_unchanged": true,
+  "holdout_scored": false,
+  "visual_exclusion_role": "descriptive_only_no_selection_no_success_requirement",
+  "fairness_status": "complete"
+}

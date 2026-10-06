@@ -1,0 +1,25 @@
+{
+  "fingerprint": "5e2976d0a368416c8cc76a84a37f024b5bb4c10e2ac20996c352cf5bf7d26328",
+  "plan": {
+    "name": "computer_norm_control",
+    "family": "computer_norm_violation",
+    "train": [
+      "trust_computer_norm"
+    ],
+    "test": [
+      "ugr_computer_norm"
+    ],
+    "visual": false,
+    "permutation": false,
+    "group": "norm"
+  },
+  "training_n": 176,
+  "weight_sha256": "0e2591eb74015e4c1749f8054a8b8d14634785cef8e2bbeffa6208567ae3ee5a",
+  "products": {
+    "results/maps/computer_norm_control_whole_brain_DEV_weights.nii.gz": "0e2591eb74015e4c1749f8054a8b8d14634785cef8e2bbeffa6208567ae3ee5a",
+    "results/maps/computer_norm_control_whole_brain_DEV_haufe.nii.gz": "3d4600c35511d25f794e827f7460a8484ebb45a1c36725db03218d7dc5c32940",
+    "results/maps/computer_norm_control_whole_brain_DEV_mean_difference.nii.gz": "00b24d1673d7c842b1453101113df4ce5d300a7f367c377737dbf301712511a0"
+  },
+  "intercept": 5.871713262054858e-08,
+  "holdout_scored": false
+}

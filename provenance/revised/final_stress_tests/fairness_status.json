@@ -1,5 +1,5 @@
 {
-  "status": "preview_passed",
+  "status": "complete",
   "reason": null,
   "model": "collapsed_fairness_signed_endowment",
   "task_evs": [
@@ -9,7 +9,7 @@
     "nonsocial_fair",
     "endowment_difference"
   ],
-  "rendered_runs": 1,
+  "rendered_runs": 352,
   "development_n": 176,
   "min_trials_per_cell": 3,
   "max_imbalance": 4.0,
@@ -49,5 +49,6 @@
       0.7230388932408006
     ],
     "failures": []
-  }
+  },
+  "feat_workers": 18
 }

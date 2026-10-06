@@ -1,8 +1,10 @@
 {
-  "status": "preview_passed",
-  "stage": "fairness design preview",
+  "status": "complete",
+  "stage": "finished",
   "fingerprint": "5e2976d0a368416c8cc76a84a37f024b5bb4c10e2ac20996c352cf5bf7d26328",
   "holdout_scored": false,
   "validation_n": 50,
-  "original_outputs_unchanged": true
+  "original_outputs_unchanged": true,
+  "permutation_nulls_chance_centered": true,
+  "fairness_status": "complete"
 }

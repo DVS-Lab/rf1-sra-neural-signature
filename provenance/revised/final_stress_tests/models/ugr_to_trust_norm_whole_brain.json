@@ -1,0 +1,25 @@
+{
+  "fingerprint": "5e2976d0a368416c8cc76a84a37f024b5bb4c10e2ac20996c352cf5bf7d26328",
+  "plan": {
+    "name": "ugr_to_trust_norm",
+    "family": "social_norm_violation",
+    "train": [
+      "ugr_norm"
+    ],
+    "test": [
+      "trust_norm"
+    ],
+    "visual": false,
+    "permutation": true,
+    "group": "norm"
+  },
+  "training_n": 176,
+  "weight_sha256": "8511718549a05bb471ba87660ce8fd9489d8f7983a4d9cb8cc57b45d0a6e62b0",
+  "products": {
+    "results/maps/ugr_to_trust_norm_whole_brain_DEV_weights.nii.gz": "8511718549a05bb471ba87660ce8fd9489d8f7983a4d9cb8cc57b45d0a6e62b0",
+    "results/maps/ugr_to_trust_norm_whole_brain_DEV_haufe.nii.gz": "6e75ae146c39cb1a8060bda3ffc39bc85f5f10dcbb7fe8150d982e24f8edcef1",
+    "results/maps/ugr_to_trust_norm_whole_brain_DEV_mean_difference.nii.gz": "7b3aa201d7ff0d4e224ac10a43ce56c627b29ca2e1499fa3ff174ea1d18532b0"
+  },
+  "intercept": -1.0139318626112439e-07,
+  "holdout_scored": false
+}
