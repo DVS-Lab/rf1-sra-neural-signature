@@ -167,7 +167,7 @@ def run(base,workers=96,dry_run=False,fairness_preview=False,plots_only=False):
                 holdout_scored=False,visual_exclusion_role='descriptive_only_no_selection_no_success_requirement',fairness_status=saved['fairness']['status']))
             status('finished','complete' if centered and all_required else 'needs_review',original_outputs_unchanged=True,permutation_nulls_chance_centered=bool(centered),fairness_status=saved['fairness']['status'])
             print(perf[['model','test','n','accuracy','evaluation']].to_string(index=False),flush=True)
-            for name in ('REPORT','COLLABORATOR_EMAIL_DRAFT','TASK_PHASE_AUDIT'): print(out.output('reports/'+name+'.md'),flush=True)
+            for name in ('REPORT','TASK_PHASE_AUDIT'): print(out.output('reports/'+name+'.md'),flush=True)
             print('Frozen candidates unchanged. holdout_scored = False',flush=True)
         except Exception:
             write_json(out,'provenance/run_status.json',dict(status='failed',stage=stage,holdout_scored=False,original_outputs_unchanged=snapshot(base)==before if before is not None else None))

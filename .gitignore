@@ -234,3 +234,7 @@ __pycache__/
 *predictions*.tsv
 *availability*.tsv
 *image_metrics*.tsv
+
+# Correspondence belongs outside this repository.
+*EMAIL_DRAFT*
+*email_draft*

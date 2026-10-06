@@ -246,7 +246,7 @@ def test_cv_models_specificity_and_reporting(cfg,tmp_path,monkeypatch):
     monkeypatch.setattr(report,'save',quick_save)
     report.render(out,perf,pd.DataFrame(),dict(status='stopped_design_qc',reason='synthetic gate'),keep,[])
     text=out.output('reports/REPORT.md').read_text(); assert 'holdout_scored = False' in text and 'no persistence success criterion' in text
-    email=out.output('reports/COLLABORATOR_EMAIL_DRAFT.md').read_text(); assert 500<=len(email.split())<=700
+    assert not out.output('reports/COLLABORATOR_EMAIL_DRAFT.md').exists()
     assert len(list(tmp_path.glob('Figure*.png')))==6
 
 
