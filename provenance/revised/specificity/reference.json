@@ -1,0 +1,7 @@
+{
+  "mask_voxels": 84045,
+  "dmn_voxels": 10922,
+  "excluded_voxels": 73123,
+  "atlas_sha256": "c8e2ee01cd23beb1c5424980e0922cce7417c26e3176432dd0074518144851d3",
+  "mask_sha256": "bdd44b7b3f2ff442bc9d70213945fbf8270f92f4ea48ac5b7dea7ffeaa3ac10a"
+}

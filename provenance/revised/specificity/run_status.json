@@ -1,0 +1,6 @@
+{
+  "status": "failed",
+  "error_type": "ConvergenceWarning",
+  "holdout_scored": false,
+  "original_outputs_unchanged": true
+}
