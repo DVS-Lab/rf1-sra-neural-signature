@@ -38,3 +38,9 @@ Outputs:
 - `provenance/revised/specificity/run_status.json`: completion and original-output invariance.
 
 Stop after these outputs. Preregistration still requires decisions on the primary construct/candidate and full-trial versus outcome-only status, external-validation mapping/QC, confirmatory endpoints/multiplicity/success criteria, and timing/procedure for protected N=50 scoring. Survival outside DMN does not establish an abstract social representation. Correspondence belongs outside this repository.
+
+## Generic-template numerical repair
+
+The first production run reproduced the old predictions and completed the four voxel-model variants, then stopped because the dual optimizer did not converge on the generic one-feature projections. The generic baseline now uses `LinearSVC(dual=False)` consistently for observed and permuted fits. This solves the same L2 squared-hinge objective, with C=1, tolerance=0.0001, max_iter=100000 and unchanged intercept penalty; no feature rescaling, accuracy tuning or warning suppression is introduced. The voxel models retain their original dual solver. See [the official solver guidance](https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html).
+
+After `git pull --ff-only`, use the same launcher. A narrow automatic restart accepts only the exact original implementation hashes and identical data, software, QC, masks and folds; it checks the feature cache and all four completed prediction arrays. The original identity/markers stay intact. A separate `solver_restart.json` records authorization to reuse those products with their original fingerprint. Generic fits and every permutation use the repaired execution fingerprint. Existing old generic/null products or any unrelated input/code drift cause a stop. Interrupted repairs can resume; do not delete or edit checkpoints.

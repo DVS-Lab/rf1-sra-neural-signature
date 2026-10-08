@@ -28,12 +28,17 @@ def test_blocked_fits_and_generic_template_never_uses_test_subjects(monkeypatch)
     train=np.arange(4,20); target=generic_template(arrays['generic'],train,1)
     changed=arrays['generic'].copy(); changed[:4]=1e6
     np.testing.assert_equal(target,generic_template(changed,train,1))
-    original=impl.fit_binary; calls=[]
+    original=impl.fit_binary; original_generic=impl.fit_generic; calls=[]
     def recording(x,sc,ids,flips=None):
         excluded=set(sc['subjects'])-set(ids); folds={sc['folds'][s] for s in excluded}
         assert len(folds)==1 and len(excluded)==4
         calls.append(x.shape[-1]); return original(x,sc,ids,flips)
     monkeypatch.setattr(impl,'fit_binary',recording)
+    def record_generic(x,sc,ids,flips=None):
+        excluded=set(sc['subjects'])-set(ids)
+        assert len({sc['folds'][s] for s in excluded})==1 and len(excluded)==4
+        calls.append(x.shape[-1]); return original_generic(x,sc,ids,flips)
+    monkeypatch.setattr(impl,'fit_generic',record_generic)
     for mode in MODES:
         z=cv(scope,arrays,mode,keep); assert z.shape==(20,10,10)
     assert calls.count(1)==50 and calls.count(6)==100 and calls.count(12)==100

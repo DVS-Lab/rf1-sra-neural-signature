@@ -2,8 +2,11 @@
 from dataclasses import dataclass
 from pathlib import Path
 import numpy as np
+import warnings
+from sklearn.svm import LinearSVC
+from sklearn.exceptions import ConvergenceWarning
 from utils import Config
-from characterization_audit import require
+from characterization_audit import require, PARAMETERS, SEED
 from characterization_compute import assert_development, fit_binary, replicate_rng
 from cross_valence_compute import fold_indices
 from revised_design import center
@@ -32,6 +35,27 @@ def generic_template(generic, train, task):
     require(np.isfinite(norm) and norm>0,'degenerate generic task template')
     return w/norm
 
+def fit_generic(x, scope, subjects, flips=None):
+    """Same L2 squared-hinge C=1 objective, solved in two primal dimensions (w,b).
+
+    No rescaling, parameter search, warning suppression or accuracy-based fallback.
+    Use this solver for every generic observed/permuted fit, not just failures.
+    """
+    assert_development(scope,subjects)
+    require(x.ndim==4 and len(x)==len(subjects) and x.shape[2:]==(2,1),
+            'generic baseline requires participant/task/pair/one-feature input')
+    require(np.isfinite(x).all(),'nonfinite generic projections')
+    y=np.broadcast_to(np.array([1,-1]),x.shape[:3]).copy()
+    if flips is not None:
+        flips=np.asarray(flips)
+        require(flips.shape==(len(subjects),) and np.isin(flips,[-1,1]).all(),'invalid generic participant flips')
+        y*=flips.astype(int)[:,None,None]
+    with warnings.catch_warnings():
+        warnings.simplefilter('error',ConvergenceWarning)
+        estimator=LinearSVC(**{**PARAMETERS,'dual':False},random_state=SEED).fit(x.reshape(-1,1),y.reshape(-1))
+    return estimator.coef_[0],float(estimator.intercept_[0])
+
+
 def cv(scope, arrays, mode, keep, flips=None):
     """Social 6x6 and friend–stranger 4x4 cells use fixed participant folds and fixed C=1 LinearSVC."""
     assert_development(scope); require(mode in MODES,'unknown specificity model')
@@ -53,7 +77,8 @@ def cv(scope, arrays, mode, keep, flips=None):
                 template=generic_template(arrays['generic'],train,source//2 if source<6 else (source-6)//2)
                 a=(a.astype(float)@template)[...,None]
                 b=(b.astype(float)@template)[...,None]
-            w,intercept=fit_binary(a,scope,ids,None if flips is None else flips[train])
+            fitter=fit_generic if mode=='generic' else fit_binary
+            w,intercept=fitter(a,scope,ids,None if flips is None else flips[train])
             scores=b.astype(float)@w+intercept
             margins=scores[:,:,0]-scores[:,:,1]
             if flips is not None: margins*=flips[test,None]

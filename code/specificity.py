@@ -9,6 +9,7 @@ from characterization_compute import assert_development
 from cross_valence import settings
 from specificity_design import output_config,MODES,cv
 from specificity_inputs import inventory,features,atlas_mask,verify_previous,overlap
+from specificity_restart import prepare as prepare_restart
 
 
 def snapshot(base):
@@ -56,16 +57,15 @@ def run(base,workers=96,dry_run=False):
             identity=dict(spec=spec,original=before,private=private,phase_sources=source_hashes,
                 subjects=scope['subjects'],folds=scope['folds'],qc=sha256(base.repos['linux2']/base.paths['qc_table']),software=software,
                 code={p.name:sha256(p) for p in (base.root/'code').glob('specificity*.py')})
+            identity['code']['specificity_solver_restart.json']=sha256(base.root/'config/specificity_solver_restart.json')
             key=digest(identity)
+            reused_key=prepare_restart(out,identity,dry_run=dry_run)
             if dry_run:
                 print('DRY RUN PASSED: exact N=178, original folds/QC/mask and phase provenance checked. Development source bytes hashed; no voxel arrays loaded. No holdout images accessed.',flush=True)
                 return
-            marker=out.output('work/identity.json')
-            if marker.exists(): require(json.loads(marker.read_text())['fingerprint']==key,'specificity inputs changed; retain old checkpoints for review')
-            write_json(out,'work/identity.json',dict(fingerprint=key,**identity))
             for name in ('aggregate','figures','maps'): out.output('results/'+name).mkdir(parents=True,exist_ok=True)
             write_json(out,'provenance/run_status.json',dict(status='in_progress',fingerprint=key,holdout_scored=False))
-            arrays,mask,ref=features(out,scope,key,phase_paths); keep,atlas=atlas_mask(base,mask,ref,spec)
+            arrays,mask,ref=features(out,scope,reused_key,phase_paths); keep,atlas=atlas_mask(base,mask,ref,spec)
             from build_mask import save_image
             save_image(out,'results/maps/fixed_dmn_intersection.nii.gz',(atlas&mask).astype('uint8'),ref)
             info=dict(mask_voxels=int(mask.sum()),dmn_voxels=int(keep.sum()),excluded_voxels=int((~keep).sum()),atlas_sha256=spec['atlas_sha256'],mask_sha256=scope['model']['mask_sha256'])
@@ -74,7 +74,7 @@ def run(base,workers=96,dry_run=False):
             write_tsv(out,'work/model_membership.tsv',membership)
             observed={}
             for mode in MODES:
-                observed[mode]=checkpoint(out,key,mode,lambda mode=mode:cv(scope,arrays,mode,keep))
+                observed[mode]=checkpoint(out,key if mode=='generic' else reused_key,mode,lambda mode=mode:cv(scope,arrays,mode,keep))
                 if mode=='legacy': write_tsv(out,'results/aggregate/old_prediction_reconstruction.tsv',verify_previous(scope,observed[mode]))
                 if mode=='outcome':
                     require(np.allclose(observed[mode][:,2:6,2:6],observed['legacy'][:,2:6,2:6],atol=1e-5,rtol=2e-5),'unchanged Trust/Doors predictions differ')

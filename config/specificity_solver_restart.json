@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "old_code": {
+    "specificity_report.py": "d300b8ef75ba8edb5014810a96577c3128f1f8c57a73736a0dda6f7d6c40bd1b",
+    "specificity.py": "3448fcdfdcb45832e8b911f9741b8f8e894f6f4d99a767e115cb3e266b55394a",
+    "specificity_parallel.py": "fadecbd86a0c5a3431e58bdf670a0b4de8c81d3aa67b0cbe1241b8c38625a342",
+    "specificity_inputs.py": "8a1f5a33dcbb5d0216e5395c7b0fdf7c6c5a754cb885dc6c24646e29f41df595",
+    "specificity_design.py": "d1a34609b85cff6b7c06eef69542d6df95024e56136280147b8db6310347c111"
+  },
+  "reason": "Generic one-feature baseline changes only dual=True to dual=False; reuse features and four completed non-generic variants only."
+}
