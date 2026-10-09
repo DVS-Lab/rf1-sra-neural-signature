@@ -1,0 +1,25 @@
+{
+  "status": "implementation_validated",
+  "scientific_run": "pending_Linux2_private_inputs",
+  "reviewed_base_commit": "6dd5352",
+  "tests_passed": 40,
+  "test_files": [
+    "test_task_negative.py",
+    "test_specificity.py",
+    "test_specificity_solver.py",
+    "test_holdout_guard.py",
+    "test_image_processing.py"
+  ],
+  "synthetic_only": true,
+  "holdout_scored": false,
+  "prior_files_verified_unchanged": 1524,
+  "prior_files_fingerprint": "147f9a9f3ce6acb6ac3d7cd39b3e396f7c10d432df5067e83344b40c4ba30101",
+  "new_code": {
+    "task_negative_report.py": "3968da5dcf600d320c7125bd63852f0ebafb4102f885fd7cca29e9295bc11af7",
+    "task_negative_control.py": "c8e3b2f3dddf9be491eb9c4c44e9458dc822c388e41e2908a4c0b32dcaea19d8",
+    "task_negative_parallel.py": "78363d240e772d16417b5163e027e82b90d4829a8e22d97f1efa22537493af66",
+    "task_negative_sources.py": "ea2b9b1bbc0f3c542ba72759dc1992fda3c44be6fdba30fa7dd0467a9ba80135",
+    "task_negative_compute.py": "427d016c54acf7b73a29242baa1e3c27f35ab1e7e08f24cb1f90cd781b93bfaf",
+    "task_negative_design.py": "760667db78e4fcee08fef61040e20acc3ebba9719cc870c6e9cf9a0606da02d5"
+  }
+}
