@@ -39,7 +39,43 @@ def event_baseline(events,seconds):
         minimum_decision_feedback_gap=float(gaps[::2].min()),minimum_intertrial_gap=float(gaps[1::2].min()),
         maximum_intertrial_gap=float(gaps[1::2].max()),run_seconds=float(seconds))
 
-def actual_design(scope,subject):
+def compare_ev_timing(actual,canonical):
+    """Accept raw timings or the pinned BIDSto3col awk serialization, not drift.
+
+    BIDSto3col computes onset-0 and prints it with %s (awk CONVFMT=%.6g;
+    exact integers retain integer conversion). Duration strings pass unchanged.
+    """
+    a=np.asarray(actual,float); b=np.asarray(canonical,float)
+    result=dict(fitted_rows=len(a),canonical_rows=len(b),matched=False,serialization='mismatch',
+                max_onset_error_seconds=None,max_duration_error_seconds=None,max_amplitude_error=None)
+    if a.shape!=b.shape or a.ndim!=2 or a.shape[1]!=3 or not len(a) or not np.isfinite(a).all() or not np.isfinite(b).all(): return result
+    a=a[np.argsort(a[:,0],kind='stable')]; b=b[np.argsort(b[:,0],kind='stable')]
+    difference=np.max(abs(a-b),axis=0)
+    result.update(max_onset_error_seconds=float(difference[0]),max_duration_error_seconds=float(difference[1]),max_amplitude_error=float(difference[2]))
+    rounded=np.array([v if float(v).is_integer() else float(format(v,'.6g')) for v in b[:,0]])
+    # No temporal shift, amplitude rescaling, row loss or duration rounding allowed.
+    unchanged=np.allclose(a[:,1],b[:,1],atol=1e-8,rtol=0) and np.array_equal(a[:,2],b[:,2])
+    native=np.allclose(a[:,0],b[:,0],atol=1e-8,rtol=0)
+    serialized=np.allclose(a[:,0],rounded,atol=1e-8,rtol=0)
+    if unchanged and (native or serialized):
+        result.update(matched=True,serialization='canonical_precision' if native else 'BIDSto3col_awk_6_significant_digits')
+    return result
+
+
+def write_ev_diagnostics(out,checks):
+    if not checks: return
+    write_tsv(out,'work/ev_timing_audit.tsv',checks)
+    frame=pd.DataFrame(checks); rows=[]
+    for (event,mode),g in frame.groupby(['event','serialization'],sort=True):
+        row=dict(event=event,serialization=mode,n_ev_files=len(g),failed_ev_files=int((~g.matched).sum()))
+        for field in ('max_onset_error_seconds','max_duration_error_seconds','max_amplitude_error'):
+            finite=pd.to_numeric(g[field],errors='coerce').dropna(); row[field]=float(finite.max()) if len(finite) else None
+        rows.append(row)
+    write_json(out,'provenance/ev_timing_audit.json',dict(checked_ev_files=len(checks),failed_ev_files=int((~frame.matched).sum()),
+        complete_cohort_audit=False,comparisons=rows,holdout_scored=False))
+
+
+def actual_design(scope,subject,ev_checks=None):
     assert_development(scope,[subject]); c=deepcopy(scope['c']); c.contrasts['doors']=contrast_spec()
     folder=guard_path(scope,feat_dir(c,subject,'doors','L1',1),subject)
     fsf=folder/'design.fsf'; values=parse_fsf(fsf)
@@ -59,8 +95,12 @@ def actual_design(scope,subject):
         require(values[f'fmri(shape{ev})']=='3','expected three-column timing EV')
         path=guard_path(scope,Path(values[f'fmri(custom{ev})']),subject); inputs.append(path)
         a=np.loadtxt(path,ndmin=2); b=np.column_stack([expected.onset,expected.duration,np.ones(len(expected))])
-        a=a[np.argsort(a[:,0])]; b=b[np.argsort(b[:,0])]
-        require(a.shape==b.shape and np.allclose(a,b,atol=1e-4,rtol=0),'fitted EV differs from canonical events')
+        check=compare_ev_timing(a,b)
+        if ev_checks is not None: ev_checks.append(dict(subject=subject,event=label,ev_path=str(path),**check))
+        require(check['matched'],f'fitted EV differs from canonical events ({label}; fitted/canonical rows {len(a)}/{len(b)}; '
+                f'max onset error={check["max_onset_error_seconds"]} s; duration error={check["max_duration_error_seconds"]} s; '
+                f'amplitude error={check["max_amplitude_error"]}). See work/revised/task_negative_control/ev_timing_audit.tsv; '
+                'sanitized summary: provenance/revised/task_negative_control/ev_timing_audit.json')
     bold_path=Path(values['feat_files(1)'])
     if not bold_path.exists() and not str(bold_path).endswith('.nii.gz'): bold_path=Path(str(bold_path)+'.nii.gz')
     bold_path=guard_path(scope,bold_path,subject)
@@ -83,12 +123,19 @@ def audit_sources(out,scope,spec):
     assert_development(scope); template=scope['c'].repos['socdoors']/contrast_spec()['template']
     require(sha256(template)==spec['doors_template_sha256'],'authoritative Doors template changed')
     verify_l1(parse_fsf(template),contrast_spec())
-    q=qc_table(scope['c']); records=[]; paths={}; fingerprints={}
-    for i,s in enumerate(scope['subjects']):
-        require(not qc_reason(q,s,'doors',(1,)),'frozen cohort no longer passes Doors QC; do not alter N')
-        path,row,hashes=actual_design(scope,s); paths[s]=path; fingerprints.update(hashes)
-        records.append(dict(subject=s,**row))
-        if (i+1)%20==0 or i+1==len(scope['subjects']): print(f'Decision contrast/baseline audit {i+1}/{len(scope["subjects"])}',flush=True)
+    converter=scope['c'].repos['socdoors']/'code/BIDSto3col.sh'
+    require(sha256(converter)==spec['doors_ev_converter_sha256'],'reviewed Doors EV converter changed')
+    q=qc_table(scope['c']); records=[]; paths={}; fingerprints={str(converter):sha256(converter)}; checks=[]
+    try:
+        for i,s in enumerate(scope['subjects']):
+            require(not qc_reason(q,s,'doors',(1,)),'frozen cohort no longer passes Doors QC; do not alter N')
+            path,row,hashes=actual_design(scope,s,checks); paths[s]=path; fingerprints.update(hashes)
+            records.append(dict(subject=s,**row))
+            if (i+1)%20==0 or i+1==len(scope['subjects']): print(f'Decision contrast/baseline audit {i+1}/{len(scope["subjects"])}',flush=True)
+    finally:
+        write_ev_diagnostics(out,checks)
+    timing=json.loads(out.output('provenance/ev_timing_audit.json').read_text()); timing['complete_cohort_audit']=True
+    write_json(out,'provenance/ev_timing_audit.json',timing)
     write_tsv(out,'work/baseline_audit.tsv',records)
     frame=pd.DataFrame(records).drop(columns='subject')
     summary=[dict(metric=k,minimum=float(frame[k].min()),median=float(frame[k].median()),maximum=float(frame[k].max())) for k in frame]

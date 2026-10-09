@@ -20,6 +20,12 @@ The reviewed [presentation code](https://github.com/DVS-Lab/rf1-sra/blob/9b9cf69
 
 Source template, presentation and schedule hashes are recorded in `config/task_negative_control.json`; historical task deployment is not independently established by the source review. Actual signed finite COPEs are checked at execution. A failed audit stops, without dropping subjects or substituting maps. Existing original predictions must be reconstructed before new results are interpreted.
 
+## EV serialization audit repair
+
+The initial audit used a 0.0001 s absolute tolerance, which can reject the upstream converter's valid output. The pinned `code/BIDSto3col.sh` subtracts zero from each onset and prints the numeric result with awk `%s` (default six significant digits); durations are passed through as strings. For example, 123.456789 s becomes 123.457 s. The comparison now accepts either canonical precision or precisely that onset serialization, with durations and unit amplitudes unchanged. It does not broadly relax timing tolerances or allow unexplained shifts.
+
+Every checked EV records its matching rule and maximum onset/duration/amplitude differences. Identifying details stay in ignored `work/revised/task_negative_control/ev_timing_audit.tsv`; the sanitized aggregate `provenance/revised/task_negative_control/ev_timing_audit.json` is written even when a timing mismatch stops the run. A reproduced formatting bug explains a possible cause of the first Linux2 audit failure; confirmation for the real cohort still requires the repaired dry run. The previous run stopped before creating a computational identity or fitting checkpoints, so no reset or checkpoint deletion is needed.
+
 ## Linux2 launch and restart
 
 ```bash

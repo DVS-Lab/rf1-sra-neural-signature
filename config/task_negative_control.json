@@ -35,7 +35,10 @@
       11.6
     ],
     "baseline": "Interior fixation explicitly drawn between task events and during ITI; not an independent rest scan",
-    "limitation": "Code review plus per-run actual EV/events audit; historical deployment identity not independently established"
+    "limitation": "Code review plus per-run actual EV/events audit; historical deployment identity not independently established",
+    "ev_converter_path": "code/BIDSto3col.sh",
+    "ev_converter_sha256": "aea3fce686814d237a506ba02ec26b97a56e09869605779099f8223d185e786e",
+    "ev_serialization": "onset minus zero printed by awk %s: default six significant digits; duration string unchanged; amplitude 1.0"
   },
   "frozen": {
     "code/aging_source.py": "895924e8e6ce3d2ce7073b9085451fa08fed0d39ba23ffdcd10826b5185cc0a5",
@@ -1562,5 +1565,6 @@
     "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_fold-3_positive_weights.nii.gz": "44c73c0501f329f708ee5938b1d07252c231ad852846ff2869c548cc85438864",
     "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_fold-4_positive_weights.nii.gz": "f12a489c4cdefa4050f4f4b19abfe1d21e61a105f6215e08781dbc65be25d42f",
     "results/revised/tsnr_coverage_fd/three_paradigm/maps/social_reward_task-trust_fold-5_positive_weights.nii.gz": "8d567f182e6ff6e999798b84c2baa3ed0e85f7b54f531d3fef9d84358affc956"
-  }
+  },
+  "doors_ev_converter_sha256": "aea3fce686814d237a506ba02ec26b97a56e09869605779099f8223d185e786e"
 }

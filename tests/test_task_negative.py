@@ -303,3 +303,54 @@ def test_full_orchestration_uses_frozen_178_and_only_own_outputs(cfg,monkeypatch
     monkeypatch.setattr(task_negative_compute,'fit_binary',lambda *a:pytest.fail('Completed template refit'))
     monkeypatch.setattr(task_negative_compute,'score_fold',lambda *a:pytest.fail('Completed prediction refit'))
     impl.run(cfg,workers=3)
+
+
+def test_ev_comparison_matches_upstream_awk_without_tolerating_other_drift():
+    import subprocess
+    from task_negative_sources import compare_ev_timing
+    # Same serialization expression as pinned BIDSto3col.sh, including integer
+    # conversion. Exercise actual awk, not a fixture produced by our comparator.
+    canonical=np.array([[123.456789,3.012345678,1.],[312.999789,1.23456789,1.],[1000001.,3.,1.]])
+    text='\n'.join(f'{a:.12f}\t{b:.12f}' for a,b,_ in canonical)+'\n'
+    formatted=subprocess.check_output(['awk','-F','\t','{printf("%s\\t%s\\t1.0\\n",$1-(0),$2)}'],input=text,text=True)
+    actual=np.loadtxt(formatted.splitlines(),ndmin=2)
+    assert not np.allclose(actual,canonical,atol=1e-4,rtol=0) # reproduces the old audit failure
+    result=compare_ev_timing(actual,canonical)
+    assert result['matched'] and result['serialization']=='BIDSto3col_awk_6_significant_digits'
+    assert result['max_onset_error_seconds']>1e-4 and result['max_duration_error_seconds']==0
+    assert compare_ev_timing(canonical,canonical)['serialization']=='canonical_precision'
+    assert compare_ev_timing(actual[::-1],canonical)['matched']
+    for col,delta in ((0,1e-5),(0,.1),(1,1e-5),(2,1e-5)):
+        wrong=actual.copy(); wrong[0,col]+=delta
+        assert not compare_ev_timing(wrong,canonical)['matched']
+    assert not compare_ev_timing(actual[:-1],canonical)['matched']
+    bad=actual.copy(); bad[0,0]=np.nan
+    assert not compare_ev_timing(bad,canonical)['matched']
+
+
+def test_actual_design_accepts_converter_format_and_writes_sanitized_failure(cfg,monkeypatch):
+    import task_negative_sources as impl
+    scope,s,folder=fitted_source(cfg); scope['subjects']=[s]
+    events_path=cfg.bids/s/'ses-01/func'/f'{s}_ses-01_task-doors_run-1_events.tsv'
+    events=pd.read_csv(events_path,sep='\t'); events.onset+=.000789; events.to_csv(events_path,sep='\t',index=False)
+    for label in ('win','loss','decision','decision-missed'):
+        g=events[events.trial_type==label]
+        (folder/f'ev_{label}.txt').write_text(''.join(f'{a:.6g}\t{b}\t1.0\n' for a,b in zip(g.onset,g.duration)))
+    checks=[]; impl.actual_design(scope,s,checks)
+    assert len(checks)==4 and all(c['matched'] for c in checks)
+    assert max(c['max_onset_error_seconds'] for c in checks)>1e-4
+    converter=cfg.repos['socdoors']/'code/BIDSto3col.sh'; converter.write_text('synthetic converter identity')
+    template=cfg.repos['socdoors']/contrast_spec()['template']; template.write_text(fsf_text(contrast_spec(),'DATA'))
+    spec=dict(doors_template_sha256=sha256(template),doors_ev_converter_sha256=sha256(converter),baseline_evidence={})
+    monkeypatch.setattr(impl,'qc_table',lambda c:None); monkeypatch.setattr(impl,'qc_reason',lambda *a:'')
+    out=output_config(cfg); impl.audit_sources(out,scope,spec)
+    public=out.output('provenance/ev_timing_audit.json')
+    assert json.loads(public.read_text())['complete_cohort_audit']
+    path=folder/'ev_win.txt'; data=np.loadtxt(path); data[0,1]+=.01; np.savetxt(path,data)
+    with pytest.raises(PipelineError,match='duration error='):
+        impl.audit_sources(out,scope,spec)
+    summary=json.loads(public.read_text())
+    assert summary['failed_ev_files']==1 and not summary['complete_cohort_audit']
+    assert s not in public.read_text() and str(cfg.root) not in public.read_text()
+    private=out.output('work/ev_timing_audit.tsv').read_text()
+    assert s in private and str(path) in private
