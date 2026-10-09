@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "n": 178,
+  "contrast": "decision versus implicit fixation baseline",
+  "code_review": {
+    "model_repository": "DVS-Lab/rf1-sra-socdoors",
+    "model_review_commit": "e77700ddf09a2fe9ab7e6ce9b32bc298082d419e",
+    "template": "templates/L1_task-doors_model-1_type-act.fsf",
+    "template_git_blob": "6d947a228542fe5ed7e43be346ea9dc4ec711d03",
+    "presentation_repository": "DVS-Lab/rf1-sra",
+    "presentation_review_commit": "9b9cf69348adcd6ec0b19861b637f1a63d1129cb",
+    "presentation_path": "stimuli/Scan-Social_Doors/social_doors.py",
+    "presentation_sha256": "e2ce6c6bb4ea1139e47bbf65b3996b0827930c52b896c6f223db73f03844b4c6",
+    "reference_path": "stimuli/Scan-Social_Doors/reference.csv",
+    "reference_sha256": "a260197b8bacf7b12220ec308ec2ae16e08468ead79f3681be998acd91cb07c4",
+    "decision_seconds": 3,
+    "feedback_seconds": 1,
+    "nominal_fixation_seconds": 0.54,
+    "nominal_iti_range_seconds": [
+      1.1,
+      11.6
+    ],
+    "baseline": "Interior fixation explicitly drawn between task events and during ITI; not an independent rest scan",
+    "limitation": "Code review plus per-run actual EV/events audit; historical deployment identity not independently established",
+    "ev_converter_path": "code/BIDSto3col.sh",
+    "ev_converter_sha256": "aea3fce686814d237a506ba02ec26b97a56e09869605779099f8223d185e786e",
+    "ev_serialization": "onset minus zero printed by awk %s: default six significant digits; duration string unchanged; amplitude 1.0"
+  },
+  "condition": "actual fitted EVs match canonical events; fixation gaps present in every retained run",
+  "holdout_scored": false
+}

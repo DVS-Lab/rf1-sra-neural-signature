@@ -1,0 +1,7 @@
+{
+  "requested": 96,
+  "workers": 45,
+  "estimated_worker_bytes": 2930472512,
+  "available_memory_bytes": 168233205760,
+  "blas_threads": 1
+}

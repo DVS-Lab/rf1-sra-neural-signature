@@ -1,0 +1,7 @@
+train	test	n	max_absolute_error
+sharedreward	trust	178	0.0
+trust	sharedreward	178	0.0
+sr_friend_stranger	trust_friend_stranger	178	0.0
+trust_friend_stranger	sr_friend_stranger	178	0.0
+sharedreward	socialdoors	178	0.0
+trust	socialdoors	178	0.0

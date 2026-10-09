@@ -1,0 +1,53 @@
+{
+  "checked_ev_files": 577,
+  "failed_ev_files": 0,
+  "complete_cohort_audit": true,
+  "comparisons": [
+    {
+      "event": "decision",
+      "serialization": "BIDSto3col_awk_6_significant_digits",
+      "n_ev_files": 178,
+      "failed_ev_files": 0,
+      "max_onset_error_seconds": 0.0005000000000023874,
+      "max_duration_error_seconds": 0.0,
+      "max_amplitude_error": 0.0
+    },
+    {
+      "event": "decision-missed",
+      "serialization": "BIDSto3col_awk_6_significant_digits",
+      "n_ev_files": 42,
+      "failed_ev_files": 0,
+      "max_onset_error_seconds": 0.000490999999954056,
+      "max_duration_error_seconds": 0.0,
+      "max_amplitude_error": 0.0
+    },
+    {
+      "event": "decision-missed",
+      "serialization": "canonical_precision",
+      "n_ev_files": 1,
+      "failed_ev_files": 0,
+      "max_onset_error_seconds": 0.0,
+      "max_duration_error_seconds": 0.0,
+      "max_amplitude_error": 0.0
+    },
+    {
+      "event": "loss",
+      "serialization": "BIDSto3col_awk_6_significant_digits",
+      "n_ev_files": 178,
+      "failed_ev_files": 0,
+      "max_onset_error_seconds": 0.0004999999999881766,
+      "max_duration_error_seconds": 0.0,
+      "max_amplitude_error": 0.0
+    },
+    {
+      "event": "win",
+      "serialization": "BIDSto3col_awk_6_significant_digits",
+      "n_ev_files": 178,
+      "failed_ev_files": 0,
+      "max_onset_error_seconds": 0.0005000000000023874,
+      "max_duration_error_seconds": 0.0,
+      "max_amplitude_error": 0.0
+    }
+  ],
+  "holdout_scored": false
+}

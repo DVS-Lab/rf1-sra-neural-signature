@@ -1,7 +1,7 @@
 {
   "status": "failed",
-  "stage": "audit",
-  "error_type": "PipelineError",
+  "stage": "report and figure",
+  "error_type": "ImportError",
   "holdout_scored": false,
   "original_outputs_unchanged": true
 }
