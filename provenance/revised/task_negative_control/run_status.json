@@ -1,0 +1,7 @@
+{
+  "status": "failed",
+  "stage": "audit",
+  "error_type": "PipelineError",
+  "holdout_scored": false,
+  "original_outputs_unchanged": true
+}
