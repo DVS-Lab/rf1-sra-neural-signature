@@ -1,0 +1,27 @@
+{
+  "status": "complete",
+  "scope": "reporting_only",
+  "source_commit": "a500929c1154126aa4c5086589f38caed9820340",
+  "original_calculation_status_preserved": true,
+  "calculation_inputs_unchanged": true,
+  "holdout_scored": false,
+  "private_images_accessed": false,
+  "models_refit": false,
+  "permutations_rerun": false,
+  "n": 178,
+  "background_sha256": "09c925ad165dfbe6b41b572876d67e9bbf8c5e26517e7817f9b43a8256227f53",
+  "code_sha256": "3d1c647669d319746952b49410c2f58293d291eaa1d01c593fd2fcdf9cb7839b",
+  "contract_sha256": "4046c0c049964f3e5e727680327d9a65a859bcbdba52732d2270ca78d9adc1b2",
+  "software": {
+    "numpy": "2.1.3",
+    "scipy": "1.15.3",
+    "nibabel": "5.3.2",
+    "pandas": "2.2.3",
+    "matplotlib": "3.10.0"
+  },
+  "products": {
+    "reports/revised/task_negative_control/REPORT.md": "9a1f29e851971e7e869183cc9d7ae132b7f1aff536f83d4f6a851483fae5d4ca",
+    "results/revised/task_negative_control/figures/task_negative_comparison.png": "6f75200ff49805a02a0257799144041dfa31b5f34b41f4bf38780a1db0faca2e",
+    "results/revised/task_negative_control/figures/task_negative_comparison.pdf": "585192f3843313221c456b934f72fe2e7a45d3df0249e019ca39b17314589321"
+  }
+}

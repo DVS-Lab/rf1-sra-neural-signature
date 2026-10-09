@@ -1,6 +1,16 @@
 # Final empirical task-negative control
 
-Status: implementation and synthetic validation; real participant computations require Linux2. This is the bounded follow-up to the completed October 9 specificity package (6dd5352), not a replacement of its outputs or candidates.
+Status: Linux2 computations completed; the plotting-only failure was recovered locally from the committed results (see below). This is the bounded follow-up to the completed October 9 specificity package (6dd5352), not a replacement of its outputs or candidates.
+
+## Completed run: reporting-only recovery
+
+The `a500929` result push contains all observed comparisons, 500 permutations for each primary variant, and all 1,000 new control permutation jobs. The original prediction reconstruction is exact. Linux2 then failed importing `nilearn.plotting`: that Nilearn installation requires Matplotlib ≥3.8 while Linux2 has 3.7.1.
+
+`code/render_task_negative_results.py` finishes the report from the committed, hash-pinned aggregate tables and derived group maps, using Matplotlib/Nibabel directly. It does not access private inputs, fit models, regenerate bootstrap samples, or run permutations. Numerical results and the original calculation code/identity remain unchanged; upgrading the numerical environment is unnecessary. A fixed standard anatomical background is checked by SHA256. Rendering inputs are pinned in `config/task_negative_render.json`.
+
+The completed report and PNG/PDF figure are committed. **No Linux2 analysis rerun is needed; pull the final artifacts.** The original `run_status.json` retains its historical plotting failure. The separate `render_status.json` records successful reporting recovery, the input/output hashes, and that no models or permutations were rerun. This preserves the failure record instead of presenting a new full-pipeline execution.
+
+For exact report reconstruction only, the standalone renderer accepts `--background /path/to/MNI152_T1_2mm_brain.nii.gz`; the file must match the reviewed background hash. The old full-computation command below documents the original launch and is not needed for this completed run.
 
 ## Fixed analysis
 
@@ -50,7 +60,7 @@ All new outputs live under `*/revised/task_negative_control/`:
 - `results/.../figures/task_negative_comparison.{png,pdf}`: raw signed decision mean, centered empirical direction, descriptive outcome Haufe; primary accuracies and paired changes.
 - `results/.../aggregate/`: baseline timings, negative-component measures, spatial correlations, transfer/valence tables, expression differences, permutation diagnostics and benchmark reconstruction.
 - `results/.../maps/`: labelled fold-training and `DEV_display` derived maps. They have different units; positive values in the centered direction do not imply above-baseline activation.
-- `provenance/.../run_status.json`: only `status=complete` establishes completion; requires unchanged prior hashes and `holdout_scored=false`.
+- `provenance/.../run_status.json`: records the original execution, including its preserved plotting failure. For the recovered report, see `render_status.json` with `status=complete`, unchanged numerical inputs and `holdout_scored=false`.
 - Ignored `work/.../`: participant identities, signed raw sources/features, private provenance, fold predictions and resumable null jobs. Never commit these.
 
 Commit only reviewed sanitized public outputs, report, figure and derived group maps after Linux2 finishes. No participant/source paths appear in aggregate tables. All pre-existing code/config/public outputs are hash-pinned and remain unchanged.
