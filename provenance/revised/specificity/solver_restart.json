@@ -1,0 +1,14 @@
+{
+  "original_fingerprint": "c2173d24d01e9520ef5bca494560ed8322079e05f7eb2920725cb5fcf09c4958",
+  "execution_fingerprint": "f3451c2d704634806a8fb69395d00919dfbed5e5f8f3db51919217f9aa54c1fd",
+  "reused_markers": {
+    "work/features/complete.json": "c4e0d29f91d47c2fc31c85944ac937f069d5eafaeff74dc2b59aca25cf9b2fd3",
+    "work/observed/legacy.json": "e780002f9552e53afb291a2012b00804dca54085f90a27ea9b1d1883fc9ef631",
+    "work/observed/outcome.json": "9e58d20b1ddb365929c307b145c818357d178338ee0e9b1b231d33edae6099b8",
+    "work/observed/dmn_only.json": "a7c88e396a68072cafd0f7fc28b2a41073590b26a611fce979e073c69cbb2d97",
+    "work/observed/dmn_excluded.json": "b376e5fbf61c8b20d44923f674753fb187820ef92c29e1db3c998c8a374435ef"
+  },
+  "reason": "Generic one-feature baseline changes only dual=True to dual=False; reuse features and four completed non-generic variants only.",
+  "generic_solver": "LinearSVC dual=False; other parameters unchanged",
+  "holdout_scored": false
+}

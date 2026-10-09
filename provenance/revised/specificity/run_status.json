@@ -1,6 +1,11 @@
 {
-  "status": "failed",
-  "error_type": "ConvergenceWarning",
+  "status": "complete",
+  "fingerprint": "f3451c2d704634806a8fb69395d00919dfbed5e5f8f3db51919217f9aa54c1fd",
+  "n": 178,
   "holdout_scored": false,
-  "original_outputs_unchanged": true
+  "original_outputs_unchanged": true,
+  "permutations_per_variant": 500,
+  "null_center_flags": 0,
+  "no_ugr_or_betrayal": true,
+  "no_candidate_changes": true
 }
