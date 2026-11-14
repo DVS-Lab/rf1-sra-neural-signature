@@ -1,5 +1,9 @@
 # RF1-SRA social reward, context, and closeness — current v4 launch
 
+For the development-only paired Social Doors win, loss, and win–loss interaction,
+see [voxelwise launch instructions](docs/DOORS_VOXELWISE.md). This uses the fixed
+N=178 roster and does not access validation images.
+
 The final development stress-test package is ready for Linux2:
 [phase specificity, construct specificity, UGR and norm violation](docs/FINAL_STRESS_TESTS.md).
 Run `bash code/run_final_stress_tests.sh --dry-run`, then
