@@ -1,8 +1,11 @@
 """Paired Social Doors outcome contrasts in the frozen N=178 development cohort."""
 import argparse
 from dataclasses import dataclass
+import hashlib
+from io import BytesIO
 import json
 from pathlib import Path
+import subprocess
 
 import nibabel as nib
 from nibabel.processing import resample_from_to
@@ -25,6 +28,8 @@ from utils import Config, PipelineError, load_config, sha256, write_json, write_
 N = 178
 MASK_HASH = 'bdd44b7b3f2ff442bc9d70213945fbf8270f92f4ea48ac5b7dea7ffeaa3ac10a'
 MANIFEST_HASH = '40f9586a877bd9c25b0eaaef7fb03c25b9e0dcde3eeaf9a7301316fed7632b0b'
+QC_COMMIT = '5e8bbd62f2ed97bf21141f9995dbfa6b97e718f1'
+QC_HASH = '5ff3f9980477b00f76d4e9c85ba8dddd3940e3cac8ae589d60746790fa4b187a'
 TASKS = ('socialdoors', 'doors')
 CONTRASTS = (
     ('social_win_minus_monetary_win', 'Social win − monetary win', False),
@@ -55,6 +60,7 @@ def frozen_scope(base):
     require(manifest_path.is_file(), 'Linux2 private revised sample manifest unavailable; never reconstruct')
     meta = json.loads(samples.output('provenance/samples.json').read_text())
     status = json.loads(samples.output('provenance/run_status.json').read_text())
+    require(meta['qc_sha256'] == QC_HASH, 'recorded frozen QC fingerprint changed')
     require(sha256(manifest_path) == meta['manifest_sha256'] ==
             status['sample_manifest_sha256'] == MANIFEST_HASH, 'original v4 sample manifest changed')
     require(status['status'] == 'complete' and status['holdout_scored'] is False, 'v4 sample run is not complete/unscored')
@@ -141,26 +147,94 @@ def design_paths(scope, subject, task):
     return paths, (fsf, con, mat)
 
 
+def qc_flags(payload, subjects):
+    """Summarize only run-1 Doors QC for the guarded development roster."""
+    q = pd.read_csv(BytesIO(payload), sep='\t', dtype=str, keep_default_na=False)
+    flag_columns = POLICIES[PRIMARY]
+    if not {'subject', 'session', 'task', 'run', *flag_columns} <= set(q.columns):
+        raise ValueError('QC table lacks required Doors columns')
+    q.subject = q.subject.map(lambda s: s if s.startswith('sub-') else 'sub-'+s)
+    q = q[q.subject.isin(subjects) & q.session.str.removeprefix('ses-').str.lstrip('0').eq('1') &
+          q.task.isin(TASKS) & pd.to_numeric(q.run, errors='coerce').eq(1)]
+    grouped = {(s, task): rows for (s, task), rows in q.groupby(['subject', 'task'])}
+    checks = {}
+    for s in subjects:
+        for task in TASKS:
+            rows = grouped.get((s, task))
+            if rows is None:
+                checks[s, task] = ('missing_row', ())
+            elif len(rows) != 1:
+                checks[s, task] = ('duplicate_rows', ())
+            else:
+                values = {k: flag(rows.iloc[0][k]) for k in flag_columns}
+                checks[s, task] = ('outlier' if any(v is True for v in values.values()) else
+                                  'unknown_flag' if any(v is None for v in values.values()) else 'pass',
+                                  tuple(k for k, v in values.items() if v is True))
+    return checks
+
+
+def audit_qc(base, scope):
+    assert_development(scope)
+    root = base.repos['linux2']
+    relative = base.paths['qc_table']
+    require(relative == 'qc/run_qc.tsv', 'unexpected QC table path')
+    path = root / relative
+    try:
+        current = path.read_bytes()
+    except OSError:
+        current = None
+    current_hash = hashlib.sha256(current).hexdigest() if current is not None else None
+    if current_hash == QC_HASH:
+        frozen = current
+    else:
+        # Use the immutable historical blob; never checkout or edit the upstream repo.
+        try:
+            frozen = subprocess.check_output(
+                ['git', '-C', str(root), 'show', f'{QC_COMMIT}:{relative}'],
+                stderr=subprocess.DEVNULL)
+        except subprocess.CalledProcessError as exc:
+            raise PipelineError('Frozen QC commit not present in Linux2 source checkout. Fetch '
+                                + QC_COMMIT + ' in rf1-sra-linux2 and rerun; do not change the roster.') from exc
+    require(hashlib.sha256(frozen).hexdigest() == QC_HASH, 'historical QC bytes do not match original sample hash')
+    original = qc_flags(frozen, scope['subjects'])
+    require(all(status == 'pass' for status, _ in original.values()),
+            'frozen development participant fails original Doors QC; stop rather than change N')
+    info = dict(frozen_qc_commit=QC_COMMIT, frozen_qc_sha256=QC_HASH,
+                current_qc_sha256=current_hash, frozen_passing_pairs=len(original))
+    if current is None:
+        info['current_qc_status'] = 'unavailable'
+        print('Frozen QC verified. Current QC table unavailable; no current-QC comparison.', flush=True)
+        return info
+    try:
+        latest = original if current_hash == QC_HASH else qc_flags(current, scope['subjects'])
+    except ValueError:
+        info['current_qc_status'] = 'unreadable'
+        print('Frozen QC verified. Current QC could not be parsed; no current-QC comparison.', flush=True)
+        return info
+    info.update(current_qc_status='compared',
+                current_nonpassing_people=len({s for (s, _), (status, _) in latest.items() if status != 'pass'}),
+                current_by_task={
+                    task: {status: sum(k[1] == task and v[0] == status for k, v in latest.items())
+                           for status in ('pass', 'outlier', 'unknown_flag', 'missing_row', 'duplicate_rows')}
+                    for task in TASKS},
+                current_outlier_flags={k: sum(k in flags for _, flags in latest.values()) for k in POLICIES[PRIMARY]})
+    print(f'Frozen QC verified: {len(original)} passing participant/task pairs. '
+          f'Current QC differs for {info["current_nonpassing_people"]} development participants: '
+          f'{json.dumps(info["current_by_task"], sort_keys=True)}. '
+          'The exact frozen cohort is retained.', flush=True)
+    return info
+
+
 def audit_sources(base, scope):
     assert_development(scope)
-    qc_path = base.repos['linux2']/base.paths['qc_table']
-    q = table(qc_path)
-    q = q[q.session.astype(str).str.removeprefix('ses-').str.lstrip('0').eq('1') &
-          q.task.isin(TASKS) & pd.to_numeric(q.run, errors='coerce').eq(1)].copy()
-    q.subject = q.subject.map(lambda s: str(s) if str(s).startswith('sub-') else 'sub-'+str(s))
-    q = q[q.subject.isin(scope['subjects'])]
-    require(not q.duplicated(['subject', 'task']).any(), 'duplicate Doors QC for development participant')
-    q = q.set_index(['subject', 'task'])
+    qc = audit_qc(base, scope)
     paths, designs = {}, {}
     for i, subject in enumerate(scope['subjects'], 1):
         for task in TASKS:
-            require((subject, task) in q.index and
-                    all(flag(q.loc[(subject, task), k]) is False for k in POLICIES[PRIMARY]),
-                    'frozen development participant lacks passing Doors QC; stop rather than change N')
             paths[subject, task], designs[subject, task] = design_paths(scope, subject, task)
         if i % 25 == 0 or i == len(scope['subjects']):
-            print(f'Doors source/QC audit: {i}/{len(scope["subjects"])}', flush=True)
-    return paths, designs, sha256(qc_path)
+            print(f'Doors source/header audit: {i}/{len(scope["subjects"])}', flush=True)
+    return paths, designs, qc
 
 
 def paired_differences(social, monetary):
@@ -245,7 +319,7 @@ def max_t_test(x, flips, two_sided=False, block_size=512):
     return effect, t, p, null_t
 
 
-def report(out, results, mask, reference):
+def report(out, results, mask, reference, qc=None):
     from matplotlib import pyplot as plt
     from scipy.ndimage import generate_binary_structure
     summary, clusters = [], []
@@ -315,6 +389,15 @@ def report(out, results, mask, reference):
     for (_, title, _), row in zip(CONTRASTS, summary):
         text += (f'| {title} | {row["significant_positive"]:,} | {row["significant_negative"]:,} | '
                  f'{row["peak_t"]:.2f} | {row["peak_p_fwe"]:.4g} |\n')
+    if qc is not None:
+        text += ('\nEligibility uses the hash-verified QC snapshot that defined the original cohort. '
+                 'Current QC was audited separately and did not change the sample. ')
+        if qc['current_qc_status'] == 'compared':
+            text += (f'{qc["current_nonpassing_people"]} of {N} participants have at least one '
+                     'Doors run that does not pass under current QC (outlier, unknown, missing or duplicate). ')
+        else:
+            text += 'Current QC could not be compared. '
+        text += '[Aggregate QC audit](../../../provenance/revised/doors_voxelwise/qc_audit.json).\n'
     text += ('\nWins and losses are positive-direction tests. The interaction directly tests '
              '(social win − monetary win) − (social loss − monetary loss) in both directions. '
              'It is the test of valence modulation; a difference in thresholded maps is not such a test. '
@@ -337,13 +420,14 @@ def run(base, threads, dry_run):
     out = DoorsConfig(**{key: getattr(base, key) for key in Config.__dataclass_fields__})
     with run_lock(base):
         scope = frozen_scope(base)
-        paths, designs, qc_hash = audit_sources(base, scope)
+        paths, designs, qc = audit_sources(base, scope)
         if dry_run:
             print('DRY RUN PASSED: frozen N=178, all win/loss designs, headers and Doors QC. '
                   'No participant voxels or holdout images loaded.', flush=True)
             return
         write_json(out, 'provenance/run_status.json', dict(status='in_progress', n=N,
             holdout_voxels_accessed=False, holdout_scored=False))
+        write_json(out, 'provenance/qc_audit.json', qc)
         mask, reference = geometry(scope)
         require(mask.sum() == 84045, 'frozen search mask voxel count changed')
         source_hash = digest([[sha256(p) for p in (*paths[key], *designs[key])] for key in paths])
@@ -357,12 +441,13 @@ def run(base, threads, dry_run):
                 results.append(max_t_test(values, flips, two_sided))
                 print('Finished permutation inference: '+name, flush=True)
         save_image(out, 'results/maps/common_coverage_mask.nii.gz', final_mask.astype('uint8'), reference)
-        summary = report(out, results, final_mask, reference)
+        summary = report(out, results, final_mask, reference, qc)
         write_json(out, 'provenance/run_status.json', dict(status='complete', n=N, permutations=PERMUTATIONS,
             seed=SEED, manifest_sha256=MANIFEST_HASH, frozen_mask_sha256=MASK_HASH,
             frozen_mask_voxels=int(mask.sum()), common_coverage_voxels=int(final_mask.sum()),
             common_coverage_mask_sha256=sha256(out.output('results/maps/common_coverage_mask.nii.gz')),
-            source_fingerprint=source_hash, qc_sha256=qc_hash, code_sha256=sha256(Path(__file__)),
+            source_fingerprint=source_hash, qc_sha256=qc['frozen_qc_sha256'],
+            current_qc_sha256=qc['current_qc_sha256'], code_sha256=sha256(Path(__file__)),
             numpy=np.__version__, nibabel=nib.__version__, threads=threads,
             holdout_voxels_accessed=False, holdout_scored=False, summary=summary))
         print(out.output('reports/REPORT.md'), flush=True)

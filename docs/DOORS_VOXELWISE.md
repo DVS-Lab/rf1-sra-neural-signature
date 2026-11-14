@@ -13,6 +13,12 @@ git pull --ff-only &&
 
 The dry run checks original roster/split fingerprints, mask provenance, the retained participants' Doors QC, fitted FEAT contrast labels/weights and estimability, and source headers. It reads no participant voxels. Missing or changed inputs stop the run; no participant is replaced. The full run checks raw source means/norms against the original development source log. It reads only run-1 Social Doors and monetary Doors COPEs 1 and 2 and their FEAT masks; it does not read other task voxels. BOLD is used for header geometry only.
 
+The launch uses the **original** QC table that defined N=178, verified against the frozen sample's SHA256. If the live table differs, it reads the immutable blob from upstream commit `5e8bbd62f2ed97bf21141f9995dbfa6b97e718f1` in the local `rf1-sra-linux2` checkout. The live table is diagnostic only: the launcher prints aggregate counts of new outliers, missing/ambiguous rows and unknown flags, and records them in `provenance/revised/doors_voxelwise/qc_audit.json` after a full-run preflight. No participant identifiers are written. This is an analysis of the original cohort, not a claim that the cohort passes a newer QC policy. If the historical Git object is missing, fetch it without checking out a different version:
+
+```bash
+git -C /ZPOOL/data/projects/rf1-sra-linux2 fetch origin 5e8bbd62f2ed97bf21141f9995dbfa6b97e718f1
+```
+
 | Test | Participant-level contrast | Alternative |
 |---|---|---|
 | Win | Social Doors COPE 1 − monetary Doors COPE 1 | Positive |

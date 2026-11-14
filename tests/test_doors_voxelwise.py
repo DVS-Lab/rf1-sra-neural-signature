@@ -109,3 +109,32 @@ def test_headers_contrast_direction_common_coverage_and_report(cfg, monkeypatch)
     p_map = nib.load(out.output(f'results/maps/{name}_p_family_fwe.nii.gz')).get_fdata()
     np.testing.assert_allclose(p_map[common], np.minimum(1, 3*results[0][2]))
     assert (p_map[~common] == 1).all()
+
+
+def test_verified_frozen_qc_retains_cohort_and_reports_current_drift(cfg, monkeypatch):
+    import hashlib
+    import subprocess
+
+    people = ['sub-dev1', 'sub-dev2']
+    held = frozenset(f'sub-held{i}' for i in range(62))
+    scope = dict(c=cfg, guard=RevisedGuard(frozenset(people), held), subjects=people)
+    header = 'subject\tsession\ttask\trun\ttsnr_outlier\tbrain_coverage_outlier\tfd_mean_outlier\n'
+    rows = [f'{s}\t01\t{task}\t1\tFalse\tFalse\tFalse\n' for s in people for task in impl.TASKS]
+    frozen = (header + ''.join(rows)).encode()
+    path = cfg.repos['linux2']/'qc/run_qc.tsv'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # A new outlier, a missing row, and a protected person are diagnostic only.
+    path.write_text(header + rows[0].replace('False', 'True', 1) + rows[2] + rows[3] +
+                    'sub-held0\t01\tdoors\t1\tTrue\tTrue\tTrue\n')
+    monkeypatch.setattr(impl, 'QC_HASH', hashlib.sha256(frozen).hexdigest())
+    monkeypatch.setattr(subprocess, 'check_output', lambda *args, **kwargs: frozen)
+    info = impl.audit_qc(cfg, scope)
+    assert info['frozen_passing_pairs'] == 4 and info['current_nonpassing_people'] == 1
+    assert info['current_by_task']['socialdoors']['outlier'] == 1
+    assert info['current_by_task']['doors']['missing_row'] == 1
+    assert info['current_outlier_flags']['fd_mean_outlier'] == 0
+    assert not any(s in str(info) for s in people + ['sub-held0'])
+    assert scope['subjects'] == people
+    monkeypatch.setattr(subprocess, 'check_output', lambda *args, **kwargs: b'bad snapshot')
+    with pytest.raises(PipelineError, match='do not match original sample hash'):
+        impl.audit_qc(cfg, scope)
