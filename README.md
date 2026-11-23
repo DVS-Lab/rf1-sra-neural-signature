@@ -1,5 +1,27 @@
 # RF1-SRA social reward, context, and closeness — current v4 launch
 
+## Private subject-level COPE package
+
+To prepare the outcome maps and image-level CSV on Linux2, use the existing analysis environment.
+
+```bash
+cd /ZPOOL/data/projects/rf1-sra-neural-signature
+git pull --ff-only && python3 code/export_colleague_copes.py --tasks all
+```
+
+| Task | Development N | COPEs per participant | Subject estimate |
+| --- | ---: | --- | --- |
+| Shared Reward | 192 | 1–6, computer/friend/stranger × punishment/reward | Phase-resolved model. Fixed-effects L2 for 186 participants and retained L1 for six (four run 1, two run 2) |
+| Trust | 192 | 4–9, computer/friend/stranger × defection/reciprocation | Two-run fixed-effects L2 |
+| Social Doors | 178 | 1 win, 2 loss | Run 1 L1 |
+| Monetary Doors | 178 | 1 win, 2 loss | Run 1 L1 |
+
+The full package contains 3,016 signed condition COPEs. Use `--tasks doors` for the 712 Doors maps or `--tasks partners` for the 2,304 Shared Reward and Trust maps. The exporter checks the original and revised split records and excludes all 62 protected participants before opening any image. It takes age in years from baseline BIDS metadata and tSNR and mean framewise displacement from the original QC snapshot. Two-run summaries are arithmetic means of the contributing runs. The CSV also preserves the individual run values, contrast names, source level and file checksums.
+
+The verified ZIP is `work/colleague_exports/all/subject_copes.zip` (the last directory matches `--tasks`). Beside it are a flat `images/` folder, `images.csv` and a short README for the recipient. All participant-level outputs stay in Git-ignored `work/`. A repeat launch verifies an existing package against its sources. Adding `--dry-run` checks the inputs and counts available companion zstats. The ZIP contains only COPEs as images.
+
+## Development analyses
+
 For the development-only paired Social Doors win, loss, and win–loss interaction,
 see [voxelwise launch instructions](docs/DOORS_VOXELWISE.md). This uses the fixed
 N=178 roster and does not access validation images.

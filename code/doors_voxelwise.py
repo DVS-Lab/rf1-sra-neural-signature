@@ -53,8 +53,8 @@ class DoorsConfig(Config):
         return target
 
 
-def frozen_scope(base):
-    """Read protected membership only as an exclusion list; never inventory BIDS subjects."""
+def frozen_development_rows(base):
+    """Return primary-QC development rows and the complete protected exclusion set."""
     samples = revised_config(base, 'samples')
     manifest_path = samples.output('work/manifest.tsv')
     require(manifest_path.is_file(), 'Linux2 private revised sample manifest unavailable; never reconstruct')
@@ -78,7 +78,12 @@ def frozen_scope(base):
     eligible = frame[frame.policy.eq(PRIMARY) & frame.eligible]
     require(len(eligible[eligible.cohort.eq('partner_pair') & eligible.partition.eq('holdout')]) == 50,
             'primary N=50 lock changed')
-    rows = eligible[eligible.cohort.eq('three_paradigm') & eligible.partition.eq('development')]
+    return eligible[eligible.partition.eq('development')], held
+
+
+def frozen_scope(base):
+    rows, held = frozen_development_rows(base)
+    rows = rows[rows.cohort.eq('three_paradigm')]
     subjects = sorted(rows.subject)
     require(len(subjects) == N, 'require the exact frozen N=178 development roster')
     guard = RevisedGuard(frozenset(subjects), held)
@@ -173,8 +178,8 @@ def qc_flags(payload, subjects):
     return checks
 
 
-def audit_qc(base, scope):
-    assert_development(scope)
+def frozen_qc_tables(base):
+    """Read the verified original QC bytes and the optional current comparison."""
     root = base.repos['linux2']
     relative = base.paths['qc_table']
     require(relative == 'qc/run_qc.tsv', 'unexpected QC table path')
@@ -196,6 +201,12 @@ def audit_qc(base, scope):
             raise PipelineError('Frozen QC commit not present in Linux2 source checkout. Fetch '
                                 + QC_COMMIT + ' in rf1-sra-linux2 and rerun; do not change the roster.') from exc
     require(hashlib.sha256(frozen).hexdigest() == QC_HASH, 'historical QC bytes do not match original sample hash')
+    return frozen, current, current_hash
+
+
+def audit_qc(base, scope):
+    assert_development(scope)
+    frozen, current, current_hash = frozen_qc_tables(base)
     original = qc_flags(frozen, scope['subjects'])
     require(all(status == 'pass' for status, _ in original.values()),
             'frozen development participant fails original Doors QC; stop rather than change N')
