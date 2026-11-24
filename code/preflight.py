@@ -41,18 +41,32 @@ def verify_l1(values, spec, rendered=False):
             raise PipelineError(f'Contrast weights mismatch for cope{k}')
 
 
+def read_feat_matrix(path):
+    path = Path(path)
+    parts = path.read_text().split('/Matrix', 1)
+    if len(parts) != 2:
+        raise PipelineError(f'Missing FEAT matrix in {path.name}')
+    return np.loadtxt(parts[1].splitlines(), ndmin=2)
+
+
 def verify_design_con(path, spec):
-    """Compare actual completed designs as well as current templates."""
-    text = Path(path).read_text()
-    if '/Matrix' not in text:
-        raise PipelineError('Missing FEAT contrast matrix')
-    matrix = np.loadtxt(text.split('/Matrix', 1)[1].splitlines(), ndmin=2)
+    """Return the completed contrast matrix after checking it against the contract."""
+    matrix = read_feat_matrix(path)
     if matrix.shape[0] != spec['n_copes'] or not np.isfinite(matrix).all():
         raise PipelineError('Completed design contrast count/values invalid')
     for k, contract in spec['copes'].items():
         row = {i+1: float(v) for i, v in enumerate(matrix[k-1]) if v != 0}
         if row != contract['weights']:
             raise PipelineError('Completed design contrast weights disagree with contract')
+    return matrix
+
+
+def estimable_contrasts(design, contrasts):
+    """Return one flag per contrast indicating whether it lies in the fitted design's row space."""
+    if design.shape[1] != contrasts.shape[1] or design.shape[0] < 2 or not np.isfinite(design).all():
+        raise PipelineError('Invalid completed FEAT design matrix')
+    projection = np.linalg.pinv(design) @ design
+    return np.isclose(contrasts @ projection, contrasts, atol=1e-7, rtol=0).all(axis=1)
 
 
 def verify_l2(values, spec):

@@ -9,16 +9,20 @@ cd /ZPOOL/data/projects/rf1-sra-neural-signature
 git pull --ff-only && python3 code/export_colleague_copes.py --tasks all
 ```
 
-| Task | Development N | COPEs per participant | Subject estimate |
-| --- | ---: | --- | --- |
-| Shared Reward | 192 | 1–6, computer/friend/stranger × punishment/reward | Phase-resolved model. Fixed-effects L2 for 186 participants and retained L1 for six (four run 1, two run 2) |
-| Trust | 192 | 4–9, computer/friend/stranger × defection/reciprocation | Two-run fixed-effects L2 |
-| Social Doors | 178 | 1 win, 2 loss | Run 1 L1 |
-| Monetary Doors | 178 | 1 win, 2 loss | Run 1 L1 |
+The exporter starts from everyone assigned to development in the frozen sample manifest. It checks the original and revised split records, removes all 62 people ever reserved for validation and applies current source exclusions before opening images. It then evaluates each task independently. For example, someone with a qualifying Social Doors run can contribute it even when their monetary Doors run failed QC.
 
-The full package contains 3,016 signed condition COPEs. Use `--tasks doors` for the 712 Doors maps or `--tasks partners` for the 2,304 Shared Reward and Trust maps. The exporter checks the original and revised split records and excludes all 62 protected participants before opening any image. It takes age in years from baseline BIDS metadata and tSNR and mean framewise displacement from the original QC snapshot. Two-run summaries are arithmetic means of the contributing runs. The CSV also preserves the individual run values, contrast names, source level and file checksums.
+| Task | Condition COPEs | Subject estimate |
+| --- | --- | --- |
+| Shared Reward | 1–6, computer/friend/stranger × punishment/reward | Phase-resolved outcome model, using the verified run inventory |
+| Trust | 4–9, computer/friend/stranger × defection/reciprocation | Outcome model |
+| Social Doors | 1 win, 2 loss | Run 1 L1 |
+| Monetary Doors | 1 win, 2 loss | Run 1 L1 |
 
-The verified ZIP is `work/colleague_exports/all/subject_copes.zip` (the last directory matches `--tasks`). Beside it are a flat `images/` folder, `images.csv` and a short README for the recipient. All participant-level outputs stay in Git-ignored `work/`. A repeat launch verifies an existing package against its sources. Adding `--dry-run` checks the inputs and counts available companion zstats. The ZIP contains only COPEs as images.
+Each Shared Reward or Trust condition uses the existing fixed-effects L2 when two runs qualify, or the fitted L1 when only one run has a usable estimate. A missing condition does not disqualify the other conditions. When two L1s are usable for a condition but its fitted L2 is missing, the exporter reports that omission. Eligibility requires passing the original run-level QC flags for high mean framewise displacement, low coverage of the fixed MNI target and low tSNR. The two Doors games share cutoffs and qualify separately.
+
+The launch prints participant and COPE counts for each task, the number with all four Doors outcome maps, and the number with every requested contrast. A `--dry-run` prints the inventory without building the package. Use `--tasks doors` or `--tasks partners` to restrict the handoff.
+
+The verified ZIP is `work/colleague_exports/taskwise/all/subject_copes.zip` (the last directory matches `--tasks`). It contains a flat `images/` folder of signed COPEs, `images.csv` and a README with sample counts. The CSV records baseline age in years, tSNR, mean FD in mm and coverage in percent. Two-run summaries are the unweighted means of the contributing runs. It also records each run’s values, contrast name, source level, checksums and companion zstat availability. Flags identify the paper’s matched N=192 and N=178 development samples for analyses that need those exact groups. All participant-level outputs stay under Git-ignored `work/`. A repeat launch verifies an existing package against its sources.
 
 ## Development analyses
 

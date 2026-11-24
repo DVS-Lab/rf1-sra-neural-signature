@@ -19,11 +19,11 @@ from characterization_audit import PRIMARY, digest, require, table
 from characterization_compute import assert_development, geometry
 from inventory import cope_path, feat_dir, header_info, same_grid
 from pilot import run_lock
-from preflight import parse_fsf, verify_design_con, verify_l1
+from preflight import estimable_contrasts, parse_fsf, read_feat_matrix, verify_design_con, verify_l1
 from revised_design import revised_config
 from revised_samples import RevisedGuard, original_membership
 from review_qc_attrition import flag, POLICIES
-from utils import Config, PipelineError, load_config, sha256, write_json, write_text, write_tsv
+from utils import Config, InputUnavailable, PipelineError, load_config, sha256, write_json, write_text, write_tsv
 
 N = 178
 MASK_HASH = 'bdd44b7b3f2ff442bc9d70213945fbf8270f92f4ea48ac5b7dea7ffeaa3ac10a'
@@ -53,8 +53,8 @@ class DoorsConfig(Config):
         return target
 
 
-def frozen_development_rows(base):
-    """Return primary-QC development rows and the complete protected exclusion set."""
+def frozen_development_rows(base, *, eligible_only=True):
+    """Verify both locks before returning primary-policy development rows and exclusions."""
     samples = revised_config(base, 'samples')
     manifest_path = samples.output('work/manifest.tsv')
     require(manifest_path.is_file(), 'Linux2 private revised sample manifest unavailable; never reconstruct')
@@ -75,10 +75,11 @@ def frozen_development_rows(base):
     old_held = set(split.loc[split.split.eq('holdout'), 'subject'])
     require(old_held <= held and len(held) == meta['protected_holdout_total_n'] == 62 and
             not held.intersection(folds.subject), 'protected pool differs from v4')
-    eligible = frame[frame.policy.eq(PRIMARY) & frame.eligible]
-    require(len(eligible[eligible.cohort.eq('partner_pair') & eligible.partition.eq('holdout')]) == 50,
+    primary = frame[frame.policy.eq(PRIMARY)]
+    require(len(primary[primary.cohort.eq('partner_pair') & primary.partition.eq('holdout') & primary.eligible]) == 50,
             'primary N=50 lock changed')
-    return eligible[eligible.partition.eq('development')], held
+    dev = primary[primary.partition.eq('development')]
+    return (dev[dev.eligible] if eligible_only else dev), held
 
 
 def frozen_scope(base):
@@ -109,8 +110,9 @@ def source_path(scope, subject, path, root):
     require(path.is_relative_to(root) and resolved.is_relative_to(root.resolve()) and
             subject in path.parts and subject in resolved.parts and 'ses-01' in resolved.parts and
             all(not part.startswith('sub-') or part == subject or part.startswith(subject+'_')
-                for part in resolved.parts), 'unexpected Doors source path or cross-participant alias')
-    require(path.is_file(), 'required Doors source file is missing')
+                for part in resolved.parts), 'unexpected source path or cross-participant alias')
+    if not path.is_file() or path.stat().st_size == 0:
+        raise InputUnavailable('missing_fitted_source')
     return path
 
 
@@ -124,13 +126,9 @@ def design_paths(scope, subject, task):
                      for name in ('design.fsf', 'design.con', 'design.mat')]
     values = parse_fsf(fsf)
     verify_l1(values, spec, rendered=True)
-    verify_design_con(con, spec)
-    design = np.loadtxt(mat.read_text().split('/Matrix', 1)[1].splitlines(), ndmin=2)
-    contrasts = np.loadtxt(con.read_text().split('/Matrix', 1)[1].splitlines(), ndmin=2)
-    require(design.shape[1] == contrasts.shape[1] and design.shape[0] > 1 and
-            np.isfinite(design).all(), 'invalid completed Doors design matrix')
-    projection = np.linalg.pinv(design) @ design
-    require(np.allclose(contrasts[:2] @ projection, contrasts[:2], atol=1e-7, rtol=0),
+    contrasts = verify_design_con(con, spec)
+    design = read_feat_matrix(mat)
+    require(estimable_contrasts(design, contrasts[:2]).all(),
             'win/loss contrasts not estimable in completed design')
     bold = Path(values.get('feat_files(1)', ''))
     require(bold.is_absolute() and bold.name.startswith(subject+'_ses-01_') and
