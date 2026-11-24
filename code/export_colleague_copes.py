@@ -98,8 +98,8 @@ def run_covariates(qc, subject, task, runs):
     return result
 
 
-def run_qc_reason(row):
-    """Use the measured coverage percentage and the original motion and tSNR flags."""
+def run_qc_reason(row, *, historical=False):
+    """Change only the coverage criterion in the historical comparison."""
     flags = [flag(row['fd_mean_outlier']), flag(row['tsnr_outlier'])]
     if True in flags:
         return 'motion_or_tsnr_outlier'
@@ -108,6 +108,11 @@ def run_qc_reason(row):
     coverage = row['brain_coverage_pct']
     if not 0 <= coverage <= 100:
         return 'unknown_qc'
+    if historical:
+        excluded = flag(row['brain_coverage_outlier'])
+        if excluded is None:
+            return 'unknown_qc'
+        return 'historical_coverage_outlier' if excluded else ''
     return 'coverage_below_95pct' if coverage < MIN_COVERAGE_PCT else ''
 
 
@@ -193,13 +198,12 @@ def fitted_maps(scope, subject, task, runs, indices):
     return images
 
 
-def select_maps(scope, qc, subject, task):
-    """Select one existing subject estimate per available condition from qualifying runs."""
+def qualifying_runs(scope, qc, subject, task, *, historical=False):
     scope['guard'].check([subject], scope['subjects'])
     if task == 'sharedreward':
         unit = scope['phase_index'].get(subject)
         if unit is None:
-            raise InputUnavailable('no_verified_phase_outcomes')
+            return (), 'no_verified_phase_outcomes'
         candidates = unit['runs']
     else:
         candidates = (1, 2) if task == 'trust' else (1,)
@@ -207,14 +211,19 @@ def select_maps(scope, qc, subject, task):
     passing, reasons = [], set()
     for r in candidates:
         key = (subject, task, r)
-        reason = run_qc_reason(qc.loc[key]) if key in qc.index else 'unknown_qc'
+        reason = run_qc_reason(qc.loc[key], historical=historical) if key in qc.index else 'unknown_qc'
         if reason:
             reasons.add(reason)
         else:
             passing.append(r)
-    runs = tuple(passing)
+    return tuple(passing), '+'.join(sorted(reasons))
+
+
+def select_maps(scope, qc, subject, task, *, historical=False):
+    """Select one existing subject estimate per available condition from qualifying runs."""
+    runs, reason = qualifying_runs(scope, qc, subject, task, historical=historical)
     if not runs:
-        raise InputUnavailable('+'.join(sorted(reasons)))
+        raise InputUnavailable(reason)
     indices = tuple(COPE_INDICES[task])
     try:
         images = fitted_maps(scope, subject, task, runs, indices)
@@ -469,6 +478,7 @@ def export(base, task_set, dry_run=False, qc_only=False):
             stage.rename(destination)
     archive = destination / 'subject_copes.zip'
     print(f'Verified {archive} ({archive.stat().st_size / 2**20:.1f} MiB)', flush=True)
+    return scope, qc, sources, rows
 
 
 if __name__ == '__main__':

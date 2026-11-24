@@ -2,11 +2,11 @@
 
 ## Private subject-level COPE package
 
-To prepare the outcome maps and image-level CSV on Linux2, use the existing analysis environment.
+To prepare the outcome maps, image-level CSV and group mask comparison on Linux2, use the existing analysis environment.
 
 ```bash
 cd /ZPOOL/data/projects/rf1-sra-neural-signature
-git pull --ff-only && python3 code/export_colleague_copes.py --tasks all
+git pull --ff-only && python3 code/review_colleague_masks.py --tasks all
 ```
 
 The exporter starts from everyone assigned to development in the frozen sample manifest. It checks the original and revised split records, removes all 62 people ever reserved for validation and applies current source exclusions before opening images. It then evaluates each task independently. For example, someone with a qualifying Social Doors run can contribute it even when their monetary Doors run failed QC.
@@ -22,9 +22,17 @@ Each Shared Reward or Trust condition uses the existing fixed-effects L2 when tw
 
 Each contributing run must cover **at least 95%** of the fixed MNI QC target, measured by `brain_coverage_pct`. The target excludes cerebellum and brainstem. The original one-sided 1.5-IQR flags still determine excessive motion (high mean FD) and low tSNR. Social and monetary Doors qualify independently. The archived N=192 and N=178 analyses used a stricter, paradigm-specific coverage outlier flag. Their 95% group mask specified the fraction of development participants covering each voxel.
 
-The launch first compares both coverage rules for the protected-pool-excluded development participants, before checking fitted images. It then prints participant and COPE counts for each task, the number with all four Doors maps, and the number with every requested contrast. Add `--qc-only` for the coverage comparison alone, or `--dry-run` for the full inventory without building the package. Use `--tasks doors` or `--tasks partners` to restrict the handoff.
+The launch first compares both coverage rules for the development participants remaining after protected and source exclusions, before checking fitted images. It then prints participant and COPE counts for each task, the number with all four Doors maps, and the number with every requested contrast. Use `--tasks doors` or `--tasks partners` to restrict the handoff.
 
 The verified ZIP is `work/colleague_exports/coverage95/all/subject_copes.zip` (the last directory matches `--tasks`). It contains a flat `images/` folder of signed COPEs, `images.csv` and a README with sample counts. The CSV records baseline age in years, tSNR, mean FD in mm and coverage in percent. Two-run summaries are the unweighted means of the contributing runs. It also records each run’s values, contrast name, source level, checksums and companion zstat availability. Flags identify the archived matched development samples. All participant-level outputs stay under Git-ignored `work/`. A repeat launch verifies an existing package against its sources.
+
+### Reviewing group coverage before sharing
+
+Open `reports/revised/coverage95_masks/all/REPORT.md` after the combined launch. The report contains both masks, anatomical overlays and signed change maps for each task, the two partner tasks together, the two Doors games together and all four tasks together. The table gives participant Ns, coverage of the full 2-mm MNI brain template, voxels lost and gained, the percentage of the historical mask retained, and Dice overlap. The regional table measures coverage in the historical cerebellum and brainstem region when its verified reference is available. Only the aggregate review directory belongs in Git for this handoff.
+
+Both arms start from the same locked development pool and fitted handoff sources. The historical arm uses the recorded coverage outlier flag. The revised arm requires ≥95% coverage per contributing run. Both use the same 95% **group** threshold, counting each person once from the FEAT masks of their selected COPEs. Single-task masks include everyone contributing at least one outcome. Cross-task masks require all requested outcome conditions and intersect support within each participant. The comparison uses the full archived analysis grid and independent TemplateFlow whole-brain mask. It uses existing fits and requires no classifier training or permutation runs.
+
+For the ZIP alone, or for the `--qc-only` and `--dry-run` inventory modes, use `python3 code/export_colleague_copes.py --tasks all`.
 
 ## Development analyses
 
