@@ -80,11 +80,16 @@ def colleague_data(cfg, monkeypatch):
                 ncols = len(con.splitlines()[1].split())
                 np.savetxt(folder/'design.mat', np.eye(ncols), header='/Matrix', comments='')
                 write_copes(folder, task, r)
+                coverage = 99.5 + .1*r
+                if si == 2 and task == 'trust' and r == 1:
+                    coverage = 94.999
+                if si == 1 and task in pack.DOORS:
+                    coverage = 95.0
                 quality.append(dict(subject=s, session='01', task=task, run=r, tsnr=100*ti + 10*r,
-                                    fd_mean=ti + .1*r, brain_coverage_pct=98 + .5*r,
+                                    fd_mean=ti + .1*r, brain_coverage_pct=coverage,
                                     tsnr_outlier=(si == 2 and task == 'doors'),
                                     fd_mean_outlier=(si == 1 and task == 'socialdoors'),
-                                    brain_coverage_outlier=(si == 2 and task == 'trust' and r == 1),
+                                    brain_coverage_outlier=coverage < 99.1,
                                     tedana_outlier=False))
             if len(runs) == 2:
                 output = phase_dir(c, s, 'L2') if task == 'sharedreward' else feat_dir(c, s, task, 'L2')
@@ -126,12 +131,12 @@ def test_private_folder_csv_and_zip_match_frozen_inputs(cfg, colleague_data, mon
         return original_load(file, *args, **kwargs)
 
     monkeypatch.setattr(nib, 'load', authorized_load)
-    old_zip = cfg.output('work/colleague_exports/all/subject_copes.zip')
+    old_zip = cfg.output('work/colleague_exports/taskwise/all/subject_copes.zip')
     old_zip.parent.mkdir(parents=True)
     old_zip.write_bytes(b'previous matched release')
     pack.export(cfg, 'all')
     assert old_zip.read_bytes() == b'previous matched release'
-    out = cfg.output('work/colleague_exports/taskwise/all')
+    out = cfg.output('work/colleague_exports/coverage95/all')
     with (out/'images.csv').open(newline='') as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 38 and {r['participant_id'] for r in rows} == set(people[:3])
@@ -161,10 +166,10 @@ def test_private_folder_csv_and_zip_match_frozen_inputs(cfg, colleague_data, mon
         if row['task'] == 'trust' and row['participant_id'] in people[:2]:
             assert row['source_level'] == 'L2' and row['retained_runs'] == '1,2'
             assert float(row['tsnr']) == 115 and float(row['fd_mean']) == pytest.approx(1.15)
-            assert float(row['brain_coverage_pct']) == 98.75
+            assert float(row['brain_coverage_pct']) == pytest.approx(99.65)
         if row['task'] == 'trust' and row['participant_id'] == people[2]:
             assert row['source_level'] == 'L1' and row['retained_runs'] == '2'
-            assert row['brain_coverage_pct_run1'] == '' and float(row['brain_coverage_pct']) == 99
+            assert row['brain_coverage_pct_run1'] == '' and float(row['brain_coverage_pct']) == 99.7
             assert float(row['tsnr']) == 120 and float(row['fd_mean']) == 1.2
         if row['task'] in pack.DOORS:
             assert row['source_level'] == 'L1' and row['retained_runs'] == '1'
@@ -192,7 +197,7 @@ def test_heldout_source_alias_stops_before_voxels_or_package(cfg, colleague_data
     monkeypatch.setattr(nib, 'load', lambda *a, **kw: pytest.fail('Opened a protected input'))
     with pytest.raises(PipelineError, match='cross-participant alias'):
         pack.export(cfg, 'doors')
-    assert not cfg.output('work/colleague_exports/taskwise/doors').exists()
+    assert not cfg.output('work/colleague_exports/coverage95/doors').exists()
 
 
 def test_missing_person_lock_stops_before_source_access(cfg, monkeypatch):
@@ -203,7 +208,8 @@ def test_missing_person_lock_stops_before_source_access(cfg, monkeypatch):
 
 def test_single_usable_run_without_l2(cfg, colleague_data):
     scope = pack.export_scope(cfg)
-    _, qc = pack.covariates(cfg, scope['subjects'])
+    ages = pack.baseline_ages(cfg, scope['subjects'])
+    qc = pack.frozen_run_qc(cfg, scope['subjects'])
     subject = colleague_data[0][0]
     task = 'trust'
     c = scope['c']
@@ -211,7 +217,7 @@ def test_single_usable_run_without_l2(cfg, colleague_data):
     images, missing = pack.select_maps(scope, qc, subject, task)
     assert missing == {4: 'two_usable_L1s_without_L2'}
     assert set(images) == set(range(5, 10)) and all(im.runs == (1, 2) for im in images.values())
-    _, rows = pack.image_plan(cfg, ('trust',))
+    _, rows = pack.image_plan(cfg, ('trust',), scope, ages, qc)
     partial = [r for r in rows if r['participant_id'] == subject]
     assert len(partial) == 5 and not any(r['complete_task_conditions'] for r in partial)
     (feat_dir(c, subject, task, 'L1', 1)/'stats/cope4.nii.gz').unlink()
@@ -219,7 +225,7 @@ def test_single_usable_run_without_l2(cfg, colleague_data):
     assert not missing and len(images) == 6
     assert images[4].runs == (2,) and images[5].runs == (1, 2)
     assert images[4].path == feat_dir(c, subject, task, 'L1', 2)/'stats/cope4.nii.gz'
-    _, rows = pack.image_plan(cfg, ('trust',))
+    _, rows = pack.image_plan(cfg, ('trust',), scope, ages, qc)
     mixed = {r['cope_index']: r for r in rows if r['participant_id'] == subject}
     assert all(r['complete_task_conditions'] for r in mixed.values())
     assert mixed[4]['tsnr'] == 120 and mixed[5]['tsnr'] == 115
@@ -228,7 +234,7 @@ def test_single_usable_run_without_l2(cfg, colleague_data):
 
 def test_unknown_qc_and_unestimable_single_run(cfg, colleague_data, monkeypatch):
     scope = pack.export_scope(cfg)
-    _, qc = pack.covariates(cfg, scope['subjects'])
+    qc = pack.frozen_run_qc(cfg, scope['subjects'])
     subject = colleague_data[0][0]
     task = 'socialdoors'
     key = (subject, task, 1)
@@ -251,3 +257,30 @@ def test_unknown_qc_and_unestimable_single_run(cfg, colleague_data, monkeypatch)
     np.savetxt(mat, design, header='/Matrix', comments='')
     images, missing = pack.select_maps(scope, qc, subject, task)
     assert set(images) == {2} and missing == {1: 'no_existing_estimable_cope'}
+
+
+def test_coverage95_replaces_only_coverage_flag_and_counts_distinct_people(cfg, colleague_data, monkeypatch):
+    people, _ = colleague_data
+    scope = pack.export_scope(cfg)
+    qc = pack.frozen_run_qc(cfg, scope['subjects'])
+    row = qc.loc[(people[1], 'doors', 1)].copy()
+    assert row['brain_coverage_pct'] == 95 and row['brain_coverage_outlier'] == 'True'
+    assert not pack.run_qc_reason(row)
+    row['brain_coverage_outlier'] = ''
+    assert not pack.run_qc_reason(row)
+    row['brain_coverage_pct'] = 94.999
+    row['brain_coverage_outlier'] = 'False'
+    assert pack.run_qc_reason(row) == 'coverage_below_95pct'
+    for unknown in (np.nan, np.inf, 101, -1):
+        row['brain_coverage_pct'] = unknown
+        assert pack.run_qc_reason(row) == 'unknown_qc'
+    summary = pack.coverage_review(qc, pack.TASK_SETS['all']).set_index('task')
+    total = summary.loc['Combined']
+    assert (total.old_runs, total.old_people, total.below95_runs, total.below95_people) == (3, 2, 1, 1)
+    assert total.regained_runs == 2 and total.regained_people == 1 and total.regained_passing_other_qc == 1
+    assert summary.loc['socialdoors', 'regained_passing_other_qc'] == 0
+    assert summary.loc['doors', 'regained_passing_other_qc'] == 1
+    monkeypatch.setattr(nib, 'load', lambda *a, **kw: pytest.fail('QC comparison opened an image'))
+    monkeypatch.setattr(pack, 'baseline_ages', lambda *a: pytest.fail('QC comparison requested demographics'))
+    pack.export(cfg, 'all', qc_only=True)
+    assert not cfg.output('work/colleague_exports/coverage95/all').exists()

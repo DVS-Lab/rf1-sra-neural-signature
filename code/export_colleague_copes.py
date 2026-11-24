@@ -17,12 +17,12 @@ import pandas as pd
 from threadpoolctl import threadpool_limits
 
 from doors_voxelwise import QC_COMMIT, frozen_development_rows, frozen_qc_tables, source_path
-from final_stress_sources import guard_path, phase_dir, phase_index, phase_spec, qc_reason
+from final_stress_sources import guard_path, phase_dir, phase_index, phase_spec
 from inventory import feat_dir, header_info
 from preflight import estimable_contrasts, parse_fsf, read_feat_matrix, verify_design_con, verify_l1, verify_l2
 from revised_design import revised_config
 from revised_samples import RevisedGuard
-from review_qc_attrition import normalized_qc
+from review_qc_attrition import flag, normalized_qc
 from utils import InputUnavailable, PipelineError, load_config, sha256
 
 
@@ -34,6 +34,7 @@ COPE_INDICES = {'sharedreward': range(1, 7), 'trust': range(4, 10),
 PARTNER_NAMES = {'C': 'computer', 'F': 'friend', 'S': 'stranger'}
 OUTCOMES = {'pun': 'punishment', 'rew': 'reward', 'def': 'defection', 'rec': 'reciprocation'}
 QC_METRICS = ('tsnr', 'fd_mean', 'brain_coverage_pct')
+MIN_COVERAGE_PCT = 95.0
 
 
 @dataclass(frozen=True)
@@ -63,7 +64,7 @@ def export_scope(base):
     return dict(c=revised_config(base), guard=guard, subjects=people, paper_pair=pair, paper_three=doors)
 
 
-def covariates(base, people):
+def baseline_ages(base, people):
     age_column = base.paths['age_column']
     ages = pd.read_csv(base.bids / 'participants.tsv', sep='\t', dtype=str,
                        usecols=['participant_id', age_column], keep_default_na=False)
@@ -72,6 +73,10 @@ def covariates(base, people):
     ages = pd.to_numeric(ages[age_column].replace({'n/a': np.nan, '': np.nan}), errors='raise')
     if not np.isfinite(ages.dropna()).all():
         raise PipelineError('Invalid age in BIDS participants.tsv')
+    return ages.reindex(people)
+
+
+def frozen_run_qc(base, people):
     frozen, _, _ = frozen_qc_tables(base)
     qc = pd.read_csv(BytesIO(frozen), sep='\t', dtype=str, keep_default_na=False)
     ids = {s.removeprefix('sub-') for s in people}
@@ -80,7 +85,7 @@ def covariates(base, people):
         if metric not in qc:
             raise PipelineError(f'Frozen run-level QC table lacks {metric}')
         qc[metric] = pd.to_numeric(qc[metric], errors='coerce')
-    return ages.reindex(people), qc
+    return qc
 
 
 def run_covariates(qc, subject, task, runs):
@@ -91,6 +96,45 @@ def run_covariates(qc, subject, task, runs):
         for r in (1, 2):
             result[f'{metric}_run{r}'] = values.get(r, '')
     return result
+
+
+def run_qc_reason(row):
+    """Use the measured coverage percentage and the original motion and tSNR flags."""
+    flags = [flag(row['fd_mean_outlier']), flag(row['tsnr_outlier'])]
+    if True in flags:
+        return 'motion_or_tsnr_outlier'
+    if None in flags or not np.isfinite([row[k] for k in QC_METRICS]).all():
+        return 'unknown_qc'
+    coverage = row['brain_coverage_pct']
+    if not 0 <= coverage <= 100:
+        return 'unknown_qc'
+    return 'coverage_below_95pct' if coverage < MIN_COVERAGE_PCT else ''
+
+
+def coverage_review(qc, tasks):
+    """Count runs and distinct people in the guarded inventory before checking fitted COPEs."""
+    frame = qc.reset_index()
+    expected_run = frame.run.eq(1) | (frame.task.isin(PARTNERS) & frame.run.eq(2))
+    frame = frame[frame.task.isin(tasks) & expected_run].copy()
+    measured = frame.brain_coverage_pct.between(0, 100)
+    frame['old_fail'] = measured & frame.brain_coverage_outlier.map(flag).eq(True)
+    frame['below_95'] = measured & frame.brain_coverage_pct.lt(MIN_COVERAGE_PCT)
+    frame['regained'] = frame.old_fail & measured & ~frame.below_95
+    frame['pass_after_change'] = [not run_qc_reason(r) for _, r in frame.iterrows()]
+    frame['unknown_coverage'] = ~measured
+    rows = []
+    for task in (*tasks, 'Combined'):
+        g = frame if task == 'Combined' else frame[frame.task.eq(task)]
+        rows.append(dict(task=task, measured_runs=int((~g.unknown_coverage).sum()),
+                         old_runs=int(g.old_fail.sum()),
+                         old_people=g.loc[g.old_fail, 'subject'].nunique(),
+                         below95_runs=int(g.below_95.sum()),
+                         below95_people=g.loc[g.below_95, 'subject'].nunique(),
+                         regained_runs=int(g.regained.sum()),
+                         regained_people=g.loc[g.regained, 'subject'].nunique(),
+                         regained_passing_other_qc=int((g.regained & g.pass_after_change).sum()),
+                         unknown_coverage=int(g.unknown_coverage.sum())))
+    return pd.DataFrame(rows)
 
 
 def fitted_maps(scope, subject, task, runs, indices):
@@ -162,9 +206,8 @@ def select_maps(scope, qc, subject, task):
 
     passing, reasons = [], set()
     for r in candidates:
-        reason = qc_reason(qc, subject, task, (r,))
-        if not reason and not np.isfinite(qc.loc[(subject, task, r), list(QC_METRICS)].to_numpy(dtype=float)).all():
-            reason = 'unknown_qc'
+        key = (subject, task, r)
+        reason = run_qc_reason(qc.loc[key]) if key in qc.index else 'unknown_qc'
         if reason:
             reasons.add(reason)
         else:
@@ -220,9 +263,7 @@ def overlap_text(participants, complete):
     return text
 
 
-def image_plan(base, tasks):
-    scope = export_scope(base)
-    ages, qc = covariates(base, scope['subjects'])
+def image_plan(base, tasks, scope, ages, qc):
     if 'sharedreward' in tasks:
         scope['phase_index'] = phase_index(scope)
     sources, rows, participants, complete = [], [], {}, {}
@@ -294,7 +335,7 @@ def write_cope(source, target):
         raise PipelineError(f'Export changed COPE values or geometry in {target.name}')
 
 
-def release_notes(rows, tasks):
+def release_notes(rows, tasks, coverage_counts):
     people = {r['participant_id'] for r in rows}
     missing_age = len({r['participant_id'] for r in rows if r['age'] == ''})
     descriptions = {'sharedreward': 'Shared Reward, phase-resolved reward and punishment',
@@ -315,8 +356,9 @@ def release_notes(rows, tasks):
             + '\n'.join(task_lines) + '\n\n' + overlap_text(participants, complete) + '\n\n'
             'Each row of images.csv identifies one signed effect-estimate NIfTI in images/. '
             'Use participant_id to pair images across conditions and tasks. The in_paper_partner_pair '
-            'and in_paper_three_paradigm columns identify membership in the paper’s frozen '
-            'N=192 and N=178 primary-QC development samples, respectively. '
+            'and in_paper_three_paradigm columns identify membership in the archived N=192 '
+            'and N=178 development analyses, respectively. Those analyses used the historical '
+            'paradigm-specific coverage outlier flag. '
             'complete_task_conditions indicates that this person has every listed condition for this task. '
             'cope_index is the condition contrast number in the run design. '
             'Each condition uses its fitted fixed-effects L2 for two qualifying runs or its L1 for a '
@@ -328,14 +370,20 @@ def release_notes(rows, tasks):
             'tsnr (temporal signal-to-noise ratio) and fd_mean (mean framewise displacement in mm) '
             'come from MRIQC. brain_coverage_pct is the percentage of the fixed MNI QC target '
             'covered by the fMRIPrep run mask. The target excludes cerebellum and brainstem. '
-            'The primary QC rule uses one-sided 1.5-IQR fences within paradigm. High fd_mean, low '
-            'brain_coverage_pct or low tsnr excludes a run. The Doors games share fences and each run '
-            'is assessed separately. A run needs known, passing values on all three metrics. '
+            'This export requires brain_coverage_pct of at least 95.0 for each contributing run. '
+            'High fd_mean or low tsnr excludes a run using the original one-sided 1.5-IQR fences '
+            'within paradigm. The Doors games share motion and tSNR fences. Each run needs known, '
+            'passing values on all three metrics. The COPEs retain their fitted spatial extent. '
             'Each summary is the unweighted mean over the contributing runs. '
             'The run1 and run2 columns preserve their individual values. A blank run field means the run '
             f'did not contribute. QC uses the original rf1-sra-linux2 snapshot {QC_COMMIT}.\n\n'
             'source_zstat_available records existence of a companion FEAT Z-statistic. '
-            'source_sha256 identifies the input COPE and sha256 verifies the distributed file.\n')
+            'source_sha256 identifies the input COPE and sha256 verifies the distributed file.\n\n'
+            '## Development coverage comparison\n\n'
+            'These counts cover session 01 QC records after protected and source exclusions, '
+            'before checking fitted contrast availability. A person can have several failing runs. '
+            'The combined row counts each person once per rule.\n\n'
+            + '```text\n' + coverage_counts.to_string(index=False) + '\n```\n')
 
 
 def verify_package(directory, rows, notes):
@@ -369,19 +417,29 @@ def verify_package(directory, rows, notes):
                 raise PipelineError(f'Packaged COPE checksum mismatch: {name}')
 
 
-def export(base, task_set, dry_run=False):
-    relative = Path('work/colleague_exports/taskwise') / task_set
+def export(base, task_set, dry_run=False, qc_only=False):
+    relative = Path('work/colleague_exports/coverage95') / task_set
     destination = base.output(relative)
     if destination != base.root / relative:
         raise PipelineError('The private export location resolves outside its designated work folder')
+    tasks = TASK_SETS[task_set]
+    scope = export_scope(base)
+    qc = frozen_run_qc(base, scope['subjects'])
+    coverage_counts = coverage_review(qc, tasks)
+    print('Development baseline coverage: historical boxplot flag versus coverage <95%, before map selection.',
+          flush=True)
+    print(coverage_counts.to_string(index=False), flush=True)
+    if qc_only:
+        return
+    ages = baseline_ages(base, scope['subjects'])
     # The FEAT matrices are small. A single BLAS thread avoids oversubscribing Linux2.
     with threadpool_limits(limits=1, user_api='blas'):
-        sources, rows = image_plan(base, TASK_SETS[task_set])
+        sources, rows = image_plan(base, tasks, scope, ages, qc)
     print(f'{len(rows)} subject-level COPEs. Companion zstats present for '
           f'{sum(r["source_zstat_available"] for r in rows)}/{len(rows)}.', flush=True)
     if dry_run:
         return
-    notes = release_notes(rows, TASK_SETS[task_set])
+    notes = release_notes(rows, tasks, coverage_counts)
     if destination.exists():
         verify_package(destination, rows, notes)
     else:
@@ -416,9 +474,11 @@ def export(base, task_set, dry_run=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--tasks', choices=tuple(TASK_SETS), default='all')
-    parser.add_argument('--dry-run', action='store_true', help='Check source maps and metadata without writing a package')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--dry-run', action='store_true', help='Check source maps and metadata without writing a package')
+    mode.add_argument('--qc-only', action='store_true', help='Compare run coverage rules without opening any images')
     args = parser.parse_args()
     try:
-        export(load_config(), args.tasks, args.dry_run)
+        export(load_config(), args.tasks, args.dry_run, args.qc_only)
     except (PipelineError, OSError, ValueError, BadZipFile) as exc:
         sys.exit(f'Export stopped: {exc}')
